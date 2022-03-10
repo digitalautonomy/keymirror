@@ -4,6 +4,18 @@ jobs:
   test-keymirror:
     name: test-keymirror
     runs-on: ubuntu-latest
+
+    env:
+      GOPATH: ${{ github.workspace }}
+      GO111MODULE: off
+
     steps:
-      - run: make test
+
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+
+      - name: execute tests
+        run: make test
       
