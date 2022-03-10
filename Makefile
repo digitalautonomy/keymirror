@@ -10,7 +10,7 @@ GOBUILD := $(GO) build
 GOTEST := $(GO) test
 
 
-.PHONY := default clean
+.PHONY := default clean test
 
 default: $(BINARY)
 
@@ -22,3 +22,6 @@ $(BINARY): $(BUILD_DIR) $(SOURCE_FILES)
 
 clean: 
 	$(RM) -r $(BUILD_DIR)
+
+test:
+	$(GOTEST)
