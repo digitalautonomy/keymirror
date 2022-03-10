@@ -1,0 +1,9 @@
+name: KeyMirror
+on: [push]
+jobs:
+  test-keymirror:
+    name: test-keymirror
+    runs-on: ubuntu-latest
+    steps:
+      - run: make test
+      
