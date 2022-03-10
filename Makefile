@@ -25,3 +25,8 @@ clean:
 
 test:
 	$(GOTEST)
+
+coverage:
+	$(GOTEST) -cover -coverprofile coverlog || true
+	$(GO) tool cover -html coverlog
+	$(RM) coverlog
