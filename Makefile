@@ -5,7 +5,12 @@ BINARY := $(BUILD_DIR)/keymirror
 GO_FILES := *.go
 SOURCE_FILES := $(GO_FILES)
 
-.PHONY := default
+GO := go
+GOBUILD := $(GO) build
+GOTEST := $(GO) test
+
+
+.PHONY := default clean
 
 default: $(BINARY)
 
@@ -13,4 +18,7 @@ $(BUILD_DIR):
 	mkdir -p $@
 
 $(BINARY): $(BUILD_DIR) $(SOURCE_FILES)
-	go build -o $@
+	$(GOBUILD) -o $@
+
+clean: 
+	$(RM) -r $(BUILD_DIR)
