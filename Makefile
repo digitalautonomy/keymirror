@@ -42,4 +42,4 @@ ci-deps:
 	$(GOINSTALL) github.com/mattn/goveralls@latest
 
 ci-upload-coverage: $(COVERPROFILE) ci-deps
-	goveralls -coverprofile=$(COVERPROFILE) -service=github
+	goveralls -coverprofile=$(COVERPROFILE)
