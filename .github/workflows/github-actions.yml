@@ -1,12 +1,14 @@
-name: KeyMirror
+name: CI
+
 on: [push]
+
 jobs:
-  test-keymirror:
-    name: test-keymirror
+
+  test-linux:
+    name: Runs unit tests on Linux
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/checkout@v3       
 
       - uses: actions/setup-go@v2
