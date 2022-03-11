@@ -17,8 +17,16 @@ jobs:
           stable: 'false'
           go-version: '1.18.0-rc1'
       
+      - name: install ci dependencies
+        run: make ci-deps
+
       - name: execute tests
-        run: make test
+        run: make ci-test
+        
+      - name: upload coverage information
+        run: make ci-upload-coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
       
   build-linux:
     name: Make the executable for Linux
