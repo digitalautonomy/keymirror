@@ -6,6 +6,7 @@ jobs:
 
   test-linux:
     name: Runs unit tests on Linux
+    needs: build-linux
     runs-on: ubuntu-latest
 
     steps:
@@ -19,3 +20,17 @@ jobs:
       - name: execute tests
         run: make test
       
+  build-linux:
+    name: Make the executable for Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3       
+
+      - uses: actions/setup-go@v2
+        with:
+          stable: 'false'
+          go-version: '1.18.0-rc1'
+
+      - name: build
+        run: make build/keymirror
