@@ -3,37 +3,36 @@ name: CI
 on: [push]
 
 jobs:
-
   test-linux:
     name: Runs unit tests on Linux
     needs: build-linux
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3       
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-go@v2
         with:
           stable: 'false'
           go-version: '1.18.0-rc1'
-      
+
       - name: install ci dependencies
         run: make ci-deps
 
       - name: execute tests
         run: make ci-test
-        
+
       - name: upload coverage information
         run: make ci-upload-coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-      
+
   build-linux:
     name: Make the executable for Linux
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3       
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-go@v2
         with:

@@ -22,7 +22,7 @@ $(BUILD_DIR):
 $(BINARY): $(BUILD_DIR) $(SOURCE_FILES)
 	$(GOBUILD) -o $@
 
-clean: 
+clean:
 	$(RM) -r $(BUILD_DIR)
 
 test:
@@ -42,4 +42,4 @@ ci-deps:
 	$(GOINSTALL) github.com/mattn/goveralls@latest
 
 ci-upload-coverage: $(COVERPROFILE) ci-deps
-	goveralls -coverprofile=$(COVERPROFILE) -service=github -reponame=digitalautonomy/keymirror
+	goveralls -coverprofile=$(COVERPROFILE)
