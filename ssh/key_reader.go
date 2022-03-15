@@ -3,6 +3,8 @@ package ssh
 import (
 	"io/fs"
 	"io/ioutil"
+	"regexp"
+	"strings"
 )
 
 func listFilesIn(dir string) []string {
@@ -12,15 +14,26 @@ func listFilesIn(dir string) []string {
 }
 
 type Key struct {
-	t string
+	t       string
+	key     string
+	comment string
 }
 
 func parsePublicKey(k string) (Key, bool) {
-	if k != "" {
-		return Key{"ssh-rsa"}, true
+	fields := regexp.MustCompile("[[:space:]]+").Split(strings.TrimSpace(k), 3)
+
+	if len(fields) == 1 {
+		return Key{}, false
 	}
 
-	return Key{}, false
+	if hasComment(fields) {
+		return Key{t: fields[0], key: fields[1], comment: fields[2]}, true
+	}
+	return Key{t: fields[0], key: fields[1]}, true
+}
+
+func hasComment(fields []string) bool {
+	return len(fields) == 3
 }
 
 // TODO
