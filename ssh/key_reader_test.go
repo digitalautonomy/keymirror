@@ -47,12 +47,12 @@ func (s *sshSuite) Test_ParseAStringAsAnSSHPublicKeyRepresentation() {
 	k = "ssh-rsa bla batman@debian"
 	pub, ok := parsePublicKey(k)
 	s.Require().True(ok, "Should parse a valid SSH RSA public key representation")
-	s.Equal("ssh-rsa", pub.t)
+	s.Equal("ssh-rsa", pub.algorithm)
 
 	k = "ssh-ecdsa bla2 robin@debian"
 	pub, ok = parsePublicKey(k)
 	s.Require().True(ok, "Should parse a valid SSH public key representation with a different key type")
-	s.Equal("ssh-ecdsa", pub.t)
+	s.Equal("ssh-ecdsa", pub.algorithm)
 
 	k = "ssh-rsa"
 	_, ok = parsePublicKey(k)
@@ -83,4 +83,15 @@ func (s *sshSuite) Test_ParseAStringAsAnSSHPublicKeyRepresentation() {
 	k = "ssh-rsa AAQQ"
 	_, ok = parsePublicKey(k)
 	s.True(ok, "An SSH public key without a comment is still acceptable")
+}
+
+func (s *sshSuite) Test_CheckIfTheTypeIdentifierIsSSHRSA() {
+	pub := publicKey{}
+	s.False(pub.isRSA(), "An empty key is not an RSA key")
+
+	pub = publicKey{algorithm: rsaAlgorithm}
+	s.True(pub.isRSA(), "A key with the algorithm identifier ssh-rsa is an RSA key")
+
+	pub = publicKey{algorithm: "ssh-ecdsa"}
+	s.False(pub.isRSA(), "A key with the algorithm identifier ssh-ecdsa is not an RSA key")
 }
