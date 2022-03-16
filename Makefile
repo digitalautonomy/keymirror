@@ -26,15 +26,15 @@ clean:
 	$(RM) -r $(BUILD_DIR)
 
 test:
-	$(GOTEST)
+	$(GOTEST) ./...
 
 coverage:
-	$(GOTEST) -cover -coverprofile coverlog || true
+	$(GOTEST) -cover -coverprofile coverlog ./... || true
 	$(GO) tool cover -html coverlog
 	$(RM) coverlog
 
 $(COVERPROFILE):
-	$(GOTEST) -cover -coverprofile $@
+	$(GOTEST) -cover -coverprofile $@ ./...
 
 ci-test: $(COVERPROFILE)
 
