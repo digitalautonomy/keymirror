@@ -105,5 +105,4 @@ func (s *sshSuite) Test_CheckIfAStringHasTheFormatOfAnRSAPublicKey() {
 
 	k = "ssh-ecdsa AAQQ"
 	s.False(isRSAPublicKey(k), "A string with the algorithm identifier ssh-ecdsa is not an RSA key")
-
 }

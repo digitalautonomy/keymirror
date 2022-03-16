@@ -3,8 +3,6 @@ package ssh
 import (
 	"io/fs"
 	"io/ioutil"
-	"regexp"
-	"strings"
 )
 
 func listFilesIn(dir string) []string {
@@ -29,27 +27,11 @@ func (k *publicKey) isRSA() bool {
 	return k.isAlgorithm(rsaAlgorithm)
 }
 
-var whitespace = regexp.MustCompile("[[:space:]]+")
-
-func parsePublicKey(k string) (publicKey, bool) {
-	fields := whitespace.Split(strings.TrimSpace(k), 3)
-
-	if len(fields) == 1 {
-		return publicKey{}, false
-	}
-
-	if hasComment(fields) {
-		return publicKey{algorithm: fields[0], key: fields[1], comment: fields[2]}, true
-	}
-	return publicKey{algorithm: fields[0], key: fields[1]}, true
-}
-
-func hasComment(fields []string) bool {
-	return len(fields) == 3
-}
-
 func isRSAPublicKey(k string) bool {
-	pub, _ := parsePublicKey(k)
+	pub, ok := parsePublicKey(k)
+	if !ok {
+		return false
+	}
 	return pub.isRSA()
 }
 
