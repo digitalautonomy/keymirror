@@ -48,10 +48,15 @@ func hasComment(fields []string) bool {
 	return len(fields) == 3
 }
 
+func isRSAPublicKey(k string) bool {
+	pub, _ := parsePublicKey(k)
+	return pub.isRSA()
+}
+
 // TODO
 // - with a list of file names
 //   - determine which are RSA public keys
-//     - determine if a string has the format of an RSA public key
+//     - determine if a string has the format of an RSA public key ✓
 //        - try to parse string into SSH public key representation ✓
 //		  - check if the type identifier is ssh-rsa ✓
 //	   - read string from a file, and check if that string is RSA
