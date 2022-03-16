@@ -15,5 +15,6 @@ func TestMainSuite(t *testing.T) {
 }
 
 func (s *mainSuite) Test_AlwaysSucceeds() {
+	main()
 	s.Equal(1, 1)
 }
