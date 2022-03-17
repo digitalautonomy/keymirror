@@ -41,7 +41,7 @@ func isRSAPublicKey(k string) bool {
 //     - determine if a string has the format of an RSA public key ✓
 //        - try to parse string into SSH public key representation ✓
 //		  - check if the type identifier is ssh-rsa ✓
-//	   - read string from a file, and check if that string is RSA
+//	   - read string from a file, and check if that string is RSA ✓
 //   - determine which are RSA private keys
 //   - determine if there are duplicates
 //   - pair public and private keys to each other based on file name
