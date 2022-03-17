@@ -12,27 +12,29 @@ import (
 
 type sshSuite struct {
 	suite.Suite
+	tdir string
 }
 
 func TestSSHSuite(t *testing.T) {
 	suite.Run(t, new(sshSuite))
 }
+func (s *sshSuite) SetupTest() {
+	s.tdir = s.T().TempDir()
+}
 
 func (s *sshSuite) Test_ListsAllTheFilesInSpecifiedDirectory() {
-	dir := s.T().TempDir()
-
 	r := rand.Int()
 
 	expected := []string{"id_rsa.pub", fmt.Sprintf("id_rsa%d", r)}
 
 	for _, f := range expected {
-		file := filepath.Join(dir, f)
+		file := filepath.Join(s.tdir, f)
 		err := os.WriteFile(file, []byte("some content"), 0666)
 
 		s.Nil(err)
 	}
 
-	s.Equal(expected, listFilesIn(dir))
+	s.Equal(expected, listFilesIn(s.tdir))
 }
 
 func (s *sshSuite) Test_ListsNoFilesInADirectoryThatDoesntExist() {
