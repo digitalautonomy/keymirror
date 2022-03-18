@@ -56,3 +56,10 @@ func filter[T any](v []T, f predicate[T]) []T {
 	}
 	return res
 }
+
+func ignoringErrors[T, R any](f func(T) (R, error)) func(T) R {
+	return func(s T) R {
+		b, _ := f(s)
+		return b
+	}
+}
