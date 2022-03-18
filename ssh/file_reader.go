@@ -16,3 +16,7 @@ func checkIfFileContainsASpecificValue(fileName string, f predicate[string]) (bo
 
 	return f(string(content)), nil
 }
+
+func selectFilesContainingRSAPublicKeys(fileNameList []string) []string {
+	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPublicRSAKey))
+}
