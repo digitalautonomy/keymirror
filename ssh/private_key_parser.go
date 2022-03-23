@@ -10,6 +10,14 @@ type privateKey struct {
 	algorithm string
 }
 
+func (k *privateKey) isAlgorithm(algo string) bool {
+	return k.algorithm == algo
+}
+
+func (k *privateKey) isRSA() bool {
+	return k.isAlgorithm(rsaAlgorithm)
+}
+
 func readBytes(input []byte, n int) (read []byte, rest []byte, ok bool) {
 	if len(input) < n {
 		return

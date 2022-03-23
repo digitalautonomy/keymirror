@@ -113,7 +113,7 @@ func (s *sshSuite) withDirectory(names ...string) []string {
 	})
 }
 
-func (s *sshSuite) Test_selectFilesContainingRSAPublicKeys_ReturnsAListWithSeveralFileNamesThatConteinsRSAKey() {
+func (s *sshSuite) Test_selectFilesContainingRSAPublicKeys_ReturnsAListWithSeveralFileNamesThatContainsRSAKey() {
 	// Given
 	s.createFileWithContent(s.tdir, "key_file1", "ssh-rsa AAAA batman@debian")
 	s.createFileWithContent(s.tdir, "key_file2", "ssh-ecdsa AAAA batman@debian")
@@ -128,4 +128,113 @@ func (s *sshSuite) Test_selectFilesContainingRSAPublicKeys_ReturnsAListWithSever
 	// Then
 	expected := s.withDirectory("key_file1", "key_file3")
 	s.Equal(expected, selected)
+}
+
+func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAnEmptyListIsProvided() {
+	fileNameList := []string{}
+
+	selected := selectFilesContainingRSAPrivateKeys(fileNameList)
+
+	s.Empty(selected)
+}
+
+func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithANonExistingFileIsProvided() {
+	fileNameList := []string{"File that doesn't exist"}
+
+	selected := selectFilesContainingRSAPrivateKeys(fileNameList)
+
+	s.Empty(selected)
+}
+
+func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithAnEmptyFileIsProvided() {
+	// Given
+	fileName := "Empty file"
+	s.createEmptyFile(s.tdir, fileName)
+	fileNameList := []string{filepath.Join(s.tdir, fileName)}
+
+	// When
+	selected := selectFilesContainingRSAPrivateKeys(fileNameList)
+
+	// Then
+	s.Empty(selected)
+}
+
+func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithAFileThatDoesntContainAnRSAPublicKeyIsProvided() {
+	// Given
+	fileName := "Empty file"
+	s.createFileWithContent(s.tdir, fileName, "not a RSA public key")
+	fileNameList := []string{filepath.Join(s.tdir, fileName)}
+
+	// When
+	selected := selectFilesContainingRSAPrivateKeys(fileNameList)
+
+	// Then
+	s.Empty(selected)
+}
+
+func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithOneFileNameIfAListWithAFileThatContainsAnRSAPublicKeyIsProvided() {
+	// Given
+	fileName := "File-with-content"
+	s.createFileWithContent(s.tdir, fileName, correctRSASSHPrivateKey)
+	fileNameList := []string{filepath.Join(s.tdir, fileName)}
+
+	// When
+	selected := selectFilesContainingRSAPrivateKeys(fileNameList)
+
+	// Then
+	s.Equal(selected, []string{filepath.Join(s.tdir, fileName)})
+}
+
+func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithSeveralFileNamesThatContainsRSAKey() {
+	// Given
+	s.createFileWithContent(s.tdir, "key_file1", correctECDSASSHPrivateKey)
+	s.createFileWithContent(s.tdir, "key_file2", correctRSASSHPrivateKey)
+	s.createEmptyFile(s.tdir, "key_file3")
+	s.createFileWithContent(s.tdir, "key_file4", correctRSASSHPrivateKeyOther)
+
+	fileList := s.withDirectory("key_file1", "key_file2", "key_file3", "key_file4", "key_file5")
+
+	// When
+	selected := selectFilesContainingRSAPrivateKeys(fileList)
+
+	// Then
+	expected := s.withDirectory("key_file2", "key_file4")
+	s.Equal(expected, selected)
+}
+
+func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_returnsAnErrorWhenFileDoesntExist() {
+	fileName := "a-file-that-doesnt-exist"
+
+	_, err := checkIfFileContainsAPrivateRSAKey(fileName)
+
+	s.True(os.IsNotExist(err), "Function should generate an error indicating the file doesn`t exist")
+}
+
+func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_doesNotReturnErrorWhenFileExists() {
+	fileName := "a file that should exist"
+	s.createEmptyFile(s.tdir, fileName)
+
+	_, err := checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
+
+	s.Nil(err)
+}
+
+func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_ReturnsFalseWhenTheFileContentIsNotAnRSAPrivateKey() {
+	fileName := "a file without an RSA Private Key"
+	s.createFileWithContent(s.tdir, fileName, "not an RSA Private Key")
+
+	b, err := checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
+
+	s.Nil(err)
+	s.False(b)
+}
+
+func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_ReturnsTrueWhenTheFileContentIsAnRSAPrivateKey() {
+	fileName := "a file with a valid RSA Private Key"
+	s.createFileWithContent(s.tdir, fileName, correctRSASSHPrivateKey)
+
+	b, err := checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
+
+	s.Nil(err)
+	s.True(b)
 }

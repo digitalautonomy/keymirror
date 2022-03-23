@@ -264,8 +264,7 @@ b3Bl
 	s.False(ok)
 }
 
-func (s *sshSuite) Test_parsePrivateKey_AStringContainingAWellFormedRSAOpenSSHPrivateKeyShouldBeConsideredAPrivateKey() {
-	pk := `
+const correctRSASSHPrivateKey = `
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAYEAtYK5E+KZPt0Ko41UbtnGypeZ/cWiGQjh3CrrYgPwCY/Vw2A+5dZd
@@ -305,6 +304,50 @@ U+fUa/Ua46FimxnDkwKc0h18lG+dM86LS1em7LrHDo4bukHlKjLunmKgDgZWUdB2A8yvt5
 +ag5t301usRA0AAAAXaXZhbkBpdmFuLVRoaW5rUGFkLVQ0ODABAgME
 -----END OPENSSH PRIVATE KEY-----
 `
+
+const correctRSASSHPrivateKeyOther = `
+-----BEGIN OPENSSH PRIVATE KEY-----
+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
+-----END OPENSSH PRIVATE KEY-----
+`
+
+func (s *sshSuite) Test_parsePrivateKey_AStringContainingAWellFormedRSAOpenSSHPrivateKeyShouldBeConsideredAPrivateKey() {
+	pk := correctRSASSHPrivateKey
 
 	priv, ok := parsePrivateKey(pk)
 
@@ -754,4 +797,15 @@ func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenExtractingPrivate
 	_, ok := createPrivateKeyFrom(input)
 
 	s.False(ok, "the private key algorithm is not valid")
+}
+
+func (s *sshSuite) Test_isRSAPrivateKey_CheckIfAStringHasTheFormatOfAnRSAPrivateKey() {
+	k := ""
+	s.False(isRSAPrivateKey(k), "An empty string is not an OpenSSH private key representation thus it is not an RSA key")
+
+	k = correctRSASSHPrivateKey
+	s.True(isRSAPrivateKey(k), "A string with the algorithm identifier ssh-rsa is an RSA key")
+
+	k = correctECDSASSHPrivateKey
+	s.False(isRSAPrivateKey(k), "A string with the algorithm identifier ssh-ecdsa is not an RSA key")
 }

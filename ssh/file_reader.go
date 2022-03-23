@@ -8,6 +8,10 @@ func checkIfFileContainsAPublicRSAKey(fileName string) (bool, error) {
 	return checkIfFileContainsASpecificValue(fileName, isRSAPublicKey)
 }
 
+func checkIfFileContainsAPrivateRSAKey(fileName string) (bool, error) {
+	return checkIfFileContainsASpecificValue(fileName, isRSAPrivateKey)
+}
+
 func checkIfFileContainsASpecificValue(fileName string, f predicate[string]) (bool, error) {
 	content, e := os.ReadFile(fileName)
 	if e != nil {
@@ -19,4 +23,8 @@ func checkIfFileContainsASpecificValue(fileName string, f predicate[string]) (bo
 
 func selectFilesContainingRSAPublicKeys(fileNameList []string) []string {
 	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPublicRSAKey))
+}
+
+func selectFilesContainingRSAPrivateKeys(fileNameList []string) []string {
+	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPrivateRSAKey))
 }
