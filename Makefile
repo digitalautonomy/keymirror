@@ -43,3 +43,9 @@ ci-deps:
 
 ci-upload-coverage: $(COVERPROFILE) ci-deps
 	goveralls -coverprofile=$(COVERPROFILE)
+
+coverage-tails: 
+	$(GOTEST) -cover -coverprofile coverlog ./... || true
+	$(GO) tool cover -html coverlog -o ~/Tor\ Browser/coverage.html
+	xdg-open ~/Tor\ Browser/coverage.html
+	$(RM) coverlog
