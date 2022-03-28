@@ -3,8 +3,6 @@ package ssh
 import (
 	"fmt"
 	"math/rand"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -29,10 +27,7 @@ func (s *sshSuite) Test_ListsAllTheFilesInSpecifiedDirectory() {
 	expected := []string{"id_rsa.pub", fmt.Sprintf("id_rsa%d", r)}
 
 	for _, f := range expected {
-		file := filepath.Join(s.tdir, f)
-		err := os.WriteFile(file, []byte("some content"), 0666)
-
-		s.Nil(err)
+		s.createFileWithContent(s.tdir, f, "some content")
 	}
 
 	s.Equal(expected, listFilesIn(s.tdir))

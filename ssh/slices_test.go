@@ -69,3 +69,21 @@ func (s *genericsSuite) Test_filter() {
 	s.Equal([]int{43, 43}, filter([]int{41, 42, 43, 44, 43}, isEqualTo(43)))
 	s.Equal([]int{43, 44, 43}, filter([]int{41, 42, 43, 44, 43}, isGreaterThan(42)))
 }
+
+func (s *genericsSuite) Test_foldLeft_sum() {
+	plus := func(l, r int) int {
+		return l + r
+	}
+
+	input := []int{2, 3, 5, 9, 13}
+	s.Equal(32, foldLeft(input, 0, plus))
+}
+
+func (s *genericsSuite) Test_foldLeft_product() {
+	mult := func(l, r int) int {
+		return l * r
+	}
+
+	input := []int{2, 3, 5, 9}
+	s.Equal(270, foldLeft(input, 1, mult))
+}

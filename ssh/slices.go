@@ -1,13 +1,41 @@
 package ssh
 
-import "golang.org/x/exp/constraints"
+import (
+	"golang.org/x/exp/constraints"
+	"golang.org/x/exp/slices"
+)
 
-func transform[T, U any](l []T, f func(T) U) []U {
-	output := []U{}
-	for _, l := range l {
-		output = append(output, f(l))
+func appendingWith[T, U any](f func1[T, U]) func([]U, T) []U {
+	return func(previous []U, current T) []U {
+		return append(previous, f(current))
 	}
-	return output
+}
+
+func appendingWhen[T any](f predicate[T]) func([]T, T) []T {
+	return func(previous []T, current T) []T {
+		if f(current) {
+			return append(previous, current)
+		}
+		return previous
+	}
+}
+
+func transform[T, U any](l []T, f func1[T, U]) []U {
+	return foldLeft(l, []U{}, appendingWith(f))
+}
+
+func filter[T any](v []T, f predicate[T]) []T {
+	return foldLeft(v, []T{}, appendingWhen(f))
+}
+
+func foldLeft[T any, R any](l []T, start R, f func(R, T) R) R {
+	result := start
+
+	for _, current := range l {
+		result = f(result, current)
+	}
+
+	return result
 }
 
 func isEmptySlice[T any](v []T) bool {
@@ -46,20 +74,15 @@ func not[T any](f predicate[T]) predicate[T] {
 	}
 }
 
-func filter[T any](v []T, f predicate[T]) []T {
-	res := []T{}
-
-	for _, t := range v {
-		if f(t) {
-			res = append(res, t)
-		}
-	}
-	return res
-}
-
 func ignoringErrors[T, R any](f func(T) (R, error)) func(T) R {
 	return func(s T) R {
 		b, _ := f(s)
 		return b
+	}
+}
+
+func existsIn[T comparable](l []T) predicate[T] {
+	return func(e T) bool {
+		return slices.Contains(l, e)
 	}
 }

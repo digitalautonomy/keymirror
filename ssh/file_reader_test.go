@@ -1,9 +1,13 @@
 package ssh
 
 import (
+	"fmt"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/prashantv/gostub"
 )
 
 func (s *sshSuite) createFileWithContent(dir, fileName, content string) {
@@ -238,3 +242,200 @@ func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_ReturnsTrueWhenTheFile
 	s.Nil(err)
 	s.True(b)
 }
+
+func (s *sshSuite) Test_removePubSuffixFromFileName_AnEmptyListReturnsAnEmptyList() {
+	files := []string{}
+
+	l := removePubSuffixFromFileNamesList(files)
+
+	s.Empty(l)
+}
+
+func (s *sshSuite) Test_removePubSuffixFromFileName_AListWithOneFileNameWithoutPubSuffixIsNotModified() {
+	files := []string{"key1.bla"}
+
+	l := removePubSuffixFromFileNamesList(files)
+
+	s.Equal([]string{"key1.bla"}, l)
+}
+
+func (s *sshSuite) Test_removePubSuffixFromFileName_RemovesPubSuffixFromFileNameFromAListWithOneFileNameWithPubSuffix() {
+	files := []string{"key1.pub"}
+
+	l := removePubSuffixFromFileNamesList(files)
+
+	s.Equal([]string{"key1"}, l)
+}
+
+func (s *sshSuite) Test_removePubSuffixFromFileName_RemovesPubSuffixFromFileNamesIfTheyHavePubSuffix() {
+	files := []string{"key1.pub", "key2.bla", "key3", "key4.pub"}
+
+	l := removePubSuffixFromFileNamesList(files)
+
+	s.Equal([]string{"key1", "key2.bla", "key3", "key4"}, l)
+}
+
+func (s *sshSuite) Test_findKeyPairsBasedOnFileName_AnEmptyListIsReturnedWhenTwoEmptyListsAreGiven() {
+	privateFiles := []string{}
+	publicFiles := []string{}
+
+	l := findKeyPairsBasedOnFileName(privateFiles, publicFiles)
+
+	s.Equal([]string{}, l)
+}
+
+func (s *sshSuite) Test_findKeyPairsBasedOnFileName_AnEmptyListIsReturnedWhenOneOfTheGivenListsIsEmpty() {
+	privateFiles := []string{"key1"}
+	publicFiles := []string{}
+	l := findKeyPairsBasedOnFileName(privateFiles, publicFiles)
+	s.Equal([]string{}, l)
+
+	privateFiles = []string{}
+	publicFiles = []string{"key2"}
+	l = findKeyPairsBasedOnFileName(privateFiles, publicFiles)
+	s.Equal([]string{}, l)
+}
+
+func (s *sshSuite) Test_findKeyPairsBasedOnFileName_AnEmptyListIsReturnedWhenTwoListsWithoutFileNamesCoincidencesAreGiven() {
+	privateFiles := []string{"key1"}
+	publicFiles := []string{"key2"}
+
+	l := findKeyPairsBasedOnFileName(privateFiles, publicFiles)
+
+	s.Equal([]string{}, l)
+}
+
+func (s *sshSuite) Test_findKeyPairsBasedOnFileName_AListContainingTheOnlyCoincidingFileNameIsReturnedWhenTwoListsWithTheSameFileNameAreGiven() {
+	privateFiles := []string{"key3"}
+	publicFiles := []string{"key3"}
+
+	l := findKeyPairsBasedOnFileName(privateFiles, publicFiles)
+
+	s.Equal([]string{"key3"}, l)
+}
+
+func (s *sshSuite) Test_findKeyPairsBasedOnFileName_AListContainingMultipleCoincidingFileNamesIsReturnedWhenTwoListsWithMultipleCoincidingFileNamesAreGiven() {
+	privateFiles := []string{"key1", "key2", "key3", "key4"}
+	publicFiles := []string{"key2", "key3"}
+
+	l := findKeyPairsBasedOnFileName(privateFiles, publicFiles)
+
+	s.Equal([]string{"key2", "key3"}, l)
+}
+
+func (s *sshSuite) Test_removeFileNames_AnUnchangedListIsReturnedWhenNoFileNameToBeRemovedAreGiven() {
+	fileNameToDelete := ""
+
+	originalFileNamesList := []string{}
+	l := withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal(originalFileNamesList, l)
+
+	originalFileNamesList = []string{"file that will not be deleted"}
+	l = withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal(originalFileNamesList, l)
+
+	originalFileNamesList = []string{"multiple", "files", "that will not", "be deleted"}
+	l = withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal(originalFileNamesList, l)
+}
+
+func (s *sshSuite) Test_removeFileNames_AnUnchangedListIsReturnedWhenThereAreNoCoincidencesWithTheFileNameToBeRemoved() {
+	fileNameToDelete := "file to be removed"
+
+	originalFileNamesList := []string{}
+	l := withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal(originalFileNamesList, l)
+
+	originalFileNamesList = []string{"file that will not be deleted"}
+	l = withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal(originalFileNamesList, l)
+
+	originalFileNamesList = []string{"multiple", "files", "that will not", "be deleted"}
+	l = withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal(originalFileNamesList, l)
+}
+
+func (s *sshSuite) Test_removeFileName_RemovesTheProvidedFileNameFromAListIfPresent() {
+	fileNameToDelete := "coinciding file"
+
+	originalFileNamesList := []string{}
+	l := withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal([]string{}, l)
+
+	originalFileNamesList = []string{"coinciding file"}
+	l = withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal([]string{}, l)
+
+	originalFileNamesList = []string{"coinciding file", "not coinciding file"}
+	l = withoutFileName(originalFileNamesList, fileNameToDelete)
+	s.Equal([]string{"not coinciding file"}, l)
+}
+
+func (s *sshSuite) Test_removeFileNames_RemovesTheProvidedFileNamesFromAListIfPresent() {
+	fileNamesToDelete := []string{"coinciding", "files"}
+
+	originalFileNamesList := []string{}
+	l := removeFileNames(originalFileNamesList, fileNamesToDelete)
+	s.Equal([]string{}, l)
+
+	originalFileNamesList = []string{"coinciding", "files"}
+	l = removeFileNames(originalFileNamesList, fileNamesToDelete)
+	s.Equal([]string{}, l)
+
+	originalFileNamesList = []string{"coinciding", "files", "not coinciding file"}
+	l = removeFileNames(originalFileNamesList, fileNamesToDelete)
+	s.Equal([]string{"not coinciding file"}, l)
+}
+
+func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAnEmptyListIfTheDotSSHDirectoryDoesNotExistInTheUsersHomeDirectory() {
+	defer gostub.New().SetEnv("HOME", s.tdir).Reset()
+	files := listFilesInHomeSSHDirectory()
+
+	s.Empty(files)
+}
+
+func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAnEmptyListIfTheDotSSHDirectoryExistsInTheUsersHomeDirectoryButIsEmpty() {
+	defer gostub.New().SetEnv("HOME", s.tdir).Reset()
+	s.Nil(os.Mkdir(path.Join(s.tdir, ".ssh"), 0755))
+
+	files := listFilesInHomeSSHDirectory()
+
+	s.Empty(files)
+}
+
+func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAListOfFilesIfTheDotSSHDirectoryExistsInTheUsersHomeDirectoryAndContainsFiles() {
+	sshDirectory := path.Join(s.tdir, ".ssh")
+	s.Nil(os.Mkdir(sshDirectory, 0755), "it was not possible to create .ssh directory in temporary test directory")
+	defer gostub.New().SetEnv("HOME", s.tdir).Reset()
+
+	r := rand.Int()
+	expected := []string{"id_rsa.pub", fmt.Sprintf("id_rsa%d", r)}
+	for _, f := range expected {
+		s.createFileWithContent(sshDirectory, f, "some content")
+	}
+
+	files := listFilesInHomeSSHDirectory()
+
+	s.Equal(expected, files)
+}
+
+//func (s *sshSuite) Test_defineKeyTypesFrom_GivenTwoEmptyListsReturnsAnEmptyList() {
+//	privateKeyFileNames := []string{}
+//	publicKeyFileNames := []string{}
+//
+//	 := defineKeyTypesFrom(privateKeyFileNames, publicKeyFileNames)
+//
+//	// s.Empty(l)
+//}
+
+//
+//func (s *sshSuite) Test_defineKeyTypesFrom_GivenTwoListsOneOfTheseEmptyReturnsAListWithFileNamesInTheNonEmptyList() {
+//	expected := map[string]string{"privateKeyFile1": "private"}
+//
+//	privateKeyFileNames := []string{"privateKeyFile1"}
+//	publicKeyFileNames := []string{}
+//
+//	l := defineKeyTypesFrom(privateKeyFileNames, publicKeyFileNames)
+//
+//	s.Equal(expected, l)
+//}

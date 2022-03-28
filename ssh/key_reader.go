@@ -59,7 +59,11 @@ func isRSAPrivateKey(pk string) bool {
 //         - we dont care at this point if its encrypted or not. we need to read length and jump past 4 fields. ✓
 //         - we need to read the length for the public key and jump past it. More or less we need to get to the 7th field, which contain the private key keytype ✓
 //	   - read string from a file, and check if that string is RSA private key ✓
-//   - determine if there are duplicates
 //   - pair public and private keys to each other based on file name
 //   - turn each entry into its internal representation
-// - create an internal representation for public, private and key pairs
+// - go through all files in .ssh, detect if they are public or private keys, and
+//   create a list for that. then, create a new list with unified content
+// - create an internal representation for public, private and key pairs (waiting for GUI needs)
+
+// - file names
+// - indication if public, private or key pair
