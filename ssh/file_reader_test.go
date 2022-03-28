@@ -419,23 +419,156 @@ func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAListOfFilesIfTheDotS
 	s.Equal(expected, files)
 }
 
-//func (s *sshSuite) Test_defineKeyTypesFrom_GivenTwoEmptyListsReturnsAnEmptyList() {
-//	privateKeyFileNames := []string{}
-//	publicKeyFileNames := []string{}
-//
-//	 := defineKeyTypesFrom(privateKeyFileNames, publicKeyFileNames)
-//
-//	// s.Empty(l)
-//}
+func (s *sshSuite) Test_createPublicKeyEntriesFrom_ReturnsAListOfKeyEntriesFromAllTheProvidedPaths() {
+	paths := []string{}
+	l := createPublicKeyEntriesFrom(paths)
+	s.Empty(l)
 
-//
-//func (s *sshSuite) Test_defineKeyTypesFrom_GivenTwoListsOneOfTheseEmptyReturnsAListWithFileNamesInTheNonEmptyList() {
-//	expected := map[string]string{"privateKeyFile1": "private"}
-//
-//	privateKeyFileNames := []string{"privateKeyFile1"}
-//	publicKeyFileNames := []string{}
-//
-//	l := defineKeyTypesFrom(privateKeyFileNames, publicKeyFileNames)
-//
-//	s.Equal(expected, l)
-//}
+	paths = []string{"a path"}
+	l = createPublicKeyEntriesFrom(paths)
+	s.Equal([]KeyEntry{&publicKeyRepresentation{"a path"}}, l)
+
+	paths = []string{"a path", "another path"}
+	l = createPublicKeyEntriesFrom(paths)
+	s.Equal([]KeyEntry{&publicKeyRepresentation{"a path"}, &publicKeyRepresentation{"another path"}}, l)
+}
+
+func (s *sshSuite) Test_createPrivateKeyEntriesFrom_ReturnsAListOfKeyEntriesFromAllTheProvidedPaths() {
+	paths := []string{}
+	l := createPrivateKeyEntriesFrom(paths)
+	s.Empty(l)
+
+	paths = []string{"a path"}
+	l = createPrivateKeyEntriesFrom(paths)
+	s.Equal([]KeyEntry{&privateKeyRepresentation{"a path"}}, l)
+
+	paths = []string{"a path", "another path"}
+	l = createPrivateKeyEntriesFrom(paths)
+	s.Equal([]KeyEntry{&privateKeyRepresentation{"a path"}, &privateKeyRepresentation{"another path"}}, l)
+}
+
+func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFromAllTheProvidedPaths() {
+	paths := []string{}
+	l := privateKeyEntriesFrom(paths)
+	s.Empty(l)
+
+	emptyFile := "Empty-file"
+	s.createEmptyFile(s.tdir, emptyFile)
+	paths = []string{filepath.Join(s.tdir, emptyFile)}
+	l = privateKeyEntriesFrom(paths)
+	s.Empty(l)
+
+	notAnRSAPrivateKeyFile := "Not-an-RSA-private-key-file"
+	s.createFileWithContent(s.tdir, notAnRSAPrivateKeyFile, "not a RSA private key")
+	paths = []string{
+		filepath.Join(s.tdir, emptyFile),
+		filepath.Join(s.tdir, notAnRSAPrivateKeyFile),
+	}
+	l = privateKeyEntriesFrom(paths)
+	s.Empty(l)
+
+	privateRSAKeyFile1 := "File-with-a-private-RSA-key"
+	s.createFileWithContent(s.tdir, privateRSAKeyFile1, correctRSASSHPrivateKey)
+	privateRSAKeyFile2 := "Another-file-with-another-private-RSA-key"
+	s.createFileWithContent(s.tdir, privateRSAKeyFile2, correctRSASSHPrivateKeyOther)
+
+	paths = []string{
+		filepath.Join(s.tdir, emptyFile),
+		filepath.Join(s.tdir, notAnRSAPrivateKeyFile),
+		filepath.Join(s.tdir, privateRSAKeyFile1),
+		filepath.Join(s.tdir, privateRSAKeyFile2),
+	}
+
+	l = privateKeyEntriesFrom(paths)
+	s.Equal([]KeyEntry{
+		createPrivateKeyRepresentation(filepath.Join(s.tdir, privateRSAKeyFile1)),
+		createPrivateKeyRepresentation(filepath.Join(s.tdir, privateRSAKeyFile2)),
+	}, l)
+}
+
+func (s *sshSuite) Test_publicKeyEntriesFrom_ReturnsAListOfPublicKeyEntriesFromAllTheProvidedPaths() {
+	paths := []string{}
+	l := publicKeyEntriesFrom(paths)
+	s.Empty(l)
+
+	emptyFile := "Empty-file"
+	s.createEmptyFile(s.tdir, emptyFile)
+	paths = []string{filepath.Join(s.tdir, emptyFile)}
+	l = publicKeyEntriesFrom(paths)
+	s.Empty(l)
+
+	notAnRSAPublicKeyFile := "Not-an-RSA-public-key-file"
+	s.createFileWithContent(s.tdir, notAnRSAPublicKeyFile, "not a RSA public key")
+	paths = []string{
+		filepath.Join(s.tdir, emptyFile),
+		filepath.Join(s.tdir, notAnRSAPublicKeyFile),
+	}
+	l = publicKeyEntriesFrom(paths)
+	s.Empty(l)
+
+	publicRSAKeyFile1 := "File-with-a-public-RSA-key"
+	s.createFileWithContent(s.tdir, publicRSAKeyFile1, "ssh-rsa AAAAA batman@debian")
+	publicRSAKeyFile2 := "Another-file-with-another-public-RSA-key"
+	s.createFileWithContent(s.tdir, publicRSAKeyFile2, "ssh-rsa NBBBB robin@debian")
+
+	paths = []string{
+		filepath.Join(s.tdir, emptyFile),
+		filepath.Join(s.tdir, notAnRSAPublicKeyFile),
+		filepath.Join(s.tdir, publicRSAKeyFile1),
+		filepath.Join(s.tdir, publicRSAKeyFile2),
+	}
+
+	l = publicKeyEntriesFrom(paths)
+	s.Equal([]KeyEntry{
+		createPublicKeyRepresentation(filepath.Join(s.tdir, publicRSAKeyFile1)),
+		createPublicKeyRepresentation(filepath.Join(s.tdir, publicRSAKeyFile2)),
+	}, l)
+}
+
+func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPrivateAndKeyPairsFromPublicAndPrivateKeyRepresentations() {
+	// Both privates and publics are empty
+	privates := []*privateKeyRepresentation{}
+	publics := []*publicKeyRepresentation{}
+	l := partitionKeyEntries(privates, publics)
+	s.Empty(l)
+
+	// Only privates and no publics
+	privates = []*privateKeyRepresentation{
+		createPrivateKeyRepresentation("exclusively"),
+		createPrivateKeyRepresentation("privates"),
+	}
+	publics = []*publicKeyRepresentation{}
+	l = partitionKeyEntries(privates, publics)
+	s.Equal([]KeyEntry{
+		createPrivateKeyRepresentation("exclusively"),
+		createPrivateKeyRepresentation("privates"),
+	}, l)
+
+	// Only publics and no privates
+	privates = []*privateKeyRepresentation{}
+	publics = []*publicKeyRepresentation{
+		createPublicKeyRepresentation("exclusively.pub"),
+		createPublicKeyRepresentation("publics.pub"),
+	}
+	l = partitionKeyEntries(privates, publics)
+	s.Equal([]KeyEntry{
+		createPublicKeyRepresentation("exclusively.pub"),
+		createPublicKeyRepresentation("publics.pub"),
+	}, l)
+
+	// One pair, one lonely public and one lonely private
+	privates = []*privateKeyRepresentation{
+		createPrivateKeyRepresentation("matching pair"),
+		createPrivateKeyRepresentation("lonely private"),
+	}
+	publics = []*publicKeyRepresentation{
+		createPublicKeyRepresentation("matching pair.pub"),
+		createPublicKeyRepresentation("lonely public.pub"),
+	}
+	l = partitionKeyEntries(privates, publics)
+	s.Equal([]KeyEntry{
+		createKeypairRepresentation(createPrivateKeyRepresentation("matching pair"), createPublicKeyRepresentation("matching pair.pub")),
+		createPrivateKeyRepresentation("lonely private"),
+		createPublicKeyRepresentation("lonely public.pub"),
+	}, l)
+}

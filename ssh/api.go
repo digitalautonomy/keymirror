@@ -22,13 +22,17 @@ func (*access) AllKeys() []KeyEntry {
 	// output: list of fileNames
 
 	// input: the list of file names in ~/.ssh directory as list of strings
-	// output: the list of Private Keys file names -> selectFilesContainingRSAPublicKeys returns as list of strings
 
-	// input: the list of files names of files in ~/.ssh directory as list of strings
-	// output: the list of Public Keys file names -> selectFilesContainingRSAPrivateKeys returns as list of strings
+	// detectPrivateKeys
+	// input: a list of file names
+	// output: a list of private key representations
 
-	// input: a list of strings corresponding to the file names retrieved in the 2 steps before
-	// output: a list of KeyEntry find pairs, lonely public, lonely private and return them -> defineKeyTypesFrom
+	// detectPublicKeys
+	// input: a list of file names
+	// output: a list of public key representations
+
+	// input: the list of public representations, and the list of private representations
+	// output: one list of public/private/key pair representations
 
 	return nil
 }

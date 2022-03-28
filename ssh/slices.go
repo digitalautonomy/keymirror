@@ -86,3 +86,15 @@ func existsIn[T comparable](l []T) predicate[T] {
 		return slices.Contains(l, e)
 	}
 }
+
+func foreachValue[K comparable, V any](values map[K]V, f func(V)) {
+	for _, v := range values {
+		f(v)
+	}
+}
+
+func foreach[T any](values []T, f func(T)) {
+	for _, v := range values {
+		f(v)
+	}
+}
