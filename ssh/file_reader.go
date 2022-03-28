@@ -115,7 +115,6 @@ func (p *keyEntryPartitioner) deleteFromCache(pub *publicKeyRepresentation) {
 
 func (p *keyEntryPartitioner) processPrivateKey(priv *privateKeyRepresentation) {
 	if potentialPub, ok := p.potentialPublicKeyFor(priv); ok {
-		fmt.Println("IS A MATCH!!")
 		p.addResult(createKeypairRepresentation(priv, potentialPub))
 		p.deleteFromCache(potentialPub)
 	} else {
