@@ -72,7 +72,7 @@ func (s *sshSuite) Test_publicKeyRepresentation_Locations_returnsAnEmptySliceIfN
 	s.Empty(pk.Locations())
 }
 
-func (s *sshSuite) Test_publicKeyRepresentation_Locations_returnsASliceWithThePathToThePrivateKey() {
+func (s *sshSuite) Test_publicKeyRepresentation_Locations_returnsASliceWithThePathToThePublicKey() {
 	pk := createPublicKeyRepresentation("/foo/bar/hello.pub")
 	s.Equal([]string{"/foo/bar/hello.pub"}, pk.Locations())
 
