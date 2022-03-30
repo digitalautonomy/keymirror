@@ -1,8 +1,9 @@
 package ssh
 
 import (
-	"github.com/stretchr/testify/suite"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type genericsSuite struct {
@@ -86,4 +87,19 @@ func (s *genericsSuite) Test_foldLeft_product() {
 
 	input := []int{2, 3, 5, 9}
 	s.Equal(270, foldLeft(input, 1, mult))
+}
+
+func (s *genericsSuite) Test_existsIn_returnsAPredicateCheckingForExistance() {
+	p1 := existsIn([]string{"foo", "bar"})
+	p2 := existsIn([]int{1, 2, 4, 8})
+
+	s.False(p1("hello"))
+	s.True(p1("foo"))
+	s.True(p1("bar"))
+
+	s.False(p2(0))
+	s.True(p2(1))
+	s.True(p2(2))
+	s.False(p2(3))
+	s.True(p2(4))
 }
