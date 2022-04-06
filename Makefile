@@ -1,3 +1,10 @@
+GTK_VERSION := $(shell pkg-config --modversion gtk+-3.0 | tr . _ | cut -d '_' -f 1-2)
+GTK_VERSION_TAG := "gtk_$(GTK_VERSION)"
+
+GLIB_VERSION := $(shell pkg-config --modversion glib-2.0 | tr . _ | cut -d '_' -f 1-2)
+GLIB_VERSION_TAG := "glib_$(GLIB_VERSION)"
+
+BINARY_TAGS := -tags $(GTK_VERSION_TAG),$(GLIB_VERSION_TAG),binary
 
 BUILD_DIR := build
 BINARY := $(BUILD_DIR)/keymirror
@@ -20,13 +27,13 @@ $(BUILD_DIR):
 	mkdir -p $@
 
 $(BINARY): $(BUILD_DIR) $(SOURCE_FILES)
-	$(GOBUILD) -o $@
+	$(GOBUILD) $(BINARY_TAGS) -o $@
 
 clean:
 	$(RM) -r $(BUILD_DIR)
 
 test:
-	$(GOTEST) ./...
+	$(GOTEST) -v ./...
 
 coverage:
 	$(GOTEST) -cover -coverprofile coverlog ./... || true
