@@ -1,0 +1,6 @@
+<interface>
+    <object class="GtkApplicationWindow" id="MainWindow">
+        <property name="height_request">600</property>
+        <property name="width_request">400</property>
+    </object>
+</interface>

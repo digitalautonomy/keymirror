@@ -8,7 +8,8 @@ import (
 func Start(gtk gtki.Gtk) {
 	app, _ := gtk.ApplicationNew("digital.autonomia.keymirror", glibi.APPLICATION_FLAGS_NONE)
 	app.Connect("activate", func() {
-		w, _ := gtk.ApplicationWindowNew(app)
+		w := buildObjectFrom[gtki.ApplicationWindow](gtk, "MainWindow")
+		w.SetApplication(app)
 		w.ShowAll()
 	})
 

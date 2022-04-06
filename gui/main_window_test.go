@@ -1,12 +1,14 @@
 package gui
 
 import (
+	"fmt"
 	"github.com/coyim/gotk3adapter/glibi"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/prashantv/gostub"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"testing"
+	"testing/fstest"
 )
 
 type guiSuite struct {
@@ -33,6 +35,24 @@ func (s *guiSuite) Test_Start_StartsGTKApplication() {
 	gtkMock.AssertExpectations(s.T())
 }
 
+func mockObjectBuild(gtkMock *gtk.Mock, objectName string, ret interface{}) func() {
+	builderMock := &gtk.MockBuilder{}
+
+	fileContent := "this is an interface description for the object"
+
+	definitionsMock := fstest.MapFS{
+		fmt.Sprintf("definitions/interface/%s.xml", objectName): &fstest.MapFile{
+			Data: []byte(fileContent),
+		},
+	}
+
+	gtkMock.On("BuilderNew").Return(builderMock, nil)
+	builderMock.On("AddFromString", fileContent).Return(nil)
+	builderMock.On("GetObject", objectName).Return(ret, nil)
+
+	return gostub.StubFunc(&getDefinitions, definitionsMock).Reset
+}
+
 func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTheMainApplicationWindow() {
 	appMock := &gtk.MockApplication{}
 	var activateEventHandler func()
@@ -50,8 +70,10 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 	Start(gtkMock)
 
 	winMock := &gtk.MockApplicationWindow{}
+	winMock.On("SetApplication", appMock).Return().Once()
 	winMock.On("ShowAll").Return().Once()
-	gtkMock.On("ApplicationWindowNew", appMock).Return(winMock, nil).Once()
+
+	defer mockObjectBuild(gtkMock, "MainWindow", winMock)()
 
 	activateEventHandler()
 
