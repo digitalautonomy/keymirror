@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/coyim/gotk3adapter/gdki"
 	"github.com/coyim/gotk3adapter/gtki"
+	"github.com/coyim/gotk3mocks/gdk"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/prashantv/gostub"
 	"testing"
@@ -25,12 +27,22 @@ func (s *mainSuite) Test_main_startsTheGuiWithTheRealGTK() {
 	ourGTK := &gtk.Mock{}
 	realGTK = ourGTK
 
-	var calledWithG gtki.Gtk
-	defer gostub.Stub(&startGUI, func(g gtki.Gtk) {
-		calledWithG = g
+	originalGDK := realGDK
+	defer func() {
+		realGDK = originalGDK
+	}()
+	ourGDK := &gdk.Mock{}
+	realGDK = ourGDK
+
+	var calledWithGTK gtki.Gtk
+	var calledWithGDK gdki.Gdk
+	defer gostub.Stub(&startGUI, func(g gtki.Gtk, g2 gdki.Gdk) {
+		calledWithGTK = g
+		calledWithGDK = g2
 	}).Reset()
 
 	main()
 
-	s.Equal(ourGTK, calledWithG)
+	s.Equal(ourGTK, calledWithGTK)
+	s.Equal(ourGDK, calledWithGDK)
 }

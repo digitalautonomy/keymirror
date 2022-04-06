@@ -4,12 +4,18 @@ GTK_VERSION_TAG := "gtk_$(GTK_VERSION)"
 GLIB_VERSION := $(shell pkg-config --modversion glib-2.0 | tr . _ | cut -d '_' -f 1-2)
 GLIB_VERSION_TAG := "glib_$(GLIB_VERSION)"
 
-BINARY_TAGS := -tags $(GTK_VERSION_TAG),$(GLIB_VERSION_TAG),binary
+GDK_VERSION := $(shell pkg-config --modversion gdk-3.0 | tr . _ | cut -d '_' -f 1-2)
+GDK_VERSION_TAG := "gdk_$(GDK_VERSION)"
+
+BINARY_TAGS := -tags $(GTK_VERSION_TAG),$(GLIB_VERSION_TAG),$(GDK_VERSION_TAG),binary
 
 BUILD_DIR := build
 BINARY := $(BUILD_DIR)/keymirror
 
-GO_FILES := *.go
+GO_FILES := *.go ssh/*.go gui/*.go
+INTERFACE_DEFINITION_FILES := gui/definitions/interface/*.xml
+STYLES_DEFINITION_FILES := gui/definitions/styles/*.css
+DEFINITION_FILES := $(INTERFACE_DEFINITION_FILES) $(STYLES_DEFINITION_FILES)
 SOURCE_FILES := $(GO_FILES)
 
 GO := go
@@ -26,7 +32,7 @@ default: $(BINARY)
 $(BUILD_DIR):
 	mkdir -p $@
 
-$(BINARY): $(BUILD_DIR) $(SOURCE_FILES)
+$(BINARY): $(BUILD_DIR) $(SOURCE_FILES) $(DEFINITION_FILES)
 	$(GOBUILD) $(BINARY_TAGS) -o $@
 
 clean:
