@@ -5,6 +5,8 @@ import (
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/coyim/gotk3mocks/gdk"
 	"github.com/coyim/gotk3mocks/gtk"
+	"github.com/digitalautonomy/keymirror/api"
+	"github.com/digitalautonomy/keymirror/ssh"
 	"github.com/prashantv/gostub"
 	"testing"
 
@@ -36,13 +38,16 @@ func (s *mainSuite) Test_main_startsTheGuiWithTheRealGTK() {
 
 	var calledWithGTK gtki.Gtk
 	var calledWithGDK gdki.Gdk
-	defer gostub.Stub(&startGUI, func(g gtki.Gtk, g2 gdki.Gdk) {
+	var calledWithKeyAccesss api.KeyAccess
+	defer gostub.Stub(&startGUI, func(g gtki.Gtk, g2 gdki.Gdk, ka api.KeyAccess) {
 		calledWithGTK = g
 		calledWithGDK = g2
+		calledWithKeyAccesss = ka
 	}).Reset()
 
 	main()
 
 	s.Equal(ourGTK, calledWithGTK)
 	s.Equal(ourGDK, calledWithGDK)
+	s.Equal(ssh.Access, calledWithKeyAccesss)
 }

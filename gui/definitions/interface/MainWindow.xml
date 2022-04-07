@@ -1,6 +1,28 @@
 <interface>
     <object class="GtkApplicationWindow" id="MainWindow">
-        <property name="height_request">600</property>
-        <property name="width_request">400</property>
+        <child>
+            <object class="GtkScrolledWindow" id="keyListWindow">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="hscrollbar-policy">never</property>
+                <property name="shadow-type">in</property>
+                <child>
+                    <object class="GtkViewport">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                            <object class="GtkBox" id="keyListBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="orientation">vertical</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <style>
+                    <class name="keyList"/>
+                </style>
+            </object>
+        </child>
     </object>
 </interface>

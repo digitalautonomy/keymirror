@@ -11,8 +11,31 @@ import (
 	"testing/fstest"
 )
 
+type expectationsAsserter interface {
+	AssertExpectations(mock.TestingT) bool
+}
+
 type guiSuite struct {
 	suite.Suite
+
+	gtkMock         *gtk.Mock
+	objectsToAssert []expectationsAsserter
+}
+
+func (s *guiSuite) addObjectToAssert(o expectationsAsserter) {
+	s.objectsToAssert = append(s.objectsToAssert, o)
+}
+
+func (s *guiSuite) SetupTest() {
+	s.objectsToAssert = []expectationsAsserter{}
+	s.gtkMock = &gtk.Mock{}
+	s.addObjectToAssert(s.gtkMock)
+}
+
+func (s *guiSuite) TearDownTest() {
+	for _, t := range s.objectsToAssert {
+		t.AssertExpectations(s.T())
+	}
 }
 
 func TestGUISuite(t *testing.T) {
@@ -30,7 +53,7 @@ func (s *guiSuite) Test_Start_StartsGTKApplication() {
 	gtkMock.On("ApplicationNew", "digital.autonomia.keymirror", glibi.APPLICATION_FLAGS_NONE).Return(appMock, nil).Once()
 
 	gdkMock := &gdk.Mock{}
-	Start(gtkMock, gdkMock)
+	Start(gtkMock, gdkMock, nil)
 
 	appMock.AssertExpectations(s.T())
 	gtkMock.AssertExpectations(s.T())
@@ -62,14 +85,15 @@ func stubStyleProviders(gtkMock *gtk.Mock, gdkMock *gdk.Mock) {
 	gdkMock.On("ScreenGetDefault").Return(screenMock, nil).Once()
 }
 
-func mockObjectBuild(gtkMock *gtk.Mock, objectName string, ret interface{}) {
+func mockObjectBuild(gtkMock *gtk.Mock, objectName string, ret interface{}) *gtk.MockBuilder {
 	builderMock := &gtk.MockBuilder{}
 
 	fileContent := "this is an interface description for the object"
 
-	gtkMock.On("BuilderNew").Return(builderMock, nil)
+	gtkMock.On("BuilderNew").Return(builderMock, nil).Once()
 	builderMock.On("AddFromString", fileContent).Return(nil)
 	builderMock.On("GetObject", objectName).Return(ret, nil)
+	return builderMock
 }
 
 func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTheMainApplicationWindow() {
@@ -83,22 +107,37 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 		})
 	appMock.On("Run", mock.Anything).Return(0)
 
-	gtkMock := &gtk.Mock{}
-	gtkMock.On("ApplicationNew", mock.Anything, mock.Anything).Return(appMock, nil)
+	s.gtkMock.On("ApplicationNew", mock.Anything, mock.Anything).Return(appMock, nil)
 
 	gdkMock := &gdk.Mock{}
-	Start(gtkMock, gdkMock)
+	ka := fixedKeyAccess(
+		fixedKeyEntry("/home/amnesia/.ssh/id_ed25519"),
+		fixedKeyEntry("/home/amnesia/.ssh/id_rsa"),
+	)
+
+	Start(s.gtkMock, gdkMock, ka)
 
 	winMock := &gtk.MockApplicationWindow{}
 	winMock.On("SetApplication", appMock).Return().Once()
 	winMock.On("ShowAll").Return().Once()
 
-	mockObjectBuild(gtkMock, "MainWindow", winMock)
-	stubStyleProviders(gtkMock, gdkMock)
+	box := &gtk.MockBox{}
+
+	builderMock := mockObjectBuild(s.gtkMock, "MainWindow", winMock)
+	builderMock.On("GetObject", "keyListBox").Return(box, nil).Once()
+
+	box1 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519")
+	box2 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_rsa")
+
+	box.On("Add", box1).Return().Once()
+	box.On("Add", box2).Return().Once()
+
+	stubStyleProviders(s.gtkMock, gdkMock)
 	defer setupStubbedDefinitions()()
 
 	activateEventHandler()
 
-	gtkMock.AssertExpectations(s.T())
 	winMock.AssertExpectations(s.T())
+	builderMock.AssertExpectations(s.T())
+	box.AssertExpectations(s.T())
 }

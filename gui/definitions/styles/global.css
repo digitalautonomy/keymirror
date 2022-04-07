@@ -1,3 +1,15 @@
 window {
     background-color: @default-bg;
 }
+
+.keyEntry.publicKey {
+    background-color: @keylist-entry-public-bg;
+}
+
+.keyEntry.privateKey {
+    background-color: @keylist-entry-private-bg;
+}
+
+.keyEntry.pair {
+    background-color: @keylist-entry-pair-bg;
+}

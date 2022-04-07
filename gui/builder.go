@@ -3,6 +3,8 @@ package gui
 import (
 	"embed"
 	"fmt"
+	"github.com/coyim/gotk3adapter/glibi"
+	"github.com/coyim/gotk3adapter/gtki"
 	"io/fs"
 )
 
@@ -25,12 +27,24 @@ func styleDefinitionPath(name string) string {
 	return definitionPath("styles", name, "css")
 }
 
-func buildObjectFrom[T any](u *ui, name string) T {
-	pathOfFile := interfaceDefinitionPath(name)
-	builder, _ := u.gtk.BuilderNew()
-	content, _ := fs.ReadFile(getDefinitions(), pathOfFile)
-	builder.AddFromString(string(content))
-	w, _ := builder.GetObject(name)
+type builder struct {
+	gtki.Builder
+}
 
-	return w.(T)
+func (b *builder) get(name string) glibi.Object {
+	o, _ := b.GetObject(name)
+	return o
+}
+
+func (u *ui) builderFrom(name string) *builder {
+	pathOfFile := interfaceDefinitionPath(name)
+	b, _ := u.gtk.BuilderNew()
+	content, _ := fs.ReadFile(getDefinitions(), pathOfFile)
+	b.AddFromString(string(content))
+	return &builder{b}
+}
+
+func buildObjectFrom[T any](u *ui, name string) (T, *builder) {
+	b := u.builderFrom(name)
+	return b.get(name).(T), b
 }

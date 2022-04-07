@@ -1,1 +1,5 @@
 @define-color default-bg blue;
+
+@define-color keylist-entry-public-bg red;
+@define-color keylist-entry-private-bg green;
+@define-color keylist-entry-pair-bg yellow;
