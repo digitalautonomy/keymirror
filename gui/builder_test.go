@@ -15,6 +15,9 @@ import (
 func (s *guiSuite) Test_buildObjectFrom_CreatesAGTKObjectFromAnInterfaceDefinitionFile() {
 	object := "MainWindow"
 	gtkiMock := &gtk.Mock{}
+	u := &ui{
+		gtk: gtkiMock,
+	}
 	builderMock := &gtk.MockBuilder{}
 	mainWindowMock := &gtk.MockApplicationWindow{}
 
@@ -31,7 +34,7 @@ func (s *guiSuite) Test_buildObjectFrom_CreatesAGTKObjectFromAnInterfaceDefiniti
 	builderMock.On("AddFromString", fileContent).Return(nil)
 	builderMock.On("GetObject", "MainWindow").Return(mainWindowMock, nil)
 
-	w := buildObjectFrom[gtki.ApplicationWindow](gtkiMock, object)
+	w := buildObjectFrom[gtki.ApplicationWindow](u, object)
 
 	s.Equal(mainWindowMock, w)
 
@@ -42,6 +45,9 @@ func (s *guiSuite) Test_buildObjectFrom_CreatesAGTKObjectFromAnInterfaceDefiniti
 func (s *guiSuite) Test_buildObjectFrom_CreatesAnotherGTKObjectFromAnInterfaceDefinitionFile() {
 	object := "Dialog"
 	gtkiMock := &gtk.Mock{}
+	u := &ui{
+		gtk: gtkiMock,
+	}
 	builderMock := &gtk.MockBuilder{}
 	dialogMock := &gtk.MockDialog{}
 
@@ -58,7 +64,7 @@ func (s *guiSuite) Test_buildObjectFrom_CreatesAnotherGTKObjectFromAnInterfaceDe
 	builderMock.On("AddFromString", fileContent).Return(nil)
 	builderMock.On("GetObject", object).Return(dialogMock, nil)
 
-	w := buildObjectFrom[gtki.Dialog](gtkiMock, object)
+	w := buildObjectFrom[gtki.Dialog](u, object)
 
 	s.Equal(dialogMock, w)
 

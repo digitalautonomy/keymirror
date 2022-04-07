@@ -7,10 +7,15 @@ import (
 )
 
 func Start(gtk gtki.Gtk, gdk gdki.Gdk) {
-	app, _ := gtk.ApplicationNew("digital.autonomia.keymirror", glibi.APPLICATION_FLAGS_NONE)
+	u := &ui{
+		gtk: gtk,
+		gdk: gdk,
+	}
+
+	app, _ := u.gtk.ApplicationNew("digital.autonomia.keymirror", glibi.APPLICATION_FLAGS_NONE)
 	app.Connect("activate", func() {
-		applyApplicationStyle(gtk, gdk)
-		w := buildObjectFrom[gtki.ApplicationWindow](gtk, "MainWindow")
+		u.applyApplicationStyle()
+		w := buildObjectFrom[gtki.ApplicationWindow](u, "MainWindow")
 		w.SetApplication(app)
 		w.ShowAll()
 	})

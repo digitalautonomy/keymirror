@@ -8,7 +8,7 @@ import (
 	"testing/fstest"
 )
 
-func (s *guiSuite) Test_createStyleProviderFrom_CreatesAStyleProviderFromAStyleFile() {
+func (s *guiSuite) Test_ui_createStyleProviderFrom_CreatesAStyleProviderFromAStyleFile() {
 	cssProviderMock := &gtk.MockCssProvider{}
 	gtkMock := &gtk.Mock{}
 	gtkMock.On("CssProviderNew").Return(cssProviderMock, nil).Once()
@@ -23,14 +23,17 @@ func (s *guiSuite) Test_createStyleProviderFrom_CreatesAStyleProviderFromAStyleF
 	}
 	defer gostub.StubFunc(&getDefinitions, definitionsMock).Reset()
 
-	sp := createStyleProviderFrom(gtkMock, filename)
+	testUI := &ui{
+		gtk: gtkMock,
+	}
+	sp := testUI.createStyleProviderFrom(filename)
 
 	s.Equal(cssProviderMock, sp)
 	gtkMock.AssertExpectations(s.T())
 	cssProviderMock.AssertExpectations(s.T())
 }
 
-func (s *guiSuite) Test_applyApplicationStyle_LoadsGlobalAndColorsStylesToTheDefaultScreen() {
+func (s *guiSuite) Test_ui_applyApplicationStyle_LoadsGlobalAndColorsStylesToTheDefaultScreen() {
 	defer gostub.Stub(&gtki.STYLE_PROVIDER_PRIORITY_APPLICATION, gtki.StyleProviderPriority(77)).Reset()
 
 	cssProvider := &gtk.MockCssProvider{}
@@ -59,7 +62,12 @@ func (s *guiSuite) Test_applyApplicationStyle_LoadsGlobalAndColorsStylesToTheDef
 	gdkMock := &gdk.Mock{}
 	gdkMock.On("ScreenGetDefault").Return(screenMock, nil).Once()
 
-	applyApplicationStyle(gtkMock, gdkMock)
+	testUI := &ui{
+		gtk: gtkMock,
+		gdk: gdkMock,
+	}
+
+	testUI.applyApplicationStyle()
 
 	gtkMock.AssertExpectations(s.T())
 	gdkMock.AssertExpectations(s.T())

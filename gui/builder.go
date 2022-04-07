@@ -3,7 +3,6 @@ package gui
 import (
 	"embed"
 	"fmt"
-	"github.com/coyim/gotk3adapter/gtki"
 	"io/fs"
 )
 
@@ -26,9 +25,9 @@ func styleDefinitionPath(name string) string {
 	return definitionPath("styles", name, "css")
 }
 
-func buildObjectFrom[T any](gtk gtki.Gtk, name string) T {
+func buildObjectFrom[T any](u *ui, name string) T {
 	pathOfFile := interfaceDefinitionPath(name)
-	builder, _ := gtk.BuilderNew()
+	builder, _ := u.gtk.BuilderNew()
 	content, _ := fs.ReadFile(getDefinitions(), pathOfFile)
 	builder.AddFromString(string(content))
 	w, _ := builder.GetObject(name)
