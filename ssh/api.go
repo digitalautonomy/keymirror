@@ -1,18 +1,12 @@
 package ssh
 
-type KeyEntry interface {
-	Locations() []string
-}
+import "github.com/digitalautonomy/keymirror/api"
 
-type KeyAccess interface {
-	AllKeys() []KeyEntry
-}
-
-var Access KeyAccess = &access{}
+var Access api.KeyAccess = &access{}
 
 type access struct{}
 
-func (*access) AllKeys() []KeyEntry {
+func (*access) AllKeys() []api.KeyEntry {
 	files := listFilesInHomeSSHDirectory()
 	return partitionKeyEntries(privateKeyRepresentationsFrom(files),
 		publicKeyRepresentationsFrom(files))

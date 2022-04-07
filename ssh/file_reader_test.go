@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"fmt"
+	"github.com/digitalautonomy/keymirror/api"
 	"math/rand"
 	"os"
 	"path"
@@ -447,7 +448,7 @@ func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPr
 	}
 	publics = []*publicKeyRepresentation{}
 	l = partitionKeyEntries(privates, publics)
-	s.ElementsMatch([]KeyEntry{
+	s.ElementsMatch([]api.KeyEntry{
 		createPrivateKeyRepresentation("exclusively"),
 		createPrivateKeyRepresentation("privates"),
 	}, l)
@@ -459,7 +460,7 @@ func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPr
 		createPublicKeyRepresentation("publics.pub"),
 	}
 	l = partitionKeyEntries(privates, publics)
-	s.ElementsMatch([]KeyEntry{
+	s.ElementsMatch([]api.KeyEntry{
 		createPublicKeyRepresentation("exclusively.pub"),
 		createPublicKeyRepresentation("publics.pub"),
 	}, l)
@@ -474,7 +475,7 @@ func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPr
 		createPublicKeyRepresentation("lonely public.pub"),
 	}
 	l = partitionKeyEntries(privates, publics)
-	s.ElementsMatch([]KeyEntry{
+	s.ElementsMatch([]api.KeyEntry{
 		createKeypairRepresentation(createPrivateKeyRepresentation("matching pair"), createPublicKeyRepresentation("matching pair.pub")),
 		createPrivateKeyRepresentation("lonely private"),
 		createPublicKeyRepresentation("lonely public.pub"),

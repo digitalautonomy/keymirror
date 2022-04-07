@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"fmt"
+	"github.com/digitalautonomy/keymirror/api"
 	"github.com/prashantv/gostub"
 	"math/rand"
 	"os"
@@ -50,7 +51,7 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfPrivateKeysIfSSHDir
 	s.createFileWithContent(sshDirectory, privateKeyFile2, correctRSASSHPrivateKeyOther)
 	s.createEmptyFile(sshDirectory, "empty-file")
 
-	s.ElementsMatch([]KeyEntry{
+	s.ElementsMatch([]api.KeyEntry{
 		createPrivateKeyRepresentation(path.Join(sshDirectory, privateKeyFile1)),
 		createPrivateKeyRepresentation(path.Join(sshDirectory, privateKeyFile2)),
 	}, Access.AllKeys())
@@ -68,7 +69,7 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfPublicKeysIfSSHDire
 	s.createFileWithContent(sshDirectory, publicKeyFile2, "ssh-rsa AAAA robin@debian")
 	s.createEmptyFile(sshDirectory, "empty-file")
 
-	s.ElementsMatch([]KeyEntry{
+	s.ElementsMatch([]api.KeyEntry{
 		createPublicKeyRepresentation(path.Join(sshDirectory, publicKeyFile1)),
 		createPublicKeyRepresentation(path.Join(sshDirectory, publicKeyFile2)),
 	}, Access.AllKeys())
@@ -90,7 +91,7 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfKeypairsIfSSHDirect
 	s.createFileWithContent(sshDirectory, matchingPublicKeyFile2, "ssh-rsa AAAA robin@debian")
 	s.createEmptyFile(sshDirectory, "empty-file")
 
-	s.ElementsMatch([]KeyEntry{
+	s.ElementsMatch([]api.KeyEntry{
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKeyFile1)), createPublicKeyRepresentation(path.Join(sshDirectory, matchingPublicKeyFile1))),
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKeyFile2)), createPublicKeyRepresentation(path.Join(sshDirectory, matchingPublicKeyFile2))),
 	}, Access.AllKeys())
@@ -112,7 +113,7 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListIfSSHDirectoryPublicA
 	s.createFileWithContent(sshDirectory, lonelyPublicKeyFile, "ssh-rsa AAAA robin@debian")
 	s.createEmptyFile(sshDirectory, "empty-file")
 
-	s.ElementsMatch([]KeyEntry{
+	s.ElementsMatch([]api.KeyEntry{
 		createPrivateKeyRepresentation(path.Join(sshDirectory, lonelyPrivateKeyFile)),
 		createPublicKeyRepresentation(path.Join(sshDirectory, lonelyPublicKeyFile)),
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKey)), createPublicKeyRepresentation(path.Join(sshDirectory, matchingPublicKey))),

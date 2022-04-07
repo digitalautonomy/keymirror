@@ -1,9 +1,12 @@
 package ssh
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/digitalautonomy/keymirror/api"
+)
 
 type keyEntryPartitioner struct {
-	result     []KeyEntry
+	result     []api.KeyEntry
 	publicKeys map[string]*publicKeyRepresentation
 }
 
@@ -17,7 +20,7 @@ func (p *keyEntryPartitioner) publicKeyNameFor(priv *privateKeyRepresentation) s
 	return fmt.Sprintf("%s.pub", priv.path)
 }
 
-func (p *keyEntryPartitioner) addResult(r KeyEntry) {
+func (p *keyEntryPartitioner) addResult(r api.KeyEntry) {
 	p.result = append(p.result, r)
 }
 
@@ -55,7 +58,7 @@ func (p *keyEntryPartitioner) appendRemainingPublicKeys() {
 	foreachValue(p.publicKeys, p.addPublicKeyResult)
 }
 
-func partitionKeyEntries(privates []*privateKeyRepresentation, publics []*publicKeyRepresentation) []KeyEntry {
+func partitionKeyEntries(privates []*privateKeyRepresentation, publics []*publicKeyRepresentation) []api.KeyEntry {
 	p := &keyEntryPartitioner{}
 	p.initializePublicKeyCache(publics)
 	p.processPrivateKeys(privates)
