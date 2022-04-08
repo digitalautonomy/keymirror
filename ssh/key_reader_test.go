@@ -108,7 +108,8 @@ func (s *sshSuite) Test_CheckIfAStringHasTheFormatOfAnRSAPublicKey() {
 func (s *sshSuite) Test_parsePrivateKey_AnEmptyStringIsNotAPrivateKey() {
 	pk := ""
 
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -116,7 +117,8 @@ func (s *sshSuite) Test_parsePrivateKey_AnEmptyStringIsNotAPrivateKey() {
 func (s *sshSuite) Test_parsePrivateKey_AStringThatDoesNotFollowThePEMFormatShouldNotBeConsideredAPrivateKey() {
 	pk := "This is not a RSA Private Key and this does not follow the PEM format"
 
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -139,7 +141,8 @@ AIU+2GKjyT3iMuzZxxFxPFMCAwEAAQ==
 -----END PUBLIC KEY-----
 `
 
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -162,7 +165,8 @@ AIU+2GKjyT3iMuzZxxFxPFMCAwEAAQ==
 -----END OLAS FANCY OPENSSH PRIVATE KEY-----
 `
 
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -185,7 +189,8 @@ AIU+2GKjyT3iMuzZxxFxPFMCAwEAAQ==
 -----END PUBLIC KEY-----
 `
 
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -208,7 +213,8 @@ AIU+2GKjyT3iMuzZxxFxPFMCAwEAAQ=
 -----END OPENSSH PRIVATE KEY-----
 `
 
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -230,7 +236,8 @@ YWwBAg==
 func (s *sshSuite) Test_parsePrivateKey_AStringContainingAWellFormedOpenSSHPrivateKeyShouldBeConsideredAPrivateKey() {
 	pk := correctECDSASSHPrivateKey
 
-	priv, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	priv, ok := a.parsePrivateKey(pk)
 
 	s.True(ok)
 	s.Equal("ecdsa-sha2-nistp256", priv.algorithm)
@@ -243,7 +250,8 @@ func corruptMagicValue(s string) string {
 func (s *sshSuite) Test_parsePrivateKey_AStringContainingABinaryWithoutACorrectSSHMagicValueIsNotAValidPrivateKey() {
 	pk := corruptMagicValue(correctECDSASSHPrivateKey)
 
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -254,7 +262,8 @@ func (s *sshSuite) Test_parsePrivateKey_AStringContainingAVeryShortBase64StringI
 b3Bl
 -----END OPENSSH PRIVATE KEY-----
 `
-	_, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	_, ok := a.parsePrivateKey(pk)
 
 	s.False(ok)
 }
@@ -344,7 +353,8 @@ rf+ESDXM3mlWENAAAAF2l2YW5AaXZhbi1UaGlua1BhZC1UNDgwAQID
 func (s *sshSuite) Test_parsePrivateKey_AStringContainingAWellFormedRSAOpenSSHPrivateKeyShouldBeConsideredAPrivateKey() {
 	pk := correctRSASSHPrivateKey
 
-	priv, ok := parsePrivateKey(pk)
+	a, _ := accessWithTestLogging()
+	priv, ok := a.parsePrivateKey(pk)
 
 	s.True(ok)
 	s.Equal("ssh-rsa", priv.algorithm)
@@ -795,12 +805,13 @@ func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenExtractingPrivate
 }
 
 func (s *sshSuite) Test_isRSAPrivateKey_CheckIfAStringHasTheFormatOfAnRSAPrivateKey() {
+	a, _ := accessWithTestLogging()
 	k := ""
-	s.False(isRSAPrivateKey(k), "An empty string is not an OpenSSH private key representation thus it is not an RSA key")
+	s.False(a.isRSAPrivateKey(k), "An empty string is not an OpenSSH private key representation thus it is not an RSA key")
 
 	k = correctRSASSHPrivateKey
-	s.True(isRSAPrivateKey(k), "A string with the algorithm identifier ssh-rsa is an RSA key")
+	s.True(a.isRSAPrivateKey(k), "A string with the algorithm identifier ssh-rsa is an RSA key")
 
 	k = correctECDSASSHPrivateKey
-	s.False(isRSAPrivateKey(k), "A string with the algorithm identifier ssh-ecdsa is not an RSA key")
+	s.False(a.isRSAPrivateKey(k), "A string with the algorithm identifier ssh-ecdsa is not an RSA key")
 }

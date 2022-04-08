@@ -9,8 +9,8 @@ func checkIfFileContainsAPublicRSAKey(fileName string) (bool, error) {
 	return checkIfFileContainsASpecificValue(fileName, isRSAPublicKey)
 }
 
-func checkIfFileContainsAPrivateRSAKey(fileName string) (bool, error) {
-	return checkIfFileContainsASpecificValue(fileName, isRSAPrivateKey)
+func (a *access) checkIfFileContainsAPrivateRSAKey(fileName string) (bool, error) {
+	return checkIfFileContainsASpecificValue(fileName, a.isRSAPrivateKey)
 }
 
 func checkIfFileContainsASpecificValue(fileName string, f predicate[string]) (bool, error) {
@@ -26,20 +26,25 @@ func filesContainingRSAPublicKeys(fileNameList []string) []string {
 	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPublicRSAKey))
 }
 
-func filesContainingRSAPrivateKeys(fileNameList []string) []string {
-	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPrivateRSAKey))
+func (a *access) filesContainingRSAPrivateKeys(fileNameList []string) []string {
+	a.log.WithField("file names to check", fileNameList).Trace("filesContainingRSAPrivateKeys()")
+	result := filter(fileNameList, loggingErrors(a.log, "an error happened while checking if a file contains a private key", a.checkIfFileContainsAPrivateRSAKey))
+	a.log.WithField("private key files", result).Debug("we found these RSA private key files")
+	return result
 }
 
 func withoutFileName(targetFileNamesList []string, fileNameToDelete string) []string {
 	return filter(targetFileNamesList, not(isEqualTo(fileNameToDelete)))
 }
 
-func listFilesInHomeSSHDirectory() []string {
+func (a *access) listFilesInHomeSSHDirectory() []string {
 	sshDirectory := path.Join(os.Getenv("HOME"), ".ssh")
-	return transform(listFilesIn(sshDirectory), func(file string) string {
+	a.log.WithField("ssh directory", sshDirectory).Debug("listing files in users .ssh home directory")
+	result := transform(listFilesIn(sshDirectory), func(file string) string {
 		return path.Join(sshDirectory, file)
 	})
-
+	a.log.WithField("ssh files", result).Debug("found these files in the directory")
+	return result
 }
 
 func createPublicKeyRepresentationsFrom(input []string) []*publicKeyRepresentation {
@@ -50,8 +55,8 @@ func createPrivateKeyRepresentationsFrom(input []string) []*privateKeyRepresenta
 	return transform(input, createPrivateKeyRepresentation)
 }
 
-func privateKeyRepresentationsFrom(input []string) []*privateKeyRepresentation {
-	return createPrivateKeyRepresentationsFrom(filesContainingRSAPrivateKeys(input))
+func (a *access) privateKeyRepresentationsFrom(input []string) []*privateKeyRepresentation {
+	return createPrivateKeyRepresentationsFrom(a.filesContainingRSAPrivateKeys(input))
 }
 
 func publicKeyRepresentationsFrom(input []string) []*publicKeyRepresentation {

@@ -6,7 +6,6 @@ import (
 	"github.com/coyim/gotk3mocks/gdk"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/digitalautonomy/keymirror/api"
-	"github.com/digitalautonomy/keymirror/ssh"
 	"github.com/prashantv/gostub"
 	"testing"
 
@@ -49,5 +48,5 @@ func (s *mainSuite) Test_main_startsTheGuiWithTheRealGTK() {
 
 	s.Equal(ourGTK, calledWithGTK)
 	s.Equal(ourGDK, calledWithGDK)
-	s.Equal(ssh.Access, calledWithKeyAccesss)
+	s.NotNil(calledWithKeyAccesss)
 }

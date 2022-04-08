@@ -76,14 +76,20 @@ func createPrivateKeyFrom(input []byte) (privateKey, bool) {
 
 var privateKeyAuthMagicWithTerminator = []byte("openssh-key-v1\x00")
 
-func parsePrivateKey(pk string) (privateKey, bool) {
+func (a *access) parsePrivateKey(pk string) (privateKey, bool) {
 	b, _ := pem.Decode([]byte(pk))
 	if b == nil || b.Type != "OPENSSH PRIVATE KEY" {
+		if b == nil {
+			a.log.Error("PEM decoding of RSA private key failed")
+		} else {
+			a.log.WithField("pem type", b.Type).Error("Incorrect PEM type for RSA private key")
+		}
 		return privateKey{}, false
 	}
 
 	rest, ok := readOpensshPrivateKeyAuthMagic(b.Bytes)
 	if !ok {
+		a.log.Error("Incorrect Openssh private key magic string")
 		return privateKey{}, false
 	}
 

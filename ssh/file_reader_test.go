@@ -3,6 +3,7 @@ package ssh
 import (
 	"fmt"
 	"github.com/digitalautonomy/keymirror/api"
+	"github.com/sirupsen/logrus/hooks/test"
 	"math/rand"
 	"os"
 	"path"
@@ -138,7 +139,8 @@ func (s *sshSuite) Test_selectFilesContainingRSAPublicKeys_ReturnsAListWithSever
 func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAnEmptyListIsProvided() {
 	fileNameList := []string{}
 
-	selected := filesContainingRSAPrivateKeys(fileNameList)
+	a, _ := accessWithTestLogging()
+	selected := a.filesContainingRSAPrivateKeys(fileNameList)
 
 	s.Empty(selected)
 }
@@ -146,7 +148,8 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIf
 func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithANonExistingFileIsProvided() {
 	fileNameList := []string{"File that doesn't exist"}
 
-	selected := filesContainingRSAPrivateKeys(fileNameList)
+	a, _ := accessWithTestLogging()
+	selected := a.filesContainingRSAPrivateKeys(fileNameList)
 
 	s.Empty(selected)
 }
@@ -158,7 +161,8 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIf
 	fileNameList := []string{filepath.Join(s.tdir, fileName)}
 
 	// When
-	selected := filesContainingRSAPrivateKeys(fileNameList)
+	a, _ := accessWithTestLogging()
+	selected := a.filesContainingRSAPrivateKeys(fileNameList)
 
 	// Then
 	s.Empty(selected)
@@ -171,7 +175,8 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIf
 	fileNameList := []string{filepath.Join(s.tdir, fileName)}
 
 	// When
-	selected := filesContainingRSAPrivateKeys(fileNameList)
+	a, _ := accessWithTestLogging()
+	selected := a.filesContainingRSAPrivateKeys(fileNameList)
 
 	// Then
 	s.Empty(selected)
@@ -184,7 +189,8 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithOneF
 	fileNameList := []string{filepath.Join(s.tdir, fileName)}
 
 	// When
-	selected := filesContainingRSAPrivateKeys(fileNameList)
+	a, _ := accessWithTestLogging()
+	selected := a.filesContainingRSAPrivateKeys(fileNameList)
 
 	// Then
 	s.Equal(selected, []string{filepath.Join(s.tdir, fileName)})
@@ -200,7 +206,8 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithSeve
 	fileList := s.withDirectory("key_file1", "key_file2", "key_file3", "key_file4", "key_file5")
 
 	// When
-	selected := filesContainingRSAPrivateKeys(fileList)
+	a, _ := accessWithTestLogging()
+	selected := a.filesContainingRSAPrivateKeys(fileList)
 
 	// Then
 	expected := s.withDirectory("key_file2", "key_file4")
@@ -210,7 +217,8 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithSeve
 func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_returnsAnErrorWhenFileDoesntExist() {
 	fileName := "a-file-that-doesnt-exist"
 
-	_, err := checkIfFileContainsAPrivateRSAKey(fileName)
+	a, _ := accessWithTestLogging()
+	_, err := a.checkIfFileContainsAPrivateRSAKey(fileName)
 
 	s.True(os.IsNotExist(err), "Function should generate an error indicating the file doesn`t exist")
 }
@@ -219,7 +227,8 @@ func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_doesNotReturnErrorWhen
 	fileName := "a file that should exist"
 	s.createEmptyFile(s.tdir, fileName)
 
-	_, err := checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
+	a, _ := accessWithTestLogging()
+	_, err := a.checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
 
 	s.Nil(err)
 }
@@ -228,7 +237,8 @@ func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_ReturnsFalseWhenTheFil
 	fileName := "a file without an RSA Private Key"
 	s.createFileWithContent(s.tdir, fileName, "not an RSA Private Key")
 
-	b, err := checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
+	a, _ := accessWithTestLogging()
+	b, err := a.checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
 
 	s.Nil(err)
 	s.False(b)
@@ -238,7 +248,8 @@ func (s *sshSuite) Test_checkIfFileContainsAPrivateRSAKey_ReturnsTrueWhenTheFile
 	fileName := "a file with a valid RSA Private Key"
 	s.createFileWithContent(s.tdir, fileName, correctRSASSHPrivateKey)
 
-	b, err := checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
+	a, _ := accessWithTestLogging()
+	b, err := a.checkIfFileContainsAPrivateRSAKey(filepath.Join(s.tdir, fileName))
 
 	s.Nil(err)
 	s.True(b)
@@ -292,9 +303,17 @@ func (s *sshSuite) Test_removeFileName_RemovesTheProvidedFileNameFromAListIfPres
 	s.Equal([]string{"not coinciding file"}, l)
 }
 
+func accessWithTestLogging() (*access, *test.Hook) {
+	logger, hook := test.NewNullLogger()
+	return &access{
+		log: logger,
+	}, hook
+}
+
 func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAnEmptyListIfTheDotSSHDirectoryDoesNotExistInTheUsersHomeDirectory() {
 	defer gostub.New().SetEnv("HOME", s.tdir).Reset()
-	files := listFilesInHomeSSHDirectory()
+	a, _ := accessWithTestLogging()
+	files := a.listFilesInHomeSSHDirectory()
 
 	s.Empty(files)
 }
@@ -303,7 +322,8 @@ func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAnEmptyListIfTheDotSS
 	defer gostub.New().SetEnv("HOME", s.tdir).Reset()
 	s.Nil(os.Mkdir(path.Join(s.tdir, ".ssh"), 0755))
 
-	files := listFilesInHomeSSHDirectory()
+	a, _ := accessWithTestLogging()
+	files := a.listFilesInHomeSSHDirectory()
 
 	s.Empty(files)
 }
@@ -323,7 +343,8 @@ func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAListOfFilesIfTheDotS
 		return path.Join(sshDirectory, file)
 	})
 
-	files := listFilesInHomeSSHDirectory()
+	a, _ := accessWithTestLogging()
+	files := a.listFilesInHomeSSHDirectory()
 
 	s.Equal(expected, files)
 }
@@ -335,11 +356,11 @@ func (s *sshSuite) Test_createPublicKeyEntriesFrom_ReturnsAListOfKeyEntriesFromA
 
 	paths = []string{"a path"}
 	l = createPublicKeyRepresentationsFrom(paths)
-	s.Equal([]*publicKeyRepresentation{&publicKeyRepresentation{"a path"}}, l)
+	s.Equal([]*publicKeyRepresentation{{"a path"}}, l)
 
 	paths = []string{"a path", "another path"}
 	l = createPublicKeyRepresentationsFrom(paths)
-	s.Equal([]*publicKeyRepresentation{&publicKeyRepresentation{"a path"}, &publicKeyRepresentation{"another path"}}, l)
+	s.Equal([]*publicKeyRepresentation{{"a path"}, {"another path"}}, l)
 }
 
 func (s *sshSuite) Test_createPrivateKeyEntriesFrom_ReturnsAListOfKeyEntriesFromAllTheProvidedPaths() {
@@ -349,22 +370,23 @@ func (s *sshSuite) Test_createPrivateKeyEntriesFrom_ReturnsAListOfKeyEntriesFrom
 
 	paths = []string{"a path"}
 	l = createPrivateKeyRepresentationsFrom(paths)
-	s.Equal([]*privateKeyRepresentation{&privateKeyRepresentation{"a path"}}, l)
+	s.Equal([]*privateKeyRepresentation{{"a path"}}, l)
 
 	paths = []string{"a path", "another path"}
 	l = createPrivateKeyRepresentationsFrom(paths)
-	s.Equal([]*privateKeyRepresentation{&privateKeyRepresentation{"a path"}, &privateKeyRepresentation{"another path"}}, l)
+	s.Equal([]*privateKeyRepresentation{{"a path"}, {"another path"}}, l)
 }
 
 func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFromAllTheProvidedPaths() {
+	a, _ := accessWithTestLogging()
 	paths := []string{}
-	l := privateKeyRepresentationsFrom(paths)
+	l := a.privateKeyRepresentationsFrom(paths)
 	s.Empty(l)
 
 	emptyFile := "Empty-file"
 	s.createEmptyFile(s.tdir, emptyFile)
 	paths = []string{filepath.Join(s.tdir, emptyFile)}
-	l = privateKeyRepresentationsFrom(paths)
+	l = a.privateKeyRepresentationsFrom(paths)
 	s.Empty(l)
 
 	notAnRSAPrivateKeyFile := "Not-an-RSA-private-key-file"
@@ -373,7 +395,7 @@ func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFro
 		filepath.Join(s.tdir, emptyFile),
 		filepath.Join(s.tdir, notAnRSAPrivateKeyFile),
 	}
-	l = privateKeyRepresentationsFrom(paths)
+	l = a.privateKeyRepresentationsFrom(paths)
 	s.Empty(l)
 
 	privateRSAKeyFile1 := "File-with-a-private-RSA-key"
@@ -388,7 +410,7 @@ func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFro
 		filepath.Join(s.tdir, privateRSAKeyFile2),
 	}
 
-	l = privateKeyRepresentationsFrom(paths)
+	l = a.privateKeyRepresentationsFrom(paths)
 	s.Equal([]*privateKeyRepresentation{
 		createPrivateKeyRepresentation(filepath.Join(s.tdir, privateRSAKeyFile1)),
 		createPrivateKeyRepresentation(filepath.Join(s.tdir, privateRSAKeyFile2)),

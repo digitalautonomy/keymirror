@@ -5,6 +5,7 @@ import (
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/gui"
 	"github.com/digitalautonomy/keymirror/ssh"
+	"github.com/sirupsen/logrus"
 )
 
 var realGTK gtki.Gtk = nil
@@ -12,5 +13,7 @@ var realGDK gdki.Gdk = nil
 var startGUI = gui.Start
 
 func main() {
-	startGUI(realGTK, realGDK, ssh.Access)
+	l := logrus.New()
+	l.Level = logrus.TraceLevel
+	startGUI(realGTK, realGDK, ssh.Access(l))
 }

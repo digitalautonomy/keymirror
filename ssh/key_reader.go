@@ -35,8 +35,8 @@ func isRSAPublicKey(k string) bool {
 	return pub.isRSA()
 }
 
-func isRSAPrivateKey(pk string) bool {
-	priv, ok := parsePrivateKey(pk)
+func (a *access) isRSAPrivateKey(pk string) bool {
+	priv, ok := a.parsePrivateKey(pk)
 	if !ok {
 		return false
 	}

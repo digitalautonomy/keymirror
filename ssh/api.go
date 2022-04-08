@@ -1,13 +1,20 @@
 package ssh
 
-import "github.com/digitalautonomy/keymirror/api"
+import (
+	"github.com/digitalautonomy/keymirror/api"
+	"github.com/sirupsen/logrus"
+)
 
-var Access api.KeyAccess = &access{}
+func Access(l logrus.FieldLogger) api.KeyAccess {
+	return &access{log: l.WithField("component", "ssh")}
+}
 
-type access struct{}
+type access struct {
+	log logrus.FieldLogger
+}
 
-func (*access) AllKeys() []api.KeyEntry {
-	files := listFilesInHomeSSHDirectory()
-	return partitionKeyEntries(privateKeyRepresentationsFrom(files),
+func (a *access) AllKeys() []api.KeyEntry {
+	files := a.listFilesInHomeSSHDirectory()
+	return partitionKeyEntries(a.privateKeyRepresentationsFrom(files),
 		publicKeyRepresentationsFrom(files))
 }

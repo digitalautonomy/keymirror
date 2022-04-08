@@ -11,7 +11,8 @@ import (
 
 func (s *sshSuite) Test_access_AllKeys_ReturnsAnEmptyKeyEntryListIfCanNotFindSSHDirectory() {
 	defer gostub.New().SetEnv("HOME", s.tdir).Reset()
-	keys := Access.AllKeys()
+	a, _ := accessWithTestLogging()
+	keys := a.AllKeys()
 
 	s.Empty(keys)
 }
@@ -19,7 +20,8 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAnEmptyKeyEntryListIfCanNotFindSSH
 func (s *sshSuite) Test_access_AllKeys_ReturnsAnEmptyKeyEntryListIfSSHDirectoryHasNoFiles() {
 	defer gostub.New().SetEnv("HOME", s.tdir).Reset()
 	s.Nil(os.Mkdir(path.Join(s.tdir, ".ssh"), 0755))
-	keys := Access.AllKeys()
+	a, _ := accessWithTestLogging()
+	keys := a.AllKeys()
 
 	s.Empty(keys)
 }
@@ -34,7 +36,8 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAnEmptyKeyEntryListIfSSHDirectoryH
 		s.createFileWithContent(sshDirectory, f, "some content")
 	}
 	s.createEmptyFile(sshDirectory, "empty-file")
-	keys := Access.AllKeys()
+	a, _ := accessWithTestLogging()
+	keys := a.AllKeys()
 
 	s.Empty(keys)
 }
@@ -51,10 +54,11 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfPrivateKeysIfSSHDir
 	s.createFileWithContent(sshDirectory, privateKeyFile2, correctRSASSHPrivateKeyOther)
 	s.createEmptyFile(sshDirectory, "empty-file")
 
+	a, _ := accessWithTestLogging()
 	s.ElementsMatch([]api.KeyEntry{
 		createPrivateKeyRepresentation(path.Join(sshDirectory, privateKeyFile1)),
 		createPrivateKeyRepresentation(path.Join(sshDirectory, privateKeyFile2)),
-	}, Access.AllKeys())
+	}, a.AllKeys())
 }
 
 func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfPublicKeysIfSSHDirectoryHasOnlyPublicKeyFiles() {
@@ -69,10 +73,11 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfPublicKeysIfSSHDire
 	s.createFileWithContent(sshDirectory, publicKeyFile2, "ssh-rsa AAAA robin@debian")
 	s.createEmptyFile(sshDirectory, "empty-file")
 
+	a, _ := accessWithTestLogging()
 	s.ElementsMatch([]api.KeyEntry{
 		createPublicKeyRepresentation(path.Join(sshDirectory, publicKeyFile1)),
 		createPublicKeyRepresentation(path.Join(sshDirectory, publicKeyFile2)),
-	}, Access.AllKeys())
+	}, a.AllKeys())
 }
 
 func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfKeypairsIfSSHDirectoryHasOnlyMatchingPublicAndPrivateKeys() {
@@ -91,10 +96,11 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfKeypairsIfSSHDirect
 	s.createFileWithContent(sshDirectory, matchingPublicKeyFile2, "ssh-rsa AAAA robin@debian")
 	s.createEmptyFile(sshDirectory, "empty-file")
 
+	a, _ := accessWithTestLogging()
 	s.ElementsMatch([]api.KeyEntry{
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKeyFile1)), createPublicKeyRepresentation(path.Join(sshDirectory, matchingPublicKeyFile1))),
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKeyFile2)), createPublicKeyRepresentation(path.Join(sshDirectory, matchingPublicKeyFile2))),
-	}, Access.AllKeys())
+	}, a.AllKeys())
 }
 
 func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListIfSSHDirectoryPublicAndPrivateKeys() {
@@ -113,9 +119,10 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListIfSSHDirectoryPublicA
 	s.createFileWithContent(sshDirectory, lonelyPublicKeyFile, "ssh-rsa AAAA robin@debian")
 	s.createEmptyFile(sshDirectory, "empty-file")
 
+	a, _ := accessWithTestLogging()
 	s.ElementsMatch([]api.KeyEntry{
 		createPrivateKeyRepresentation(path.Join(sshDirectory, lonelyPrivateKeyFile)),
 		createPublicKeyRepresentation(path.Join(sshDirectory, lonelyPublicKeyFile)),
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKey)), createPublicKeyRepresentation(path.Join(sshDirectory, matchingPublicKey))),
-	}, Access.AllKeys())
+	}, a.AllKeys())
 }

@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"github.com/sirupsen/logrus"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/slices"
 )
@@ -71,6 +72,16 @@ type predicate[T any] func1[T, bool]
 func not[T any](f predicate[T]) predicate[T] {
 	return func(v T) bool {
 		return !f(v)
+	}
+}
+
+func loggingErrors[T, R any](l logrus.FieldLogger, message string, f func(T) (R, error)) func(T) R {
+	return func(s T) R {
+		b, e := f(s)
+		if e != nil {
+			l.WithError(e).Error(message)
+		}
+		return b
 	}
 }
 
