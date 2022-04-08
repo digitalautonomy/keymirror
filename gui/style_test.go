@@ -5,6 +5,8 @@ import (
 	"github.com/coyim/gotk3mocks/gdk"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/prashantv/gostub"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"testing/fstest"
 )
 
@@ -23,14 +25,24 @@ func (s *guiSuite) Test_ui_createStyleProviderFrom_CreatesAStyleProviderFromASty
 	}
 	defer gostub.StubFunc(&getDefinitions, definitionsMock).Reset()
 
+	log, h := test.NewNullLogger()
+	log.Level = logrus.TraceLevel
 	testUI := &ui{
 		gtk: gtkMock,
+		log: log,
 	}
+
 	sp := testUI.createStyleProviderFrom(filename)
 
 	s.Equal(cssProviderMock, sp)
 	gtkMock.AssertExpectations(s.T())
 	cssProviderMock.AssertExpectations(s.T())
+
+	s.Len(h.Entries, 1)
+	s.Equal("loading CSS style", h.LastEntry().Message)
+	s.Equal(logrus.DebugLevel, h.LastEntry().Level)
+	s.Len(h.LastEntry().Data, 1)
+	s.Equal("definitions/styles/a-fancy-style-sheet.css", h.LastEntry().Data["file"])
 }
 
 func (s *guiSuite) Test_ui_applyApplicationStyle_LoadsGlobalAndColorsStylesToTheDefaultScreen() {
@@ -62,9 +74,11 @@ func (s *guiSuite) Test_ui_applyApplicationStyle_LoadsGlobalAndColorsStylesToThe
 	gdkMock := &gdk.Mock{}
 	gdkMock.On("ScreenGetDefault").Return(screenMock, nil).Once()
 
+	log, _ := test.NewNullLogger()
 	testUI := &ui{
 		gtk: gtkMock,
 		gdk: gdkMock,
+		log: log,
 	}
 
 	testUI.applyApplicationStyle()

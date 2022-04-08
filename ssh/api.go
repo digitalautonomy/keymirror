@@ -10,7 +10,7 @@ func Access(l logrus.FieldLogger) api.KeyAccess {
 }
 
 type access struct {
-	log logrus.FieldLogger
+	log logrus.Ext1FieldLogger
 }
 
 func (a *access) AllKeys() []api.KeyEntry {

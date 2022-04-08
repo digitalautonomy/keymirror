@@ -5,6 +5,7 @@ import (
 	"github.com/coyim/gotk3mocks/gdk"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/prashantv/gostub"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -53,7 +54,8 @@ func (s *guiSuite) Test_Start_StartsGTKApplication() {
 	gtkMock.On("ApplicationNew", "digital.autonomia.keymirror", glibi.APPLICATION_FLAGS_NONE).Return(appMock, nil).Once()
 
 	gdkMock := &gdk.Mock{}
-	Start(gtkMock, gdkMock, nil)
+	log, _ := test.NewNullLogger()
+	Start(gtkMock, gdkMock, log, nil)
 
 	appMock.AssertExpectations(s.T())
 	gtkMock.AssertExpectations(s.T())
@@ -115,7 +117,8 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 		fixedKeyEntry("/home/amnesia/.ssh/id_rsa"),
 	)
 
-	Start(s.gtkMock, gdkMock, ka)
+	log, _ := test.NewNullLogger()
+	Start(s.gtkMock, gdkMock, log, ka)
 
 	winMock := &gtk.MockApplicationWindow{}
 	winMock.On("SetApplication", appMock).Return().Once()

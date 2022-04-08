@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"fmt"
 	"github.com/coyim/gotk3adapter/gtki"
 	"io/fs"
 )
@@ -8,6 +9,8 @@ import (
 func (u *ui) createStyleProviderFrom(filename string) gtki.CssProvider {
 	cssProvider, _ := u.gtk.CssProviderNew()
 	pathOfFile := styleDefinitionPath(filename)
+	fmt.Println("logging to logger", u.log)
+	u.log.WithField("file", pathOfFile).Debug("loading CSS style")
 	content, _ := fs.ReadFile(getDefinitions(), pathOfFile)
 	cssProvider.LoadFromData(string(content))
 	return cssProvider

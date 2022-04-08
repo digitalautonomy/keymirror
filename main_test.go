@@ -7,6 +7,7 @@ import (
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/digitalautonomy/keymirror/api"
 	"github.com/prashantv/gostub"
+	"github.com/sirupsen/logrus"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -37,10 +38,12 @@ func (s *mainSuite) Test_main_startsTheGuiWithTheRealGTK() {
 
 	var calledWithGTK gtki.Gtk
 	var calledWithGDK gdki.Gdk
+	var calledWithLog logrus.Ext1FieldLogger
 	var calledWithKeyAccesss api.KeyAccess
-	defer gostub.Stub(&startGUI, func(g gtki.Gtk, g2 gdki.Gdk, ka api.KeyAccess) {
+	defer gostub.Stub(&startGUI, func(g gtki.Gtk, g2 gdki.Gdk, log logrus.Ext1FieldLogger, ka api.KeyAccess) {
 		calledWithGTK = g
 		calledWithGDK = g2
+		calledWithLog = log
 		calledWithKeyAccesss = ka
 	}).Reset()
 
@@ -48,5 +51,7 @@ func (s *mainSuite) Test_main_startsTheGuiWithTheRealGTK() {
 
 	s.Equal(ourGTK, calledWithGTK)
 	s.Equal(ourGDK, calledWithGDK)
+	s.NotNil(calledWithLog)
+	s.Equal(logrus.TraceLevel, calledWithLog.(*logrus.Logger).Level)
 	s.NotNil(calledWithKeyAccesss)
 }

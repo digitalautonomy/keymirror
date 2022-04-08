@@ -5,6 +5,7 @@ import (
 	"github.com/coyim/gotk3adapter/glibi"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
+	"github.com/sirupsen/logrus"
 )
 
 const keymirrorApplicationID = "digital.autonomia.keymirror"
@@ -29,11 +30,12 @@ func (a *application) start() {
 	app.Run([]string{})
 }
 
-func Start(gtk gtki.Gtk, gdk gdki.Gdk, ka api.KeyAccess) {
+func Start(gtk gtki.Gtk, gdk gdki.Gdk, log logrus.Ext1FieldLogger, ka api.KeyAccess) {
 	app := &application{
 		ui: &ui{
 			gtk: gtk,
 			gdk: gdk,
+			log: log.WithField("component", "gui"),
 		},
 
 		keys: ka,

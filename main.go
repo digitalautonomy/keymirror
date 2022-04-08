@@ -15,5 +15,5 @@ var startGUI = gui.Start
 func main() {
 	l := logrus.New()
 	l.Level = logrus.TraceLevel
-	startGUI(realGTK, realGDK, ssh.Access(l))
+	startGUI(realGTK, realGDK, l, ssh.Access(l))
 }
