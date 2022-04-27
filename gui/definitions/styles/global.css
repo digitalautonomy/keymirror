@@ -1,5 +1,14 @@
-window {
-//    background-color: @default-bg;
+scrolledwindow {
+	background-color: @theme_bg_color;
+    color: @theme_fg_color;	
+}
+
+box > box {
+    margin: 1px;
+	border: solid;
+	border-radius: 3px 10px 3px 10px;
+	border-width: 1px;
+	padding: 5px;
 }
 
 .keyEntry.publicKey {

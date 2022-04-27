@@ -1,0 +1,3 @@
+@define-color keylist-entry-public-bg @warning_color;
+@define-color keylist-entry-private-bg @error_color;
+@define-color keylist-entry-pair-bg @success_color;
