@@ -4,6 +4,7 @@ import (
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/digitalautonomy/keymirror/api"
+	"github.com/digitalautonomy/keymirror/i18n"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -69,7 +70,7 @@ func (s *guiSuite) setupBuildingOfKeyEntry(path string) *gtk.MockBox {
 	return box
 }
 
-func (s *guiSuite) Test_populateListWithKeyEntries_AddsAListOfKeyEntriesIntoAGTKBox() {
+func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreKeyEntriesAddsThemIntoAGTKBoxWithoutCallingOnNoKeysFunctionPassedInParameter() {
 	ka := fixedKeyAccess(
 		fixedKeyEntry("/home/amnesia/.ssh/id_rsa"),
 		fixedKeyEntry("/home/amnesia/.ssh/id_ed25519"),
@@ -87,7 +88,48 @@ func (s *guiSuite) Test_populateListWithKeyEntries_AddsAListOfKeyEntriesIntoAGTK
 
 	u := &ui{gtk: s.gtkMock}
 
-	u.populateListWithKeyEntries(ka, box)
+	called := false
+	onNoKeys := func(box gtki.Box) { called = true }
+
+	u.populateListWithKeyEntries(ka, box, onNoKeys)
 
 	box.AssertExpectations(s.T())
+	s.False(called)
+}
+
+func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreNoKeyEntriesExecuteOnNoKeysFunctionPassedInParameter() {
+	ka := fixedKeyAccess()
+
+	box := &gtk.MockBox{}
+
+	u := &ui{gtk: s.gtkMock}
+
+	called := false
+	onNoKeys := func(box gtki.Box) { called = true }
+
+	u.populateListWithKeyEntries(ka, box, onNoKeys)
+
+	box.AssertExpectations(s.T())
+	s.True(called)
+}
+
+func (s *guiSuite) Test_showNoAvailableKeysMessage_AddsAMessageIntoAGTKBoxWhenThereAreNoAvailableKeys() {
+
+	sc := &gtk.MockStyleContext{}
+	sc.On("AddClass", "infoMessage").Return().Once()
+
+	label := &gtk.MockLabel{}
+	label.On("GetStyleContext").Return(sc, nil).Once()
+
+	s.gtkMock.On("LabelNew", i18n.Local("\u26A0 No keys available \u26A0")).Return(label, nil).Once()
+	u := &ui{gtk: s.gtkMock}
+
+	box := &gtk.MockBox{}
+	box.On("Add", label).Return().Once()
+
+	u.showNoAvailableKeysMessage(box)
+
+	box.AssertExpectations(s.T())
+	label.AssertExpectations(s.T())
+	sc.AssertExpectations(s.T())
 }

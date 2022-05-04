@@ -13,9 +13,13 @@ const keymirrorApplicationID = "digital.autonomia.keymirror"
 func (a *application) createMainWindow(app gtki.Application) gtki.Window {
 	w, b := buildObjectFrom[gtki.ApplicationWindow](a.ui, "MainWindow")
 	box := b.get("keyListBox").(gtki.Box)
-	a.ui.populateListWithKeyEntries(a.keys, box)
+	a.populateMainWindow(box)
 	w.SetApplication(app)
 	return w
+}
+
+func (a *application) populateMainWindow(box gtki.Box) {
+	a.ui.populateListWithKeyEntries(a.keys, box, a.ui.showNoAvailableKeysMessage)
 }
 
 func (a *application) activate(app gtki.Application) {

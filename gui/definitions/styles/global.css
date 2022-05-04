@@ -11,6 +11,11 @@ box > box {
 	padding: 5px;
 }
 
+.infoMessage {
+    color: @theme_text_color;
+    margin: 10px;
+}
+
 .keyEntry.publicKey {
     background-color: @keylist-entry-public-bg;
 }
