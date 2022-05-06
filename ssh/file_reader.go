@@ -43,7 +43,12 @@ func (a *access) listFilesInHomeSSHDirectory() []string {
 	result := transform(listFilesIn(sshDirectory), func(file string) string {
 		return path.Join(sshDirectory, file)
 	})
-	a.log.WithField("ssh files", result).Debug("found these files in the directory")
+	msg := "found these files in the directory"
+	if len(result) == 0 {
+		msg = "no files were found in the directory"
+	}
+	a.log.WithField("ssh files", result).Debug(msg)
+
 	return result
 }
 
