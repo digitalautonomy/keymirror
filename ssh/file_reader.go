@@ -5,32 +5,13 @@ import (
 	"path"
 )
 
-func checkIfFileContainsAPublicRSAKey(fileName string) (bool, error) {
-	return checkIfFileContainsASpecificValue(fileName, isRSAPublicKey)
-}
-
-func (a *access) checkIfFileContainsAPrivateRSAKey(fileName string) (bool, error) {
-	return checkIfFileContainsASpecificValue(fileName, a.isRSAPrivateKey)
-}
-
-func checkIfFileContainsASpecificValue(fileName string, f predicate[string]) (bool, error) {
+func fileContentMatches(fileName string, f predicate[string]) (bool, error) {
 	content, e := os.ReadFile(fileName)
 	if e != nil {
 		return false, e
 	}
 
 	return f(string(content)), nil
-}
-
-func filesContainingRSAPublicKeys(fileNameList []string) []string {
-	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPublicRSAKey))
-}
-
-func (a *access) filesContainingRSAPrivateKeys(fileNameList []string) []string {
-	a.log.WithField("file names to check", fileNameList).Trace("filesContainingRSAPrivateKeys()")
-	result := filter(fileNameList, loggingErrors(a.log, "an error happened while checking if a file contains a private key", a.checkIfFileContainsAPrivateRSAKey))
-	a.log.WithField("private key files", result).Debug("we found these RSA private key files")
-	return result
 }
 
 func withoutFileName(targetFileNamesList []string, fileNameToDelete string) []string {
