@@ -42,9 +42,18 @@ func createPrivateKeyRepresentationsFrom(input []string) []*privateKeyRepresenta
 }
 
 func (a *access) privateKeyRepresentationsFrom(input []string) []*privateKeyRepresentation {
-	return createPrivateKeyRepresentationsFrom(a.filesContainingRSAPrivateKeys(input))
+	privateKeyFiles := concat(
+		a.filesContainingRSAPrivateKeys(input),
+		a.filesContainingEd25519PrivateKeys(input),
+	)
+
+	return createPrivateKeyRepresentationsFrom(privateKeyFiles)
 }
 
 func publicKeyRepresentationsFrom(input []string) []*publicKeyRepresentation {
-	return createPublicKeyRepresentationsFrom(filesContainingRSAPublicKeys(input))
+	publicKeyFiles := concat(
+		filesContainingRSAPublicKeys(input),
+		filesContainingEd25519PublicKeys(input),
+	)
+	return createPublicKeyRepresentationsFrom(publicKeyFiles)
 }

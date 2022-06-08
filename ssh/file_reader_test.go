@@ -136,7 +136,7 @@ func (s *sshSuite) Test_selectFilesContainingRSAPublicKeys_ReturnsAListWithSever
 	s.Equal(expected, selected)
 }
 
-func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAnEmptyListIsProvided() {
+func (s *sshSuite) Test_filesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAnEmptyListIsProvided() {
 	fileNameList := []string{}
 
 	a, _ := accessWithTestLogging()
@@ -145,7 +145,7 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIf
 	s.Empty(selected)
 }
 
-func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithANonExistingFileIsProvided() {
+func (s *sshSuite) Test_filesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithANonExistingFileIsProvided() {
 	fileNameList := []string{"File that doesn't exist"}
 
 	a, _ := accessWithTestLogging()
@@ -154,7 +154,7 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIf
 	s.Empty(selected)
 }
 
-func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithAnEmptyFileIsProvided() {
+func (s *sshSuite) Test_filesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithAnEmptyFileIsProvided() {
 	// Given
 	fileName := "Empty file"
 	s.createEmptyFile(s.tdir, fileName)
@@ -168,10 +168,10 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIf
 	s.Empty(selected)
 }
 
-func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithAFileThatDoesntContainAnRSAPublicKeyIsProvided() {
+func (s *sshSuite) Test_filesContainingRSAPrivateKeys_ReturnsAnEmptyListIfAListWithAFileThatDoesntContainAnRSAPrivateKeyIsProvided() {
 	// Given
 	fileName := "Empty file"
-	s.createFileWithContent(s.tdir, fileName, "not a RSA public key")
+	s.createFileWithContent(s.tdir, fileName, "not a RSA private key")
 	fileNameList := []string{filepath.Join(s.tdir, fileName)}
 
 	// When
@@ -182,7 +182,7 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAnEmptyListIf
 	s.Empty(selected)
 }
 
-func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithOneFileNameIfAListWithAFileThatContainsAnRSAPublicKeyIsProvided() {
+func (s *sshSuite) Test_filesContainingRSAPrivateKeys_ReturnsAListWithOneFileNameIfAListWithAFileThatContainsAnRSAPrivateKeyIsProvided() {
 	// Given
 	fileName := "File-with-content"
 	s.createFileWithContent(s.tdir, fileName, correctRSASSHPrivateKey)
@@ -196,7 +196,7 @@ func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithOneF
 	s.Equal(selected, []string{filepath.Join(s.tdir, fileName)})
 }
 
-func (s *sshSuite) Test_selectFilesContainingRSAPrivateKeys_ReturnsAListWithSeveralFileNamesThatContainsRSAKey() {
+func (s *sshSuite) Test_filesContainingRSAPrivateKeys_ReturnsAListWithSeveralFileNamesThatContainsRSAKey() {
 	// Given
 	s.createFileWithContent(s.tdir, "key_file1", correctECDSASSHPrivateKey)
 	s.createFileWithContent(s.tdir, "key_file2", correctRSASSHPrivateKey)

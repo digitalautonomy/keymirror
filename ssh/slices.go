@@ -109,3 +109,11 @@ func foreach[T any](values []T, f func(T)) {
 		f(v)
 	}
 }
+
+func concat[T any](s ...[]T) []T {
+	if len(s) == 0 {
+		return nil
+	}
+
+	return append(s[0], concat(s[1:]...)...)
+}
