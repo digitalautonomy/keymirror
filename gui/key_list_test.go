@@ -30,11 +30,31 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	keyEntry := &keyEntryMock{}
 	keyEntry.On("Locations").Return([]string{"/home/amnesia/id_rsa.pub"}).Once()
 
-	actualGtkBox := u.createKeyEntryBoxFrom(keyEntry)
+	var clickedHandler func() = nil
+	box.On("Connect", "clicked", mock.Anything).Return(nil).Once().Run(func(a mock.Arguments) {
+		clickedHandler = a.Get(1).(func())
+	})
+
+	detailsBoxMock := &gtk.MockBox{}
+	actualGtkBox := u.createKeyEntryBoxFrom(keyEntry, detailsBoxMock)
 
 	s.Equal(box, actualGtkBox)
 
 	keyEntry.AssertExpectations(s.T())
+
+	keyDetailsBoxMock := &gtk.MockBox{}
+	builder := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
+	detailsBoxMock.On("Add", keyDetailsBoxMock).Return().Once()
+	detailsBoxMock.On("GetChildren").Return(nil).Once()
+	publicKeyPathLabel := &gtk.MockLabel{}
+	builder.On("GetObject", "publicKeyPath").Return(publicKeyPathLabel, nil).Once()
+	keyEntry.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
+	publicKeyPathLabel.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
+
+	clickedHandler()
+
+	keyEntry.AssertExpectations(s.T())
+	detailsBoxMock.AssertExpectations(s.T())
 }
 
 type keyAccessMock struct {
@@ -70,7 +90,6 @@ func (s *guiSuite) setupBuildingOfKeyEntry(path string) *gtk.MockButton {
 	label := &gtk.MockLabel{}
 	label.On("SetLabel", path).Return().Once()
 	box := &gtk.MockButton{}
-	box.On("Connect", "clicked", mock.Anything).Return(nil).Once()
 	b := s.setupBuildingOfObject(box, "KeyListEntry")
 	b.On("GetObject", "keyListEntryLabel").Return(label, nil).Once()
 	s.addObjectToAssert(box)
@@ -88,6 +107,10 @@ func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreKeyEntriesAddsThemI
 	box2 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519")
 	box3 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_dsa")
 
+	box1.On("Connect", "clicked", mock.Anything).Return(nil).Once()
+	box2.On("Connect", "clicked", mock.Anything).Return(nil).Once()
+	box3.On("Connect", "clicked", mock.Anything).Return(nil).Once()
+
 	box := &gtk.MockBox{}
 	box.On("Add", box1).Return().Once()
 	box.On("Add", box2).Return().Once()
@@ -98,7 +121,7 @@ func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreKeyEntriesAddsThemI
 	called := false
 	onNoKeys := func(box gtki.Box) { called = true }
 
-	u.populateListWithKeyEntries(ka, box, onNoKeys)
+	u.populateListWithKeyEntries(ka, box, nil, onNoKeys)
 
 	box.AssertExpectations(s.T())
 	s.False(called)
@@ -114,7 +137,7 @@ func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreNoKeyEntriesExecute
 	called := false
 	onNoKeys := func(box gtki.Box) { called = true }
 
-	u.populateListWithKeyEntries(ka, box, onNoKeys)
+	u.populateListWithKeyEntries(ka, box, nil, onNoKeys)
 
 	box.AssertExpectations(s.T())
 	s.True(called)

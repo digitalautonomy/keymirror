@@ -19,9 +19,8 @@ func (a *application) createMainWindow(app gtki.Application) gtki.Window {
 	return w
 }
 
-func (a *application) populateMainWindow(listBox, detailBox gtki.Box) {
-	a.ui.populateListWithKeyEntries(a.keys, listBox, a.ui.showNoAvailableKeysMessage)
-	a.ui.populateKeyDetails(detailBox)
+func (a *application) populateMainWindow(listBox, detailsBox gtki.Box) {
+	a.ui.populateListWithKeyEntries(a.keys, listBox, detailsBox, a.ui.showNoAvailableKeysMessage)
 }
 
 func (a *application) activate(app gtki.Application) {
