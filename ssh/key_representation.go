@@ -41,23 +41,39 @@ func createKeypairRepresentation(private *privateKeyRepresentation, public *publ
 	}
 }
 
-// Locations implement the KeyEntry interface
-func (k *privateKeyRepresentation) Locations() []string {
-	if k.path == "" {
+func nilOrStringSlice(s string) []string {
+	if s == "" {
 		return nil
 	}
-	return []string{k.path}
+	return []string{s}
+}
+
+// Locations implement the KeyEntry interface
+func (k *privateKeyRepresentation) Locations() []string {
+	return nilOrStringSlice(k.path)
+}
+
+// PublicKeyLocations implement the KeyEntry interface
+func (k *privateKeyRepresentation) PublicKeyLocations() []string {
+	return nil
 }
 
 // Locations implement the KeyEntry interface
 func (k *publicKeyRepresentation) Locations() []string {
-	if k.path == "" {
-		return nil
-	}
-	return []string{k.path}
+	return nilOrStringSlice(k.path)
+}
+
+// PublicKeyLocations implement the KeyEntry interface
+func (k *publicKeyRepresentation) PublicKeyLocations() []string {
+	return k.Locations()
 }
 
 // Locations implement the KeyEntry interface
 func (k *keypairRepresentation) Locations() []string {
 	return append(k.private.Locations(), k.public.Locations()...)
+}
+
+// PublicKeyLocations implement the KeyEntry interface
+func (k *keypairRepresentation) PublicKeyLocations() []string {
+	return k.public.PublicKeyLocations()
 }

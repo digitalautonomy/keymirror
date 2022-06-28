@@ -17,6 +17,11 @@ func (ke *keyEntryMock) Locations() []string {
 	return returns.Get(0).([]string)
 }
 
+func (ke *keyEntryMock) PublicKeyLocations() []string {
+	returns := ke.Called()
+	return returns.Get(0).([]string)
+}
+
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
 	box := s.setupBuildingOfKeyEntry("/home/amnesia/id_rsa.pub")
 
