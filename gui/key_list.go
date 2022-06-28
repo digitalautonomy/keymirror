@@ -1,14 +1,18 @@
 package gui
 
 import (
+	"fmt"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
 	"github.com/digitalautonomy/keymirror/i18n"
 )
 
-func (u *ui) createKeyEntryBoxFrom(entry api.KeyEntry) gtki.Box {
-	b, _ := buildObjectFrom[gtki.Box](u, "KeyListEntry")
-	b.GetChildren()[0].(gtki.Label).SetLabel(entry.Locations()[0])
+func (u *ui) createKeyEntryBoxFrom(entry api.KeyEntry) gtki.Widget {
+	b, builder := buildObjectFrom[gtki.Button](u, "KeyListEntry")
+	builder.get("keyListEntryLabel").(gtki.Label).SetLabel(entry.Locations()[0])
+	b.Connect("clicked", func() {
+		fmt.Println("======= OK HANDLER ========")
+	})
 	return b
 }
 

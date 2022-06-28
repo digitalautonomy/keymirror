@@ -1,26 +1,30 @@
 <interface>
-    <object class="GtkBox" id="KeyListEntry">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="baseline-position">top</property>
+    <object class="GtkButton" id="KeyListEntry">
         <child>
-            <object class="GtkLabel" id="keyListEntryLabel">
+            <object class="GtkBox" id="KeyListEntryBox">
                 <property name="visible">True</property>
-                <property name="halign">GTK_ALIGN_START</property>
                 <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="baseline-position">top</property>
+                <child>
+                    <object class="GtkLabel" id="keyListEntryLabel">
+                        <property name="visible">True</property>
+                        <property name="halign">GTK_ALIGN_START</property>
+                        <property name="can-focus">False</property>
+                        <style>
+                            <class name="keyEntryPath"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                    </packing>
+                </child>
                 <style>
-                    <class name="keyEntryPath"/>
+                    <class name="keyEntry"/>
                 </style>
             </object>
-            <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-            </packing>
         </child>
-        <style>
-            <class name="keyEntry"/>
-        </style>
     </object>
 </interface>

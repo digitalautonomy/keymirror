@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <object class="GtkBox" id="KeyDetails">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="baseline-position">top</property>
+        <child>
+            <object class="GtkLabel" id="keyDetailsHeader">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">GTK_ALIGN_CENTER</property>
+                <property name="label" translatable="yes">Key Details</property>
+                <style>
+                    <class name="header"/>
+                </style>
+            </object>
+            <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+            </packing>
+        </child>
+        <child>
+            <object class="GtkBox" id="keyDetailsPublicKeyRow">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                    <object class="GtkLabel" id="publicKeyPathLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Public key:</property>
+                        <style>
+                            <class name="pathLabel"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                    </packing>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="publicKeyPath">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">~/.ssh/id_rsa.pub</property>
+                        <style>
+                            <class name="path"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                    </packing>
+                </child>
+                <style>
+                    <class name="publicKey"/>
+                </style>
+            </object>
+            <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+            </packing>
+        </child>
+        <style>
+            <class name="keyDetail"/>
+        </style>
+    </object>
+</interface>

@@ -1,27 +1,74 @@
 <interface>
     <object class="GtkApplicationWindow" id="MainWindow">
         <child>
-            <object class="GtkScrolledWindow" id="keyListWindow">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="hscrollbar-policy">never</property>
-                <property name="shadow-type">in</property>
+            <object class="GtkBox">
+                <property name="orientation">horizontal</property>
                 <child>
-                    <object class="GtkViewport">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                    <object class="GtkBox">
+                        <property name="orientation">vertical</property>
                         <child>
-                            <object class="GtkBox" id="keyListBox">
+                            <object class="GtkLabel" id="keyListHeader">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
+                                <property name="halign">GTK_ALIGN_CENTER</property>
+                                <property name="label" translatable="yes">Key List</property>
+                                <style>
+                                    <class name="header"/>
+                                </style>
                             </object>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                            </packing>
                         </child>
+                        <child>
+                            <object class="GtkScrolledWindow" id="keyListWindow">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="hscrollbar-policy">never</property>
+                                <property name="shadow-type">in</property>
+                                <child>
+                                    <object class="GtkViewport">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <child>
+                                            <object class="GtkBox" id="keyListBox">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <style>
+                                    <class name="list"/>
+                                </style>
+                            </object>
+                            <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                            </packing>
+                        </child>
+                        <style>
+                            <class name="keyList"/>
+                        </style>
                     </object>
                 </child>
-                <style>
-                    <class name="keyList"/>
-                </style>
+                <child>
+                    <object class="GtkBox" id="keyDetailsBox">
+                        <property name="orientation">vertical</property>
+                        <style>
+                            <class name="keyDetailsBox"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                    </packing>
+                </child>
             </object>
         </child>
     </object>

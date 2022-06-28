@@ -1,14 +1,71 @@
-scrolledwindow {
+window {
 	background-color: @theme_bg_color;
     color: @theme_fg_color;	
 }
 
-box > box {
+
+
+.keyList .keyEntry {
     margin: 1px;
 	border: solid;
 	border-radius: 3px 10px 3px 10px;
 	border-width: 1px;
 	padding: 5px;
+}
+
+.keyList button {
+    background: none;
+    border: none;
+    transition: none;
+}
+
+.keyList button:backdrop {
+    color: currentColor;
+}
+
+.keyList button:hover {
+    transition: none;
+    background: none;
+    background-color: @theme_selected_bg_color;
+}
+
+.keyList button:active {
+    transition: none;
+    background-image: none;
+    color: @theme_selected_fg_color;
+}
+
+.keyList button:focus {
+    outline-width: 0px;
+}
+
+.keyDetailsBox {
+    border: solid;
+    border-radius: 0 15px 15px 0;
+    border-width: 1.5px;
+    padding: 3px;
+}
+
+.keyDetail .header {
+    margin-bottom: 5px
+}
+
+.keyList .header {
+    margin: 5px;
+}
+
+.keyDetail .header, .keyList .header {
+    border-bottom: 1px dashed currentColor;
+    font-size: 130%;
+    font-weight: 500;
+}
+
+.keyDetail .header {
+    margin: 4px;
+}
+
+.keyList .header {
+    margin: 5px;
 }
 
 .infoMessage {

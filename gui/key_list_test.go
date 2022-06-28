@@ -52,20 +52,22 @@ func fixedKeyEntry(location string) api.KeyEntry {
 	return ke
 }
 
-func (s *guiSuite) setupBuildingOfObject(val interface{}, name string) {
+func (s *guiSuite) setupBuildingOfObject(val interface{}, name string) *gtk.MockBuilder {
 	builder := &gtk.MockBuilder{}
 	s.gtkMock.On("BuilderNew").Return(builder, nil).Once()
 	builder.On("AddFromString", mock.Anything).Return(nil).Once()
 	builder.On("GetObject", name).Return(val, nil).Once()
 	s.addObjectToAssert(builder)
+	return builder
 }
 
-func (s *guiSuite) setupBuildingOfKeyEntry(path string) *gtk.MockBox {
+func (s *guiSuite) setupBuildingOfKeyEntry(path string) *gtk.MockButton {
 	label := &gtk.MockLabel{}
 	label.On("SetLabel", path).Return().Once()
-	box := &gtk.MockBox{}
-	box.On("GetChildren").Return([]gtki.Widget{label}).Once()
-	s.setupBuildingOfObject(box, "KeyListEntry")
+	box := &gtk.MockButton{}
+	box.On("Connect", "clicked", mock.Anything).Return(nil).Once()
+	b := s.setupBuildingOfObject(box, "KeyListEntry")
+	b.On("GetObject", "keyListEntryLabel").Return(label, nil).Once()
 	s.addObjectToAssert(box)
 	return box
 }
