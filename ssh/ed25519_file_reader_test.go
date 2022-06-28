@@ -4,7 +4,6 @@ import "path/filepath"
 
 func (s *sshSuite) Test_filesContainingEd25519PrivateKeys_ReturnsAnEmptyListIfAnEmptyListIsProvided() {
 	fileNameList := []string{}
-
 	a, _ := accessWithTestLogging()
 	selected := a.filesContainingEd25519PrivateKeys(fileNameList)
 
