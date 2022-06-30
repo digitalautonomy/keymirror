@@ -3,6 +3,7 @@ package gui
 import (
 	"github.com/coyim/gotk3adapter/gdki"
 	"github.com/coyim/gotk3adapter/gtki"
+	"github.com/digitalautonomy/keymirror/api"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,4 +16,8 @@ type ui struct {
 	gdk gdki.Gdk
 	// error handler
 	log logrus.Ext1FieldLogger
+
+	currentlyVisibleKeyEntry       *api.KeyEntry
+	currentlyVisibleKeyEntryButton *gtki.Button
+	onWindowSizeChange             func()
 }

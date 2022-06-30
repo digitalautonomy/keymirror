@@ -8,24 +8,40 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+type getter interface {
+	Get(int) interface{}
+}
+
+func safeCast[T any](v interface{}) T {
+	ret, _ := v.(T)
+	return ret
+}
+
+func ret[T any](args getter, index int) T {
+	return safeCast[T](args.Get(index))
+}
+
 type keyEntryMock struct {
 	mock.Mock
 }
 
 func (ke *keyEntryMock) Locations() []string {
 	returns := ke.Called()
-	return returns.Get(0).([]string)
+	return ret[[]string](returns, 0)
 }
 
 func (ke *keyEntryMock) PublicKeyLocations() []string {
 	returns := ke.Called()
-	return returns.Get(0).([]string)
+	return ret[[]string](returns, 0)
 }
 
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
 	box := s.setupBuildingOfKeyEntry("/home/amnesia/id_rsa.pub")
 
-	u := &ui{gtk: s.gtkMock}
+	onWindowChangeCalled := 0
+	u := &ui{gtk: s.gtkMock, onWindowSizeChange: func() {
+		onWindowChangeCalled++
+	}}
 
 	keyEntry := &keyEntryMock{}
 	keyEntry.On("Locations").Return([]string{"/home/amnesia/id_rsa.pub"}).Once()
@@ -36,7 +52,9 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	})
 
 	detailsBoxMock := &gtk.MockBox{}
-	actualGtkBox := u.createKeyEntryBoxFrom(keyEntry, detailsBoxMock)
+
+	detailsRevMock := &gtk.MockRevealer{}
+	actualGtkBox := u.createKeyEntryBoxFrom(keyEntry, detailsBoxMock, detailsRevMock)
 
 	s.Equal(box, actualGtkBox)
 
@@ -50,11 +68,22 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	builder.On("GetObject", "publicKeyPath").Return(publicKeyPathLabel, nil).Once()
 	keyEntry.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	publicKeyPathLabel.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
+	publicKeyPathLabel.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
+	detailsRevMock.On("Show").Return().Once()
+	detailsRevMock.On("SetRevealChild", true).Return().Once()
+
+	scMock := &gtk.MockStyleContext{}
+	box.On("GetStyleContext").Return(scMock, nil).Once()
+	scMock.On("AddClass", "current").Return().Once()
 
 	clickedHandler()
 
+	s.Equal(1, onWindowChangeCalled)
+
 	keyEntry.AssertExpectations(s.T())
 	detailsBoxMock.AssertExpectations(s.T())
+	detailsRevMock.AssertExpectations(s.T())
+	scMock.AssertExpectations(s.T())
 }
 
 type keyAccessMock struct {
@@ -74,6 +103,12 @@ func fixedKeyAccess(keys ...api.KeyEntry) api.KeyAccess {
 func fixedKeyEntry(location string) api.KeyEntry {
 	ke := &keyEntryMock{}
 	ke.On("Locations").Return([]string{location}).Maybe()
+	return ke
+}
+
+func fixedPublicKeyEntry(locations ...string) api.KeyEntry {
+	ke := &keyEntryMock{}
+	ke.On("PublicKeyLocations").Return(locations).Maybe()
 	return ke
 }
 
@@ -121,7 +156,7 @@ func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreKeyEntriesAddsThemI
 	called := false
 	onNoKeys := func(box gtki.Box) { called = true }
 
-	u.populateListWithKeyEntries(ka, box, nil, onNoKeys)
+	u.populateListWithKeyEntries(ka, box, nil, nil, onNoKeys)
 
 	box.AssertExpectations(s.T())
 	s.False(called)
@@ -137,7 +172,7 @@ func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreNoKeyEntriesExecute
 	called := false
 	onNoKeys := func(box gtki.Box) { called = true }
 
-	u.populateListWithKeyEntries(ka, box, nil, onNoKeys)
+	u.populateListWithKeyEntries(ka, box, nil, nil, onNoKeys)
 
 	box.AssertExpectations(s.T())
 	s.True(called)

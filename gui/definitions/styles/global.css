@@ -23,7 +23,7 @@ window {
     color: currentColor;
 }
 
-.keyList button:hover {
+.keyList button:hover .keyEntry {
     transition: none;
     background: none;
     background-color: @theme_selected_bg_color;
@@ -37,6 +37,11 @@ window {
 
 .keyList button:focus {
     outline-width: 0px;
+}
+
+.keyList .current .keyEntry {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 
 .keyDetailsBox {
@@ -62,6 +67,10 @@ window {
 
 .keyDetail .header {
     margin: 4px;
+}
+
+.keyDetail .pathLabel {
+    padding-right: 10px;
 }
 
 .keyList .header {

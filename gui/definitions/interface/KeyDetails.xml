@@ -45,7 +45,8 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes">~/.ssh/id_rsa.pub</property>
+                        <property name="ellipsize">start</property>
+                        <property name="width-chars">20</property>
                         <style>
                             <class name="path"/>
                         </style>

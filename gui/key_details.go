@@ -17,8 +17,15 @@ func clearAllChildrenOf[T any](b clearable[T]) {
 }
 
 func (u *ui) populateKeyDetails(key api.KeyEntry, into gtki.Box) {
-	b, builder := buildObjectFrom[gtki.Box](u, "KeyDetails")
-	builder.get("publicKeyPath").(gtki.Label).SetLabel(key.PublicKeyLocations()[0])
 	clearAllChildrenOf[gtki.Widget](into)
-	into.Add(b)
+
+	p := key.PublicKeyLocations()
+
+	if p != nil {
+		b, builder := buildObjectFrom[gtki.Box](u, "KeyDetails")
+		label := builder.get("publicKeyPath").(gtki.Label)
+		label.SetLabel(p[0])
+		label.SetTooltipText(p[0])
+		into.Add(b)
+	}
 }

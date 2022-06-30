@@ -57,11 +57,16 @@
                     </object>
                 </child>
                 <child>
-                    <object class="GtkBox" id="keyDetailsBox">
-                        <property name="orientation">vertical</property>
-                        <style>
-                            <class name="keyDetailsBox"/>
-                        </style>
+                    <object class="GtkRevealer" id="keyDetailsRevealer">
+                        <property name="transition-duration">0</property>
+                        <child>
+                            <object class="GtkBox" id="keyDetailsBox">
+                                <property name="orientation">vertical</property>
+                                <style>
+                                    <class name="keyDetailsBox"/>
+                                </style>
+                            </object>
+                        </child>
                     </object>
                     <packing>
                         <property name="expand">True</property>

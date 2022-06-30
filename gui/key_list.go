@@ -6,19 +6,44 @@ import (
 	"github.com/digitalautonomy/keymirror/i18n"
 )
 
-func (u *ui) createKeyEntryBoxFrom(entry api.KeyEntry, detailsBox gtki.Box) gtki.Widget {
+func (u *ui) createKeyEntryBoxFrom(entry api.KeyEntry, detailsBox gtki.Box, detailsRev gtki.Revealer) gtki.Widget {
 	b, builder := buildObjectFrom[gtki.Button](u, "KeyListEntry")
 	builder.get("keyListEntryLabel").(gtki.Label).SetLabel(entry.Locations()[0])
 	b.Connect("clicked", func() {
+		// We have several possibilities:
+		// - no box is currently visible because we just started the program
+		// - no box is visible because it was previously collapsed
+		// - the box is visible with information about another key
+		// - the box is visible with information about the same key as currently clicked
 		u.populateKeyDetails(entry, detailsBox)
+
+		if u.currentlyVisibleKeyEntryButton != nil {
+			sc, _ := (*u.currentlyVisibleKeyEntryButton).GetStyleContext()
+			sc.RemoveClass("current")
+		}
+
+		if u.currentlyVisibleKeyEntry == nil || *u.currentlyVisibleKeyEntry != entry {
+			detailsRev.Show()
+			detailsRev.SetRevealChild(true)
+			sc, _ := b.GetStyleContext()
+			sc.AddClass("current")
+			u.currentlyVisibleKeyEntry = &entry
+			u.currentlyVisibleKeyEntryButton = &b
+		} else {
+			detailsRev.SetRevealChild(false)
+			detailsRev.Hide()
+			u.currentlyVisibleKeyEntry = nil
+			u.currentlyVisibleKeyEntryButton = nil
+		}
+		u.onWindowSizeChange()
 	})
 	return b
 }
 
-func (u *ui) populateListWithKeyEntries(access api.KeyAccess, box gtki.Box, detailsBox gtki.Box, onNoKeys func(box gtki.Box)) {
+func (u *ui) populateListWithKeyEntries(access api.KeyAccess, box gtki.Box, detailsBox gtki.Box, detailsRev gtki.Revealer, onNoKeys func(box gtki.Box)) {
 	for _, e := range access.AllKeys() {
 		onNoKeys = func(box gtki.Box) {}
-		box.Add(u.createKeyEntryBoxFrom(e, detailsBox))
+		box.Add(u.createKeyEntryBoxFrom(e, detailsBox, detailsRev))
 	}
 	onNoKeys(box)
 }

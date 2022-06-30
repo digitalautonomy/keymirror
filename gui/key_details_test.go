@@ -20,6 +20,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 
 	publicKeyPathLabel.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
+	publicKeyPathLabel.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
 
 	u := &ui{gtk: s.gtkMock}
 	u.populateKeyDetails(keMock, keyDetailsHolder)
@@ -27,6 +28,18 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	keyDetailsHolder.AssertExpectations(s.T())
 	keMock.AssertExpectations(s.T())
 	publicKeyPathLabel.AssertExpectations(s.T())
+}
+
+func (s *guiSuite) Test_populateKeyDetails_ifIsGivenAPrivateKeyShouldClearTheDetailsBox() {
+	keMock := fixedPublicKeyEntry()
+
+	keyDetailsHolder := &gtk.MockBox{}
+	keyDetailsHolder.On("GetChildren").Return(nil).Once()
+
+	u := &ui{gtk: s.gtkMock}
+	u.populateKeyDetails(keMock, keyDetailsHolder)
+
+	keyDetailsHolder.AssertExpectations(s.T())
 }
 
 func (s *guiSuite) Test_clearAllChildrenOf_removeEachOneOfTheChildrenOfTheBox() {

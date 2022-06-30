@@ -99,7 +99,6 @@ func mockObjectBuild(gtkMock *gtk.Mock, objectName string, ret interface{}) *gtk
 }
 
 func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTheMainApplicationWindow() {
-	s.T().Skip()
 	appMock := &gtk.MockApplication{}
 	var activateEventHandler func()
 
@@ -124,17 +123,27 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 	winMock := &gtk.MockApplicationWindow{}
 	winMock.On("SetApplication", appMock).Return().Once()
 	winMock.On("ShowAll").Return().Once()
+	winMock.On("GetAllocatedHeight").Return(42)
+	winMock.On("Resize", 1, 42).Return()
 
-	box := &gtk.MockBox{}
+	listBox := &gtk.MockBox{}
+	detailsBox := &gtk.MockBox{}
+	detailsBox.On("Hide").Return().Once()
+
+	detailsRevealer := &gtk.MockRevealer{}
 
 	builderMock := mockObjectBuild(s.gtkMock, "MainWindow", winMock)
-	builderMock.On("GetObject", "keyListBox").Return(box, nil).Once()
+	builderMock.On("GetObject", "keyListBox").Return(listBox, nil).Once()
+	builderMock.On("GetObject", "keyDetailsBox").Return(detailsBox, nil).Once()
+	builderMock.On("GetObject", "keyDetailsRevealer").Return(detailsRevealer, nil).Once()
 
 	box1 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519")
+	box1.On("Connect", "clicked", mock.Anything).Return(nil).Once()
 	box2 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_rsa")
+	box2.On("Connect", "clicked", mock.Anything).Return(nil).Once()
 
-	box.On("Add", box1).Return().Once()
-	box.On("Add", box2).Return().Once()
+	listBox.On("Add", box1).Return().Once()
+	listBox.On("Add", box2).Return().Once()
 
 	stubStyleProviders(s.gtkMock, gdkMock)
 	defer setupStubbedDefinitions()()
@@ -143,5 +152,5 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 
 	winMock.AssertExpectations(s.T())
 	builderMock.AssertExpectations(s.T())
-	box.AssertExpectations(s.T())
+	listBox.AssertExpectations(s.T())
 }

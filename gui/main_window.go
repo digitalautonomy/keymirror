@@ -14,19 +14,24 @@ func (a *application) createMainWindow(app gtki.Application) gtki.Window {
 	w, b := buildObjectFrom[gtki.ApplicationWindow](a.ui, "MainWindow")
 	box := b.get("keyListBox").(gtki.Box)
 	box2 := b.get("keyDetailsBox").(gtki.Box)
-	a.populateMainWindow(box, box2)
+	keyDetailsRevealer := b.get("keyDetailsRevealer").(gtki.Revealer)
+	a.populateMainWindow(box, box2, keyDetailsRevealer)
 	w.SetApplication(app)
 	return w
 }
 
-func (a *application) populateMainWindow(listBox, detailsBox gtki.Box) {
-	a.ui.populateListWithKeyEntries(a.keys, listBox, detailsBox, a.ui.showNoAvailableKeysMessage)
+func (a *application) populateMainWindow(listBox, detailsBox gtki.Box, detailsRev gtki.Revealer) {
+	a.ui.populateListWithKeyEntries(a.keys, listBox, detailsBox, detailsRev, a.ui.showNoAvailableKeysMessage)
 }
 
 func (a *application) activate(app gtki.Application) {
 	a.ui.applyApplicationStyle()
 	mainWindow := a.createMainWindow(app)
 	mainWindow.ShowAll()
+	a.ui.onWindowSizeChange = func() {
+		mainWindow.Resize(1, mainWindow.GetAllocatedHeight())
+	}
+	a.ui.onWindowSizeChange()
 }
 
 func (a *application) start() {
