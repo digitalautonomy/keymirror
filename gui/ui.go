@@ -2,6 +2,7 @@ package gui
 
 import (
 	"github.com/coyim/gotk3adapter/gdki"
+	"github.com/coyim/gotk3adapter/gioi"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,8 @@ import (
 type ui struct {
 	gtk gtki.Gtk
 	gdk gdki.Gdk
+	gio gioi.Gio
+
 	// error handler
 	log logrus.Ext1FieldLogger
 

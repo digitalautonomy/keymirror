@@ -35,6 +35,16 @@ func (ke *keyEntryMock) PublicKeyLocations() []string {
 	return ret[[]string](returns, 0)
 }
 
+func (ke *keyEntryMock) PrivateKeyLocations() []string {
+	returns := ke.Called()
+	return ret[[]string](returns, 0)
+}
+
+func (ke *keyEntryMock) KeyType() api.KeyType {
+	returns := ke.Called()
+	return ret[api.KeyType](returns, 0)
+}
+
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
 	box := s.setupBuildingOfKeyEntry("/home/amnesia/id_rsa.pub")
 
@@ -66,15 +76,19 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	detailsBoxMock.On("GetChildren").Return(nil).Once()
 	publicKeyPathLabel := &gtk.MockLabel{}
 	builder.On("GetObject", "publicKeyPath").Return(publicKeyPathLabel, nil).Once()
+	privateKeyRow := &gtk.MockBox{}
+	builder.On("GetObject", "keyDetailsPrivateKeyRow").Return(privateKeyRow, nil).Once()
 	keyEntry.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
+	keyEntry.On("PrivateKeyLocations").Return(nil).Once()
+	keyEntry.On("KeyType").Return(api.PublicKeyType).Once()
 	publicKeyPathLabel.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
 	publicKeyPathLabel.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
 	detailsRevMock.On("Show").Return().Once()
 	detailsRevMock.On("SetRevealChild", true).Return().Once()
+	privateKeyRow.On("Hide").Return().Once()
 
-	scMock := &gtk.MockStyleContext{}
-	box.On("GetStyleContext").Return(scMock, nil).Once()
-	scMock.On("AddClass", "current").Return().Once()
+	scMock1 := expectClassToBeAdded(box, "current")
+	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
 
 	clickedHandler()
 
@@ -83,7 +97,9 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	keyEntry.AssertExpectations(s.T())
 	detailsBoxMock.AssertExpectations(s.T())
 	detailsRevMock.AssertExpectations(s.T())
-	scMock.AssertExpectations(s.T())
+	scMock1.AssertExpectations(s.T())
+	scMock2.AssertExpectations(s.T())
+	privateKeyRow.AssertExpectations(s.T())
 }
 
 type keyAccessMock struct {
@@ -108,6 +124,7 @@ func fixedKeyEntry(location string) api.KeyEntry {
 
 func fixedPublicKeyEntry(locations ...string) api.KeyEntry {
 	ke := &keyEntryMock{}
+	ke.On("KeyType").Return(api.PublicKeyType).Maybe()
 	ke.On("PublicKeyLocations").Return(locations).Maybe()
 	return ke
 }

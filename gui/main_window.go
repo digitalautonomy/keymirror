@@ -2,6 +2,7 @@ package gui
 
 import (
 	"github.com/coyim/gotk3adapter/gdki"
+	"github.com/coyim/gotk3adapter/gioi"
 	"github.com/coyim/gotk3adapter/glibi"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
@@ -9,6 +10,7 @@ import (
 )
 
 const keymirrorApplicationID = "digital.autonomia.keymirror"
+const keymirrorApplicationResourceID = "/digital/autonomia/KeyMirror"
 
 func (a *application) createMainWindow(app gtki.Application) gtki.Window {
 	w, b := buildObjectFrom[gtki.ApplicationWindow](a.ui, "MainWindow")
@@ -25,6 +27,7 @@ func (a *application) populateMainWindow(listBox, detailsBox gtki.Box, detailsRe
 }
 
 func (a *application) activate(app gtki.Application) {
+	a.ui.loadResourceDefinitions()
 	a.ui.applyApplicationStyle()
 	mainWindow := a.createMainWindow(app)
 	mainWindow.ShowAll()
@@ -40,11 +43,12 @@ func (a *application) start() {
 	app.Run([]string{})
 }
 
-func Start(gtk gtki.Gtk, gdk gdki.Gdk, log logrus.Ext1FieldLogger, ka api.KeyAccess) {
+func Start(gtk gtki.Gtk, gdk gdki.Gdk, gio gioi.Gio, log logrus.Ext1FieldLogger, ka api.KeyAccess) {
 	app := &application{
 		ui: &ui{
 			gtk: gtk,
 			gdk: gdk,
+			gio: gio,
 			log: log.WithField("component", "gui"),
 		},
 

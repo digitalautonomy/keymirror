@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/digital/autonomia/KeyMirror">
+        <file alias="pairBlack.png">resources/icons/pairBlack.png</file>
+        <file alias="pairWhite.png">resources/icons/pairWhite.png</file>
+        <file alias="privBlack.png">resources/icons/privBlack.png</file>
+        <file alias="privWhite.png">resources/icons/privWhite.png</file>
+        <file alias="pubBlack.png">resources/icons/pubBlack.png</file>
+        <file alias="pubWhite.png">resources/icons/pubWhite.png</file>
+    </gresource>
+</gresources>

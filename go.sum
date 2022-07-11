@@ -1,9 +1,9 @@
-github.com/coyim/gotk3adapter v0.0.0-20220404203633-561ecab02ec8 h1:lYCaNBJY04a6LrNcdcYegKagLS+WZnoBQnzgyCC4YlE=
-github.com/coyim/gotk3adapter v0.0.0-20220404203633-561ecab02ec8/go.mod h1:5NK0rFFScmo76AEmCcSM0RqVJIeCRdtD2i8dmaki4QQ=
-github.com/coyim/gotk3extra v0.0.0-20220106212532-096301b187a3 h1:wzk3RuBef0/ZDDUnstfjYGYl6nCz9BnB9Z9rr7um+6w=
-github.com/coyim/gotk3extra v0.0.0-20220106212532-096301b187a3/go.mod h1:Nn1D/Zd6ivBvKkL1Lts7fYAAMBKIOqAwTNDbhDJeHok=
-github.com/coyim/gotk3mocks v0.0.0-20220404184843-afd34eff9ddb h1:vUPg5NrATRIL0V12ook52uNqnjti3G6herS55bbk8e4=
-github.com/coyim/gotk3mocks v0.0.0-20220404184843-afd34eff9ddb/go.mod h1:K0WPGOsCoumirBlfAEHVVM1cyzlHs1OUr2SbadxuCyM=
+github.com/coyim/gotk3adapter v0.0.0-20220707154823-2087a87ccf9a h1:365ljdp0REnZH6n2Ox68Yr/LlbHqymzSRXh0ZxdLh0E=
+github.com/coyim/gotk3adapter v0.0.0-20220707154823-2087a87ccf9a/go.mod h1:5NK0rFFScmo76AEmCcSM0RqVJIeCRdtD2i8dmaki4QQ=
+github.com/coyim/gotk3extra v0.0.0-20220706184944-5697a72a84a2 h1:bK4Y+DZzvhiE6oZStY5xRW7URS3A+8vFnTuo563gNBM=
+github.com/coyim/gotk3extra v0.0.0-20220706184944-5697a72a84a2/go.mod h1:Nn1D/Zd6ivBvKkL1Lts7fYAAMBKIOqAwTNDbhDJeHok=
+github.com/coyim/gotk3mocks v0.0.0-20220708161244-ff28ceea7348 h1:6FFpXXjkonQtdI23qN9jQfrack1ZQcQ8f5L/JoxlYEY=
+github.com/coyim/gotk3mocks v0.0.0-20220708161244-ff28ceea7348/go.mod h1:1tIgcQAOCOgDDkKXrfWli/Q7mhbfeuWt72P8rsqdv6Q=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -1,5 +1,7 @@
 package ssh
 
+import "github.com/digitalautonomy/keymirror/api"
+
 func (s *sshSuite) Test_createPublicKeyRepresentation_createsTheObject() {
 	r := createPublicKeyRepresentation("foo_rsa.pub")
 
@@ -80,6 +82,26 @@ func (s *sshSuite) Test_privateKeyRepresentation_PublicKeyLocations_returnsAnEmp
 	s.Empty(pk.PublicKeyLocations())
 }
 
+func (s *sshSuite) Test_privateKeyRepresentation_PrivateKeyLocations_returnsAnEmptySliceIfNoFilenameIsGiven() {
+	pk := createPrivateKeyRepresentation("")
+
+	s.Empty(pk.PrivateKeyLocations())
+}
+
+func (s *sshSuite) Test_privateKeyRepresentation_PrivateKeyLocations_returnsThePathOfThePrivateKeyGiven() {
+	pk := createPrivateKeyRepresentation("one private key")
+	s.Equal([]string{"one private key"}, pk.PrivateKeyLocations())
+
+	pk = createPrivateKeyRepresentation("another private key")
+	s.Equal([]string{"another private key"}, pk.PrivateKeyLocations())
+}
+
+func (s *sshSuite) Test_privateKeyRepresentation_KeyType_returnsPrivate() {
+	pk := createPrivateKeyRepresentation("/foo/bar/hello")
+
+	s.Equal(api.PrivateKeyType, pk.KeyType())
+}
+
 func (s *sshSuite) Test_publicKeyRepresentation_Locations_returnsAnEmptySliceIfNoFilenameIsGiven() {
 	pk := createPublicKeyRepresentation("")
 
@@ -94,6 +116,20 @@ func (s *sshSuite) Test_publicKeyRepresentation_Locations_returnsASliceWithThePa
 	s.Equal([]string{"a public RSA key file"}, pk.Locations())
 }
 
+func (s *sshSuite) Test_publicKeyRepresentation_PrivateKeyLocations_returnsAnEmptySliceIfNoFilenameIsGiven() {
+	pk := createPublicKeyRepresentation("")
+
+	s.Empty(pk.PrivateKeyLocations())
+}
+
+func (s *sshSuite) Test_publicKeyRepresentation_PrivateKeyLocations_returnsAnEmptySliceEvenIfAFilenameIsGiven() {
+	pk := createPublicKeyRepresentation("/foo/bar/hello.pub")
+	s.Empty(pk.PrivateKeyLocations())
+
+	pk = createPublicKeyRepresentation("another public key")
+	s.Empty(pk.PrivateKeyLocations())
+}
+
 func (s *sshSuite) Test_publicKeyRepresentation_PublicKeyLocations_returnsAnEmptySliceIfNoFilenameIsGiven() {
 	pk := createPublicKeyRepresentation("")
 
@@ -106,6 +142,12 @@ func (s *sshSuite) Test_publicKeyRepresentation_PublicKeyLocations_returnsASlice
 
 	pk = createPublicKeyRepresentation("a public RSA key file")
 	s.Equal([]string{"a public RSA key file"}, pk.PublicKeyLocations())
+}
+
+func (s *sshSuite) Test_publicKeyRepresentation_KeyType_returnsPublic() {
+	pk := createPublicKeyRepresentation("/foo/bar/hello.pub")
+
+	s.Equal(api.PublicKeyType, pk.KeyType())
 }
 
 func (s *sshSuite) Test_keypairRepresentation_Locations_returnsAnEmptyList_ifBothPrivateOrPublicKeyHaveEmptyPaths() {
@@ -151,6 +193,40 @@ func (s *sshSuite) Test_keypairRepresentation_Locations_returnsThePrivateAndPubl
 	s.Equal([]string{"/home/another private key", "pub.rsa.4096.{{{"}, kp2.Locations())
 }
 
+func (s *sshSuite) Test_keypairRepresentation_PrivateKeyLocations_returnsAnEmptyList_ifBothKeysHaveEmptyPaths() {
+	priv := createPrivateKeyRepresentation("")
+	pub := createPublicKeyRepresentation("")
+
+	kp := createKeypairRepresentation(priv, pub)
+
+	s.Empty(kp.PrivateKeyLocations())
+}
+
+func (s *sshSuite) Test_keypairRepresentation_PrivateKeyLocations_returnsAListWithPrivateKeyPaths_ifOnlyThePrivateKeyHasAPath() {
+	priv := createPrivateKeyRepresentation("/home/foo/.ssh/privatekey.ed25519")
+	pub := createPublicKeyRepresentation("")
+
+	kp := createKeypairRepresentation(priv, pub)
+
+	s.Equal([]string{"/home/foo/.ssh/privatekey.ed25519"}, kp.PrivateKeyLocations())
+}
+
+func (s *sshSuite) Test_keypairRepresentation_PrivateKeyLocations_returnsOnlyThePrivatePaths() {
+	priv1 := createPrivateKeyRepresentation("/home/amnesia/.ssh/foo_rsa")
+	pub1 := createPublicKeyRepresentation("/home/amnesia/.ssh/foo_rsa.pub")
+
+	kp1 := createKeypairRepresentation(priv1, pub1)
+
+	s.Equal([]string{"/home/amnesia/.ssh/foo_rsa"}, kp1.PrivateKeyLocations())
+
+	priv2 := createPrivateKeyRepresentation("/home/another private key")
+	pub2 := createPublicKeyRepresentation("pub.rsa.4096.{{{")
+
+	kp2 := createKeypairRepresentation(priv2, pub2)
+
+	s.Equal([]string{"/home/another private key"}, kp2.PrivateKeyLocations())
+}
+
 func (s *sshSuite) Test_keypairRepresentation_PublicKeyLocations_returnsAnEmptyList_ifBothKeysHaveEmptyPaths() {
 	priv := createPrivateKeyRepresentation("")
 	pub := createPublicKeyRepresentation("")
@@ -183,4 +259,13 @@ func (s *sshSuite) Test_keypairRepresentation_PublicKeyLocations_returnsOnlyTheP
 	kp2 := createKeypairRepresentation(priv2, pub2)
 
 	s.Equal([]string{"pub.rsa.4096.{{{"}, kp2.PublicKeyLocations())
+}
+
+func (s *sshSuite) Test_pairKeyRepresentation_KeyType_returnsPair() {
+	priv := createPrivateKeyRepresentation("/home/another private key")
+	pub := createPublicKeyRepresentation("pub.rsa.4096.{{{")
+
+	kp := createKeypairRepresentation(priv, pub)
+
+	s.Equal(api.PairKeyType, kp.KeyType())
 }

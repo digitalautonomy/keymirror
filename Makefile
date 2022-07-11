@@ -13,9 +13,12 @@ BUILD_DIR := build
 BINARY := $(BUILD_DIR)/keymirror
 
 GO_FILES := *.go ssh/*.go gui/*.go
-INTERFACE_DEFINITION_FILES := gui/definitions/interface/*.xml
-STYLES_DEFINITION_FILES := gui/definitions/styles/*.css
-DEFINITION_FILES := $(INTERFACE_DEFINITION_FILES) $(STYLES_DEFINITION_FILES)
+DEFINITION_DIR := gui/definitions
+ICONS_RESOURCE_FILE := $(DEFINITION_DIR)/resources/icons.gresource
+INTERFACE_DEFINITION_FILES := $(DEFINITION_DIR)/interface/*.xml
+STYLES_DEFINITION_FILES := $(DEFINITION_DIR)/styles/*.css
+RESOURCES_DEFINITION_FILES := $(ICONS_RESOURCE_FILE)
+DEFINITION_FILES := $(INTERFACE_DEFINITION_FILES) $(STYLES_DEFINITION_FILES) $(RESOURCES_DEFINITION_FILES)
 SOURCE_FILES := $(GO_FILES)
 
 GO := go
@@ -25,14 +28,14 @@ GOINSTALL := $(GO) install
 
 COVERPROFILE := coverprofile
 
-.PHONY := default clean test ci-test ci-deps ci-upload-coverage
+.PHONY := default clean test ci-test ci-deps ci-upload-coverage resources
 
 default: $(BINARY)
 
 $(BUILD_DIR):
 	mkdir -p $@
 
-$(BINARY): $(BUILD_DIR) $(SOURCE_FILES) $(DEFINITION_FILES)
+$(BINARY): $(BUILD_DIR) $(SOURCE_FILES) $(DEFINITION_FILES) gui/definitions/resources/icons.gresource
 	$(GOBUILD) $(BINARY_TAGS) -o $@
 
 clean:
@@ -62,3 +65,8 @@ coverage-tails:
 	$(GO) tool cover -html coverlog -o ~/Tor\ Browser/coverage.html
 	xdg-open ~/Tor\ Browser/coverage.html
 	$(RM) coverlog
+
+$(ICONS_RESOURCE_FILE): resources/icons.xml resources/icons/*.png
+	glib-compile-resources --target=$@ resources/icons.xml
+
+resources: $(RESOURCES_DEFINITION_FILES)

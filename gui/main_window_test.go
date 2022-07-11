@@ -3,6 +3,7 @@ package gui
 import (
 	"github.com/coyim/gotk3adapter/glibi"
 	"github.com/coyim/gotk3mocks/gdk"
+	"github.com/coyim/gotk3mocks/gio"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/prashantv/gostub"
 	"github.com/sirupsen/logrus/hooks/test"
@@ -55,7 +56,7 @@ func (s *guiSuite) Test_Start_StartsGTKApplication() {
 
 	gdkMock := &gdk.Mock{}
 	log, _ := test.NewNullLogger()
-	Start(gtkMock, gdkMock, log, nil)
+	Start(gtkMock, gdkMock, nil, log, nil)
 
 	appMock.AssertExpectations(s.T())
 	gtkMock.AssertExpectations(s.T())
@@ -117,8 +118,10 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 		fixedKeyEntry("/home/amnesia/.ssh/id_rsa"),
 	)
 
+	gioMock := &gio.Mock{}
+
 	log, _ := test.NewNullLogger()
-	Start(s.gtkMock, gdkMock, log, ka)
+	Start(s.gtkMock, gdkMock, gioMock, log, ka)
 
 	winMock := &gtk.MockApplicationWindow{}
 	winMock.On("SetApplication", appMock).Return().Once()
@@ -145,6 +148,13 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 	listBox.On("Add", box1).Return().Once()
 	listBox.On("Add", box2).Return().Once()
 
+	gioMock.On("LoadResource", mock.Anything).Return(nil, nil)
+	gioMock.On("RegisterResource", mock.Anything).Return()
+
+	iconThemeMock := &gtk.MockIconTheme{}
+	s.gtkMock.On("IconThemeGetDefault").Return(iconThemeMock)
+	iconThemeMock.On("AddResourcePath", mock.Anything).Return()
+
 	stubStyleProviders(s.gtkMock, gdkMock)
 	defer setupStubbedDefinitions()()
 
@@ -153,4 +163,5 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 	winMock.AssertExpectations(s.T())
 	builderMock.AssertExpectations(s.T())
 	listBox.AssertExpectations(s.T())
+	gioMock.AssertExpectations(s.T())
 }

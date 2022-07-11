@@ -82,6 +82,24 @@ window {
     margin: 10px;
 }
 
+.keyDetail.privateKey {
+    background-image: -gtk-icontheme('privWhite');
+    background-repeat: no-repeat;
+    background-size: 30px;
+}
+
+.keyDetail.publicKey {
+    background-image: -gtk-icontheme('pubWhite');
+    background-repeat: no-repeat;
+    background-size: 30px;
+}
+
+.keyDetail.keyPair {
+    background-image: -gtk-icontheme('pairWhite');
+    background-repeat: no-repeat;
+    background-size: 30px;
+}
+
 .keyEntry.publicKey {
     background-color: @keylist-entry-public-bg;
 }

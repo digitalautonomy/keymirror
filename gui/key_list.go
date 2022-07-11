@@ -18,15 +18,13 @@ func (u *ui) createKeyEntryBoxFrom(entry api.KeyEntry, detailsBox gtki.Box, deta
 		u.populateKeyDetails(entry, detailsBox)
 
 		if u.currentlyVisibleKeyEntryButton != nil {
-			sc, _ := (*u.currentlyVisibleKeyEntryButton).GetStyleContext()
-			sc.RemoveClass("current")
+			removeClass(*u.currentlyVisibleKeyEntryButton, "current")
 		}
 
 		if u.currentlyVisibleKeyEntry == nil || *u.currentlyVisibleKeyEntry != entry {
 			detailsRev.Show()
 			detailsRev.SetRevealChild(true)
-			sc, _ := b.GetStyleContext()
-			sc.AddClass("current")
+			addClass(b, "current")
 			u.currentlyVisibleKeyEntry = &entry
 			u.currentlyVisibleKeyEntryButton = &b
 		} else {

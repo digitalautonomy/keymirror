@@ -27,6 +27,10 @@ func styleDefinitionPath(name string) string {
 	return definitionPath("styles", name, "css")
 }
 
+func resourceDefinitionPath(name string) string {
+	return definitionPath("resources", name, "gresource")
+}
+
 type builder struct {
 	gtki.Builder
 }

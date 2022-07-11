@@ -1,5 +1,7 @@
 package ssh
 
+import "github.com/digitalautonomy/keymirror/api"
+
 type privateKeyRepresentation struct {
 	path string
 }
@@ -53,6 +55,14 @@ func (k *privateKeyRepresentation) Locations() []string {
 	return nilOrStringSlice(k.path)
 }
 
+func (k *privateKeyRepresentation) PrivateKeyLocations() []string {
+	return k.Locations()
+}
+
+func (k *privateKeyRepresentation) KeyType() api.KeyType {
+	return api.PrivateKeyType
+}
+
 // PublicKeyLocations implement the KeyEntry interface
 func (k *privateKeyRepresentation) PublicKeyLocations() []string {
 	return nil
@@ -63,9 +73,17 @@ func (k *publicKeyRepresentation) Locations() []string {
 	return nilOrStringSlice(k.path)
 }
 
+func (k *publicKeyRepresentation) PrivateKeyLocations() []string {
+	return nil
+}
+
 // PublicKeyLocations implement the KeyEntry interface
 func (k *publicKeyRepresentation) PublicKeyLocations() []string {
 	return k.Locations()
+}
+
+func (k *publicKeyRepresentation) KeyType() api.KeyType {
+	return api.PublicKeyType
 }
 
 // Locations implement the KeyEntry interface
@@ -73,7 +91,15 @@ func (k *keypairRepresentation) Locations() []string {
 	return append(k.private.Locations(), k.public.Locations()...)
 }
 
+func (k *keypairRepresentation) PrivateKeyLocations() []string {
+	return k.private.PrivateKeyLocations()
+}
+
 // PublicKeyLocations implement the KeyEntry interface
 func (k *keypairRepresentation) PublicKeyLocations() []string {
 	return k.public.PublicKeyLocations()
+}
+
+func (k *keypairRepresentation) KeyType() api.KeyType {
+	return api.PairKeyType
 }
