@@ -1,6 +1,10 @@
 package ssh
 
-import "github.com/digitalautonomy/keymirror/api"
+import (
+	"crypto/sha256"
+	"encoding/base64"
+	"github.com/digitalautonomy/keymirror/api"
+)
 
 func (s *sshSuite) Test_createPublicKeyRepresentation_createsTheObject() {
 	r := createPublicKeyRepresentation("foo_rsa.pub")
@@ -268,4 +272,37 @@ func (s *sshSuite) Test_pairKeyRepresentation_KeyType_returnsPair() {
 	kp := createKeypairRepresentation(priv, pub)
 
 	s.Equal(api.PairKeyType, kp.KeyType())
+}
+
+func decode(b64 string) []byte {
+	r, _ := base64.StdEncoding.DecodeString(b64)
+	return r
+}
+
+const originalKey = "AAAAB3NzaC1yc2EAAAADAQABAAABgQDjXHGj/u27siLdKDii3ijK8xjKwRgYw6f2r+qfk9f5Nc3CD71Hpxndh3kg3GTdiQauPtzJHeFsm2dFW6lxz0nFqIkrxqTV+maJ57bABehbnFP25IxSKSG/8JBqNDdkipQq14mHmCHCmtU4KTzonHqOssvOkjKSs1iPPK0PBONGKXWMrrNm8U9ProLcwtHsNkJNXcq1qhAdbn+ICVcOB19Wibjp5noLZ2NRxxuzJHPwAXuXT22LpVobaeD/HvqoXPXP5R91smlfFvRSgvoRDr+ufeEL8sUO++emu3+ThG+iEvLGeucR1o4+UFweXM9UdPQW4HFrIpvMPHnbg8ysT07vqH/tA0+TxJocFcADxM89+k/4mS7nRZgCnqpe50JuuJYOBWhZxaaanasEY/+lIdni9u3ZTwhPHG8trokPxdpklKQnN2Pg2Y2SX2N8u3s+IYaTO6s9Cs6fokiK475w1UexTMYW0XuJdN8wFRfDMJpZm+ICVc+K6BpxAyABe4u1RPc="
+const otherKey = "AAAAB3NzaC1yc2EAAAADAQABAAABgQC6CyfdeOltbKbISAuuvH27pLNxsNsJ18z29jiZLJ5kvJ9kOXXiZxvZW1a394G9YgDpbUFwjbMz4WgkFNPW7+VVdz07JXpxzs4IrCSE8zl944v98k1kwZ5n6jZR3A51jmb55KjvzFeRv2fqbxb7ylV1R5oNpSYu8l7HaWpR0YSjtuZcSahhPZS4hSbgAKrLm+mn6gfLHyYKEeQ0NRpwxybmrM+dEBdR/bs0JxEgJvrfsOahYEbZhL627NQx9F1NfPq2yGr13lLmA7wIIu633WAyxJDGaCfRQTXR67W16Hl+0LIbhe4b5iKJH/7+tf13C2VMewDPCZwDxf6XAwD1XmEC4L64rhGhFp51u9qrbFQnaDAfTRfgm8sS4oxsHMnWc3TRes3PKcQ08CGkSV42EPiQuIyQaUojVcNo+xhCJzqv77/GcwyxCtm3FN/gjlXLxPtFrWjcvd91Z8v/7npjzJDAOUnAV8QFijCzC688oSuoBr5q9G9zcWd7MVY2vpms1L8="
+
+func (s *sshSuite) Test_publicKeyRepresentation_WithDigestContent_returnsTheFingerPrint() {
+	key := &publicKeyRepresentation{key: decode(originalKey)}
+	fingerprint := key.key
+	result := key.WithDigestContent(func(in []byte) []byte {
+		return in
+	})
+	s.Equal(result, fingerprint)
+
+	key = &publicKeyRepresentation{key: decode(originalKey)}
+	fingerprint = decode("rPPC5HJW2WNPqThrwNnL7szNtrEC7lUjKLlt0Jnunoo=")
+	result = key.WithDigestContent(func(in []byte) []byte {
+		res := sha256.Sum256(in)
+		return res[:]
+	})
+	s.Equal(result, fingerprint)
+
+	key = &publicKeyRepresentation{key: decode(otherKey)}
+	fingerprint = decode("Az/Dp2M/PXj/fsxRQWWj954BgtKRX8DJ1t7nDrS+TTw=")
+	result = key.WithDigestContent(func(in []byte) []byte {
+		res := sha256.Sum256(in)
+		return res[:]
+	})
+	s.Equal(result, fingerprint)
 }

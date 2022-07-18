@@ -1,6 +1,8 @@
 package ssh
 
-import "github.com/digitalautonomy/keymirror/api"
+import (
+	"github.com/digitalautonomy/keymirror/api"
+)
 
 type privateKeyRepresentation struct {
 	path string
@@ -8,6 +10,7 @@ type privateKeyRepresentation struct {
 
 type publicKeyRepresentation struct {
 	path string
+	key  []byte
 }
 
 type keypairRepresentation struct {
@@ -18,6 +21,14 @@ type keypairRepresentation struct {
 func createPublicKeyRepresentation(path string) *publicKeyRepresentation {
 	return &publicKeyRepresentation{
 		path: path,
+	}
+}
+
+func createPublicKeyRepresentationFromPublicKey(key *publicKey) *publicKeyRepresentation {
+	return &publicKeyRepresentation{
+		path: key.location,
+		// TODO: this should decode the base64 before setting it
+		key: []byte(key.key),
 	}
 }
 
@@ -84,6 +95,10 @@ func (k *publicKeyRepresentation) PublicKeyLocations() []string {
 
 func (k *publicKeyRepresentation) KeyType() api.KeyType {
 	return api.PublicKeyType
+}
+
+func (k *publicKeyRepresentation) WithDigestContent(f func([]byte) []byte) []byte {
+	return f(k.key)
 }
 
 // Locations implement the KeyEntry interface

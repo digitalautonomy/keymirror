@@ -94,7 +94,7 @@ func (s *sshSuite) Test_CheckIfThePublicKeyTypeIdentifierIsRSA() {
 	s.False(pub.isRSA(), "A key with the algorithm identifier ssh-ecdsa is not an RSA key")
 }
 
-func (s *sshSuite) Test_CheckIfAStringHasTheFormatOfAnRSAPublicKey() {
+func (s *sshSuite) Test_isRSAPublicKey_checkIfAStringHasTheFormatOfAnRSAPublicKey() {
 	k := ""
 	s.False(isRSAPublicKey(k), "An empty string is not an SSH public key representation thus it is not an RSA key")
 

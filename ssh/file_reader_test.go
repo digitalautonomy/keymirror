@@ -356,11 +356,11 @@ func (s *sshSuite) Test_createPublicKeyEntriesFrom_ReturnsAListOfKeyEntriesFromA
 
 	paths = []string{"a path"}
 	l = createPublicKeyRepresentationsFrom(paths)
-	s.Equal([]*publicKeyRepresentation{{"a path"}}, l)
+	s.Equal([]*publicKeyRepresentation{{path: "a path", key: nil}}, l)
 
 	paths = []string{"a path", "another path"}
 	l = createPublicKeyRepresentationsFrom(paths)
-	s.Equal([]*publicKeyRepresentation{{"a path"}, {"another path"}}, l)
+	s.Equal([]*publicKeyRepresentation{{path: "a path", key: nil}, {path: "another path"}}, l)
 }
 
 func (s *sshSuite) Test_createPrivateKeyEntriesFrom_ReturnsAListOfKeyEntriesFromAllTheProvidedPaths() {
@@ -450,10 +450,14 @@ func (s *sshSuite) Test_publicKeyEntriesFrom_ReturnsAListOfPublicKeyEntriesFromA
 	}
 
 	l = publicKeyRepresentationsFrom(paths)
-	s.Equal([]*publicKeyRepresentation{
+	s.Equal(publicKeyRepresentationsFrom([]string{
+		filepath.Join(s.tdir, publicRSAKeyFile1),
+		filepath.Join(s.tdir, publicRSAKeyFile2),
+	}), l)
+	/*s.Equal([]*publicKeyRepresentation{
 		createPublicKeyRepresentation(filepath.Join(s.tdir, publicRSAKeyFile1)),
 		createPublicKeyRepresentation(filepath.Join(s.tdir, publicRSAKeyFile2)),
-	}, l)
+	}, l)*/
 }
 
 func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPrivateAndKeyPairsFromPublicAndPrivateKeyRepresentations() {

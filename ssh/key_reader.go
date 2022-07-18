@@ -12,6 +12,7 @@ func listFilesIn(dir string) []string {
 }
 
 type publicKey struct {
+	location  string
 	algorithm string
 	key       string
 	comment   string

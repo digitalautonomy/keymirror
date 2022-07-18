@@ -37,6 +37,10 @@ func createPublicKeyRepresentationsFrom(input []string) []*publicKeyRepresentati
 	return transform(input, createPublicKeyRepresentation)
 }
 
+func createPublicKeyRepresentationsFromPublicKeys(input []*publicKey) []*publicKeyRepresentation {
+	return transform(input, createPublicKeyRepresentationFromPublicKey)
+}
+
 func createPrivateKeyRepresentationsFrom(input []string) []*privateKeyRepresentation {
 	return transform(input, createPrivateKeyRepresentation)
 }
@@ -51,9 +55,12 @@ func (a *access) privateKeyRepresentationsFrom(input []string) []*privateKeyRepr
 }
 
 func publicKeyRepresentationsFrom(input []string) []*publicKeyRepresentation {
-	publicKeyFiles := concat(
-		filesContainingRSAPublicKeys(input),
-		filesContainingEd25519PublicKeys(input),
-	)
-	return createPublicKeyRepresentationsFrom(publicKeyFiles)
+	rsaKeys := rsaPublicKeysFrom(input)
+	rsaKeyRepresentations := createPublicKeyRepresentationsFromPublicKeys(rsaKeys)
+
+	publicKeyFiles := filesContainingEd25519PublicKeys(input)
+
+	return concat(
+		rsaKeyRepresentations,
+		createPublicKeyRepresentationsFrom(publicKeyFiles))
 }
