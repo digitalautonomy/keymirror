@@ -73,9 +73,11 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfPublicKeysIfSSHDire
 	publicKeyFile1 := "ssh-rsa.pub"
 	publicKeyFile2 := fmt.Sprintf("ssh-rsa-%d.pub", r)
 	publicKeyFile3 := "ed25519.pub"
+	publicKeyFile4 := "other_ed25519.pub"
 	s.createFileWithContent(sshDirectory, publicKeyFile1, "ssh-rsa BBBB batman@debian")
 	s.createFileWithContent(sshDirectory, publicKeyFile2, "ssh-rsa AAAA robin@debian")
-	s.createFileWithContent(sshDirectory, publicKeyFile3, "ssh-ed25519 CCC alfred@debian")
+	s.createFileWithContent(sshDirectory, publicKeyFile3, "ssh-ed25519 CCCC alfred@debian")
+	s.createFileWithContent(sshDirectory, publicKeyFile4, "ssh-ed25519 DDD penguin@debian")
 	s.createEmptyFile(sshDirectory, "empty-file")
 
 	a, _ := accessWithTestLogging()
@@ -90,7 +92,7 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfPublicKeysIfSSHDire
 func createPublicKeyRepresentationForTest(path, key string) *publicKeyRepresentation {
 	return createPublicKeyRepresentationFromPublicKey(&publicKey{
 		location: path,
-		key:      key,
+		key:      decode(key),
 	})
 }
 
@@ -121,7 +123,7 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfKeypairsIfSSHDirect
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKeyFile2)),
 			createPublicKeyRepresentationForTest(path.Join(sshDirectory, matchingPublicKeyFile2), "AAAA")),
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKeyFile3)),
-			createPublicKeyRepresentation(path.Join(sshDirectory, matchingPublicKeyFile3))),
+			createPublicKeyRepresentationForTest(path.Join(sshDirectory, matchingPublicKeyFile3), "CCCC")),
 	}, a.AllKeys())
 }
 
@@ -147,13 +149,13 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListIfSSHDirectoryPublicA
 		createPublicKeyRepresentationFromPublicKey(
 			&publicKey{
 				location: path.Join(sshDirectory, lonelyPublicKeyFile),
-				key:      "AAAA",
+				key:      decode("AAAA"),
 			}),
 		createKeypairRepresentation(createPrivateKeyRepresentation(path.Join(sshDirectory, matchingPrivateKey)),
 			createPublicKeyRepresentationFromPublicKey(
 				&publicKey{
 					location: path.Join(sshDirectory, matchingPublicKey),
-					key:      "BBBB",
+					key:      decode("BBBB"),
 				}),
 		),
 	}, a.AllKeys())

@@ -58,9 +58,10 @@ func publicKeyRepresentationsFrom(input []string) []*publicKeyRepresentation {
 	rsaKeys := rsaPublicKeysFrom(input)
 	rsaKeyRepresentations := createPublicKeyRepresentationsFromPublicKeys(rsaKeys)
 
-	publicKeyFiles := filesContainingEd25519PublicKeys(input)
+	ed25519Keys := ed25519KeyFrom(input)
+	ed25519KeyRepresentations := createPublicKeyRepresentationsFromPublicKeys(ed25519Keys)
 
 	return concat(
 		rsaKeyRepresentations,
-		createPublicKeyRepresentationsFrom(publicKeyFiles))
+		ed25519KeyRepresentations)
 }

@@ -111,3 +111,7 @@ window {
 .keyEntry.pair {
     background-color: @keylist-entry-pair-bg;
 }
+
+.fingerprint .fingerprintLabel {
+    padding-right: 10px;
+}

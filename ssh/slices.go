@@ -75,6 +75,12 @@ func not[T any](f predicate[T]) predicate[T] {
 	}
 }
 
+func both[T any](f, f2 predicate[T]) predicate[T] {
+	return func(v T) bool {
+		return f(v) && f2(v)
+	}
+}
+
 func loggingErrors[T, R any](l logrus.FieldLogger, message string, f func(T) (R, error)) func(T) R {
 	return func(s T) R {
 		b, e := f(s)

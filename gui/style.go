@@ -5,31 +5,6 @@ import (
 	"io/fs"
 )
 
-//
-//// #cgo pkg-config: gdk-3.0 gio-2.0 glib-2.0 gobject-2.0 gtk+-3.0
-//// #include <gio/gio.h>
-//// #include <gtk/gtk.h>
-//import "C"
-//
-//func withDefinitionInTempFile(def string, f func(string)) {
-//	content, _ := fs.ReadFile(getDefinitions(), def)
-//	td, _ := ioutil.TempDir("", "")
-//	defer func() {
-//		_ = os.RemoveAll(td)
-//	}()
-//	file := path.Join(td, path.Base(def))
-//	_ = ioutil.WriteFile(file, content, 0755)
-//	f(file)
-//}
-//
-//func testBla() {
-//	withDefinitionInTempFile("definitions/icons.gresource", func(path string) {
-//		gr, _ := gio.LoadGResource(path)
-//		gio.RegisterGResource(gr)
-//		C.gtk_icon_theme_add_resource_path(C.gtk_icon_theme_get_default(), C.CString("/digital/autonomia/KeyMirror"))
-//	})
-//}
-
 func (u *ui) createStyleProviderFrom(filename string) gtki.CssProvider {
 	cssProvider, _ := u.gtk.CssProviderNew()
 	pathOfFile := styleDefinitionPath(filename)

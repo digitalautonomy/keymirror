@@ -45,6 +45,15 @@ func (ke *keyEntryMock) KeyType() api.KeyType {
 	return ret[api.KeyType](returns, 0)
 }
 
+type publicKeyEntryMock struct {
+	keyEntryMock
+}
+
+func (pk *publicKeyEntryMock) WithDigestContent(f func([]byte) []byte) []byte {
+	returns := pk.Called(f)
+	return ret[[]byte](returns, 0)
+}
+
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
 	box := s.setupBuildingOfKeyEntry("/home/amnesia/id_rsa.pub")
 
@@ -86,6 +95,9 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	detailsRevMock.On("Show").Return().Once()
 	detailsRevMock.On("SetRevealChild", true).Return().Once()
 	privateKeyRow.On("Hide").Return().Once()
+	fingerprintRowMock := &gtk.MockBox{}
+	builder.On("GetObject", "keyFingerprintRow").Return(fingerprintRowMock, nil).Once()
+	fingerprintRowMock.On("Hide").Return().Once()
 
 	scMock1 := expectClassToBeAdded(box, "current")
 	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
@@ -100,6 +112,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	scMock1.AssertExpectations(s.T())
 	scMock2.AssertExpectations(s.T())
 	privateKeyRow.AssertExpectations(s.T())
+	fingerprintRowMock.AssertExpectations(s.T())
 }
 
 type keyAccessMock struct {

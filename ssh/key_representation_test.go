@@ -285,9 +285,7 @@ const otherKey = "AAAAB3NzaC1yc2EAAAADAQABAAABgQC6CyfdeOltbKbISAuuvH27pLNxsNsJ18
 func (s *sshSuite) Test_publicKeyRepresentation_WithDigestContent_returnsTheFingerPrint() {
 	key := &publicKeyRepresentation{key: decode(originalKey)}
 	fingerprint := key.key
-	result := key.WithDigestContent(func(in []byte) []byte {
-		return in
-	})
+	result := key.WithDigestContent(identity[[]byte])
 	s.Equal(result, fingerprint)
 
 	key = &publicKeyRepresentation{key: decode(originalKey)}
@@ -305,4 +303,26 @@ func (s *sshSuite) Test_publicKeyRepresentation_WithDigestContent_returnsTheFing
 		return res[:]
 	})
 	s.Equal(result, fingerprint)
+}
+
+func identity[T any](v T) T {
+	return v
+}
+
+func (s *sshSuite) Test_keypairRepresentation_WithDigestContent_returnsTheFingerPrint() {
+	keyPair := &keypairRepresentation{
+		public: &publicKeyRepresentation{key: decode(originalKey)},
+	}
+
+	s.Equal(
+		keyPair.WithDigestContent(identity[[]byte]),
+		keyPair.public.WithDigestContent(identity[[]byte]))
+
+	keyPair = &keypairRepresentation{
+		public: &publicKeyRepresentation{key: decode(otherKey)},
+	}
+
+	s.Equal(
+		keyPair.WithDigestContent(identity[[]byte]),
+		keyPair.public.WithDigestContent(identity[[]byte]))
 }

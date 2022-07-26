@@ -113,6 +113,53 @@
                 <property name="position">2</property>
             </packing>
         </child>
+        <child>
+            <object class="GtkBox" id="keyFingerprintRow">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                    <object class="GtkLabel" id="fingerprintLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Fingerprint:</property>
+                        <style>
+                            <class name="fingerprintLabel"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                    </packing>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="fingerprint">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="ellipsize">end</property>
+                        <property name="width-chars">20</property>
+                        <property name="selectable">True</property>
+                        <style>
+                            <class name="fingerprint"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                    </packing>
+                </child>
+                <style>
+                    <class name="fingerprint"/>
+                </style>
+            </object>
+            <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+            </packing>
+        </child>
         <style>
             <class name="keyDetail"/>
         </style>

@@ -1,8 +1,11 @@
 package gui
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
+	"strings"
 )
 
 type clearable[T any] interface {
@@ -13,17 +16,6 @@ type clearable[T any] interface {
 func clearAllChildrenOf[T any](b clearable[T]) {
 	for _, c := range b.GetChildren() {
 		b.Remove(c)
-	}
-}
-
-func (kd *keyDetails) displayLocations(keyLocations []string, pathLabelName, rowName string) {
-	if keyLocations != nil {
-		label := kd.builder.get(pathLabelName).(gtki.Label)
-		label.SetLabel(keyLocations[0])
-		label.SetTooltipText(keyLocations[0])
-	} else {
-		row := kd.builder.get(rowName).(gtki.Box)
-		row.Hide()
 	}
 }
 
@@ -67,9 +59,63 @@ func (kd *keyDetails) setClassForKeyDetails() {
 	addClass(kd.box, className)
 }
 
+func (kd *keyDetails) displayLocations(keyLocations []string, pathLabelName, rowName string) {
+	if keyLocations != nil {
+		label := kd.builder.get(pathLabelName).(gtki.Label)
+		label.SetLabel(keyLocations[0])
+		label.SetTooltipText(keyLocations[0])
+	} else {
+		row := kd.builder.get(rowName).(gtki.Box)
+		row.Hide()
+	}
+}
+
+func returningSlice20(f func([]byte) [20]byte) func([]byte) []byte {
+	return func(v []byte) []byte {
+		res := f(v)
+		return res[:]
+	}
+}
+
+func returningSlice32(f func([]byte) [32]byte) func([]byte) []byte {
+	return func(v []byte) []byte {
+		res := f(v)
+		return res[:]
+	}
+}
+
+func formatByteForFingerprint(b byte) string {
+	return fmt.Sprintf("%02X", b)
+}
+
+func formatFingerprint(f []byte) string {
+	result := []string{}
+
+	for _, v := range f {
+		result = append(result, formatByteForFingerprint(v))
+	}
+
+	return strings.Join(result, ":")
+}
+
+const fingerprintRow string = "keyFingerprintRow"
+
+func (kd *keyDetails) displayFingerprint(rowName string) {
+	if pk, ok := kd.key.(api.PublicKeyEntry); ok {
+		f := formatFingerprint(pk.WithDigestContent(returningSlice20(sha1.Sum)))
+		label := kd.builder.get("fingerprint").(gtki.Label)
+		label.SetLabel(f)
+		label.SetTooltipText(f)
+	} else {
+		row := kd.builder.get(rowName).(gtki.Box)
+		row.Hide()
+	}
+}
+
 func (kd *keyDetails) display() {
 	kd.displayLocations(kd.key.PublicKeyLocations(), publicKeyPathLabel, publicKeyRowName)
 	kd.displayLocations(kd.key.PrivateKeyLocations(), privateKeyPathLabel, privateKeyRowName)
+	kd.displayFingerprint(fingerprintRow)
 	kd.setClassForKeyDetails()
 }
 

@@ -50,7 +50,7 @@ func (s *sshSuite) Test_checkIfFileContainsAPublicRSAKey_ReturnsFalseWhenTheFile
 
 func (s *sshSuite) Test_checkIfFileContainsAPublicRSAKey_ReturnsTrueWhenTheFileContentIsAnRSAPublicKey() {
 	fileName := "a file with a valid RSA Public Key"
-	s.createFileWithContent(s.tdir, fileName, "ssh-rsa AAAAA batman@debian")
+	s.createFileWithContent(s.tdir, fileName, "ssh-rsa b3RoZXIgdmFsaWQgc3RyaW5n batman@debian")
 
 	b, err := checkIfFileContainsAPublicRSAKey(filepath.Join(s.tdir, fileName))
 
@@ -103,7 +103,7 @@ func (s *sshSuite) Test_selectFilesContainingRSAPublicKeys_ReturnsAnEmptyListIfA
 func (s *sshSuite) Test_selectFilesContainingRSAPublicKeys_ReturnsAListWithOneFileNameIfAListWithAFileThatContainsAnRSAPublicKeyIsProvided() {
 	// Given
 	fileName := "File-with-content"
-	s.createFileWithContent(s.tdir, fileName, "ssh-rsa AAAAA batman@debian")
+	s.createFileWithContent(s.tdir, fileName, "ssh-rsa b3RoZXIgdmFsaWQgc3RyaW5n batman@debian")
 	fileNameList := []string{filepath.Join(s.tdir, fileName)}
 
 	// When
@@ -454,10 +454,6 @@ func (s *sshSuite) Test_publicKeyEntriesFrom_ReturnsAListOfPublicKeyEntriesFromA
 		filepath.Join(s.tdir, publicRSAKeyFile1),
 		filepath.Join(s.tdir, publicRSAKeyFile2),
 	}), l)
-	/*s.Equal([]*publicKeyRepresentation{
-		createPublicKeyRepresentation(filepath.Join(s.tdir, publicRSAKeyFile1)),
-		createPublicKeyRepresentation(filepath.Join(s.tdir, publicRSAKeyFile2)),
-	}, l)*/
 }
 
 func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPrivateAndKeyPairsFromPublicAndPrivateKeyRepresentations() {

@@ -42,7 +42,7 @@ func (s *sshSuite) Test_ParseAStringAsAnSSHPublicKeyRepresentation() {
 	_, ok := parsePublicKey(k)
 	s.Require().False(ok, "An empty string is not a valid SSH public key representation")
 
-	k = "ssh-rsa bla batman@debian"
+	k = "ssh-rsa dmFsaWQgYmFzZTY0IHN0cmluZw== batman@debian"
 	pub, ok := parsePublicKey(k)
 	s.Require().True(ok, "Should parse a valid SSH RSA public key representation")
 	s.Equal("ssh-rsa", pub.algorithm)
@@ -60,18 +60,18 @@ func (s *sshSuite) Test_ParseAStringAsAnSSHPublicKeyRepresentation() {
 	_, ok = parsePublicKey(k)
 	s.False(ok, "Since more than one whitespace character serve as one single separator, this example only has one column, and is thus not valid")
 
-	k = "ssh-rsa  AAAAA foo@debian"
+	k = "ssh-rsa  b3RoZXIgdmFsaWQgc3RyaW5n foo@debian"
 	_, ok = parsePublicKey(k)
 	s.True(ok, "More than one whitespace character serves as one single separator between columns")
 
-	k = "ssh-rsa\tAAAAA foo@debian"
+	k = "ssh-rsa\tb3RoZXIgdmFsaWQgc3RyaW5n foo@debian"
 	_, ok = parsePublicKey(k)
 	s.True(ok, "A tab can be a separator for columns")
 
-	k = "ssh-rsa   \t  \t  \t AAAAA foo@debian"
+	k = "ssh-rsa   \t  \t  \t b3RoZXIgdmFsaWQgc3RyaW5n foo@debian"
 	pub, ok = parsePublicKey(k)
 	s.True(ok, "A mix of tabs and spaces serve as one single separator")
-	s.Equal("AAAAA", pub.key)
+	s.Equal(decode("b3RoZXIgdmFsaWQgc3RyaW5n"), pub.key)
 
 	k = "ssh-rsa AAQQ foo@debian foo2@debian"
 	pub, ok = parsePublicKey(k)
@@ -81,6 +81,19 @@ func (s *sshSuite) Test_ParseAStringAsAnSSHPublicKeyRepresentation() {
 	k = "ssh-rsa AAQQ"
 	_, ok = parsePublicKey(k)
 	s.True(ok, "An SSH public key without a comment is still acceptable")
+}
+
+func (s *sshSuite) Test_parsePublicKey_doesNotParseAKeyThatIsNotAValidBase64() {
+	k := "ssh-rsa b batman@debian"
+	_, ok := parsePublicKey(k)
+	s.Require().False(ok, "Should not accept a non-base64 key")
+}
+
+func (s *sshSuite) Test_parsePublicKey_parsesABase64Key() {
+	k := "ssh-rsa YSB2YWxpZCBiYXNlNjQga2V5 batman@debian"
+	key, ok := parsePublicKey(k)
+	s.Require().True(ok, "Should accept a Base64 key")
+	s.Require().Equal([]byte("a valid base64 key"), key.key)
 }
 
 func (s *sshSuite) Test_CheckIfThePublicKeyTypeIdentifierIsRSA() {

@@ -27,8 +27,7 @@ func createPublicKeyRepresentation(path string) *publicKeyRepresentation {
 func createPublicKeyRepresentationFromPublicKey(key *publicKey) *publicKeyRepresentation {
 	return &publicKeyRepresentation{
 		path: key.location,
-		// TODO: this should decode the base64 before setting it
-		key: []byte(key.key),
+		key:  key.key,
 	}
 }
 
@@ -117,4 +116,8 @@ func (k *keypairRepresentation) PublicKeyLocations() []string {
 
 func (k *keypairRepresentation) KeyType() api.KeyType {
 	return api.PairKeyType
+}
+
+func (k *keypairRepresentation) WithDigestContent(f func([]byte) []byte) []byte {
+	return k.public.WithDigestContent(f)
 }
