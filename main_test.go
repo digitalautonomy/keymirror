@@ -49,13 +49,13 @@ func (s *mainSuite) Test_main_startsTheGuiWithTheRealGTK() {
 	var calledWithGDK gdki.Gdk
 	var calledWithGIO gioi.Gio
 	var calledWithLog logrus.Ext1FieldLogger
-	var calledWithKeyAccesss api.KeyAccess
+	var calledWithKeyAccess api.KeyAccess
 	defer gostub.Stub(&startGUI, func(g gtki.Gtk, g2 gdki.Gdk, g3 gioi.Gio, log logrus.Ext1FieldLogger, ka api.KeyAccess) {
 		calledWithGTK = g
 		calledWithGDK = g2
 		calledWithGIO = g3
 		calledWithLog = log
-		calledWithKeyAccesss = ka
+		calledWithKeyAccess = ka
 	}).Reset()
 
 	main()
@@ -65,5 +65,5 @@ func (s *mainSuite) Test_main_startsTheGuiWithTheRealGTK() {
 	s.Equal(ourGIO, calledWithGIO)
 	s.NotNil(calledWithLog)
 	s.Equal(logrus.TraceLevel, calledWithLog.(*logrus.Logger).Level)
-	s.NotNil(calledWithKeyAccesss)
+	s.NotNil(calledWithKeyAccess)
 }

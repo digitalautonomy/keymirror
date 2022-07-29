@@ -2,6 +2,7 @@ package gui
 
 import (
 	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
@@ -29,10 +30,10 @@ func newKeyDetails(builder *builder, key api.KeyEntry, box gtki.Box) *keyDetails
 	return &keyDetails{builder, key, box}
 }
 
-const publicKeyPathLabel = "publicKeyPath"
-const privateKeyPathLabel = "privateKeyPath"
-const publicKeyRowName = "keyDetailsPublicKeyRow"
-const privateKeyRowName = "keyDetailsPrivateKeyRow"
+const publicKeyPath = "publicKeyPath"
+const privateKeyPath = "privateKeyPath"
+const publicKeyPathLabel = "publicKeyPathLabel"
+const privateKeyPathLabel = "privateKeyPathLabel"
 
 type hasStyleContext interface {
 	GetStyleContext() (gtki.StyleContext, error)
@@ -98,24 +99,27 @@ func formatFingerprint(f []byte) string {
 	return strings.Join(result, ":")
 }
 
-const fingerprintRow string = "keyFingerprintRow"
+const sha1FingerprintLabel = "sha1FingerprintLabel"
+const sha1Fingerprint = "sha1Fingerprint"
+const sha256FingerprintLabel = "sha256FingerprintLabel"
+const sha256Fingerprint = "sha256Fingerprint"
 
-func (kd *keyDetails) displayFingerprint(rowName string) {
+func (kd *keyDetails) displayFingerprint(fingerprintLabel, fingerprint string, f func([]byte) []byte) {
 	if pk, ok := kd.key.(api.PublicKeyEntry); ok {
-		f := formatFingerprint(pk.WithDigestContent(returningSlice20(sha1.Sum)))
-		label := kd.builder.get("fingerprint").(gtki.Label)
-		label.SetLabel(f)
-		label.SetTooltipText(f)
+		fp := formatFingerprint(pk.WithDigestContent(f))
+		label := kd.builder.get(fingerprint).(gtki.Label)
+		label.SetLabel(fp)
+		label.SetTooltipText(fp)
 	} else {
-		row := kd.builder.get(rowName).(gtki.Box)
-		row.Hide()
+		kd.hideAll(fingerprintLabel, fingerprint)
 	}
 }
 
 func (kd *keyDetails) display() {
-	kd.displayLocations(kd.key.PublicKeyLocations(), publicKeyPathLabel, publicKeyRowName)
-	kd.displayLocations(kd.key.PrivateKeyLocations(), privateKeyPathLabel, privateKeyRowName)
-	kd.displayFingerprint(fingerprintRow)
+	kd.displayLocations(kd.key.PublicKeyLocations(), publicKeyPath, publicKeyPathLabel)
+	kd.displayLocations(kd.key.PrivateKeyLocations(), privateKeyPath, privateKeyPathLabel)
+	kd.displayFingerprint(sha1FingerprintLabel, sha1Fingerprint, returningSlice20(sha1.Sum))
+	kd.displayFingerprint(sha256FingerprintLabel, sha256Fingerprint, returningSlice32(sha256.Sum256))
 	kd.setClassForKeyDetails()
 }
 

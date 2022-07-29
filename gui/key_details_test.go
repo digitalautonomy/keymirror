@@ -35,14 +35,22 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	fingerprintRowMock := &gtk.MockBox{}
 	builder.On("GetObject", "keyFingerprintRow").Return(fingerprintRowMock, nil).Once()
 
-	keMock := &keyEntryMock{}
+	keMock := &publicKeyEntryMock{}
+	keMock.On("WithDigestContent", mock.Anything).Return([]byte{0xAB, 0xCD, 0x10}).Once()
+	keMock.On("WithDigestContent", mock.Anything).Return([]byte{0xCC, 0x07, 0x00, 0xFF}).Once()
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keMock.On("PrivateKeyLocations").Return(nil).Once()
 	keMock.On("KeyType").Return(api.PublicKeyType).Once()
-	publicKeyPathLabel.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
-	publicKeyPathLabel.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
-	privateKeyRow.On("Hide").Return().Once()
-	fingerprintRowMock.On("Hide").Return().Once()
+	pathPublicKeyPath.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
+	pathPublicKeyPath.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
+	labelPrivateKeyPath.On("Hide").Return().Once()
+	pathPrivateKey.On("Hide").Return().Once()
+
+	fingerprintSha1.On("SetLabel", "AB:CD:10").Return().Once()
+	fingerprintSha1.On("SetTooltipText", "AB:CD:10").Return().Once()
+
+	fingerprintSha256.On("SetLabel", "CC:07:00:FF").Return().Once()
+	fingerprintSha256.On("SetTooltipText", "CC:07:00:FF").Return().Once()
 
 	scMock := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
 
