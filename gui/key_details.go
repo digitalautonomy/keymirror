@@ -60,14 +60,27 @@ func (kd *keyDetails) setClassForKeyDetails() {
 	addClass(kd.box, className)
 }
 
-func (kd *keyDetails) displayLocations(keyLocations []string, pathLabelName, rowName string) {
+type hideable interface {
+	Hide()
+}
+
+func (kd *keyDetails) hideAll(ids ...string) {
+	for _, id := range ids {
+		kd.hide(id)
+	}
+}
+func (kd *keyDetails) hide(id string) {
+	l := kd.builder.get(id).(hideable)
+	l.Hide()
+}
+
+func (kd *keyDetails) displayLocations(keyLocations []string, path, pathLabel string) {
 	if keyLocations != nil {
-		label := kd.builder.get(pathLabelName).(gtki.Label)
+		label := kd.builder.get(path).(gtki.Label)
 		label.SetLabel(keyLocations[0])
 		label.SetTooltipText(keyLocations[0])
 	} else {
-		row := kd.builder.get(rowName).(gtki.Box)
-		row.Hide()
+		kd.hideAll(pathLabel, path)
 	}
 }
 

@@ -80,24 +80,44 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	keyEntry.AssertExpectations(s.T())
 
 	keyDetailsBoxMock := &gtk.MockBox{}
-	builder := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
+	builderKeyDetailsBoxMock := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
+
 	detailsBoxMock.On("Add", keyDetailsBoxMock).Return().Once()
 	detailsBoxMock.On("GetChildren").Return(nil).Once()
-	publicKeyPathLabel := &gtk.MockLabel{}
-	builder.On("GetObject", "publicKeyPath").Return(publicKeyPathLabel, nil).Once()
-	privateKeyRow := &gtk.MockBox{}
-	builder.On("GetObject", "keyDetailsPrivateKeyRow").Return(privateKeyRow, nil).Once()
+	pathPublicKey := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "publicKeyPath").Return(pathPublicKey, nil).Once()
+
+	pathPrivateKey := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPath").Return(pathPrivateKey, nil).Once()
+	labelPrivateKeyPath := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPathLabel").Return(labelPrivateKeyPath, nil).Once()
+
 	keyEntry.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keyEntry.On("PrivateKeyLocations").Return(nil).Once()
 	keyEntry.On("KeyType").Return(api.PublicKeyType).Once()
-	publicKeyPathLabel.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
-	publicKeyPathLabel.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
+
+	pathPublicKey.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
+	pathPublicKey.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
+
 	detailsRevMock.On("Show").Return().Once()
 	detailsRevMock.On("SetRevealChild", true).Return().Once()
-	privateKeyRow.On("Hide").Return().Once()
-	fingerprintRowMock := &gtk.MockBox{}
-	builder.On("GetObject", "keyFingerprintRow").Return(fingerprintRowMock, nil).Once()
-	fingerprintRowMock.On("Hide").Return().Once()
+
+	pathPrivateKey.On("Hide").Return().Once()
+	labelPrivateKeyPath.On("Hide").Return().Once()
+
+	labelFingerprintSha1 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelFingerprintSha1, nil).Once()
+	labelFingerprintSha1.On("Hide").Return().Once()
+	fingerprintSha1 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha1Fingerprint").Return(fingerprintSha1, nil).Once()
+	fingerprintSha1.On("Hide").Return().Once()
+
+	labelFingerprintSha256 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha256FingerprintLabel").Return(labelFingerprintSha256, nil).Once()
+	labelFingerprintSha256.On("Hide").Return().Once()
+	fingerprintSha256 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
+	fingerprintSha256.On("Hide").Return().Once()
 
 	scMock1 := expectClassToBeAdded(box, "current")
 	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
@@ -111,8 +131,12 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	detailsRevMock.AssertExpectations(s.T())
 	scMock1.AssertExpectations(s.T())
 	scMock2.AssertExpectations(s.T())
-	privateKeyRow.AssertExpectations(s.T())
-	fingerprintRowMock.AssertExpectations(s.T())
+	pathPrivateKey.AssertExpectations(s.T())
+	labelPrivateKeyPath.AssertExpectations(s.T())
+	labelFingerprintSha1.AssertExpectations(s.T())
+	labelFingerprintSha256.AssertExpectations(s.T())
+	fingerprintSha1.AssertExpectations(s.T())
+	fingerprintSha256.AssertExpectations(s.T())
 }
 
 type keyAccessMock struct {

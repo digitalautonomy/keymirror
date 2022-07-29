@@ -22,22 +22,23 @@
             </packing>
         </child>
         <child>
-            <object class="GtkBox" id="keyDetailsPublicKeyRow">
+            <!-- n-columns=2 n-rows=4 -->
+            <object class="GtkGrid" id="keyDetailsGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
                     <object class="GtkLabel" id="publicKeyPathLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
                         <property name="label" translatable="yes">Public key:</property>
                         <style>
                             <class name="pathLabel"/>
                         </style>
                     </object>
                     <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
                     </packing>
                 </child>
                 <child>
@@ -52,38 +53,26 @@
                         </style>
                     </object>
                     <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
                     </packing>
                 </child>
                 <style>
                     <class name="publicKey"/>
                 </style>
-            </object>
-            <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-            </packing>
-        </child>
-        <child>
-            <object class="GtkBox" id="keyDetailsPrivateKeyRow">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
                 <child>
                     <object class="GtkLabel" id="privateKeyPathLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
                         <property name="label" translatable="yes">Private key:</property>
                         <style>
                             <class name="pathLabel"/>
                         </style>
                     </object>
                     <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">1</property>
                     </packing>
                 </child>
                 <child>
@@ -98,42 +87,30 @@
                         </style>
                     </object>
                     <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">1</property>
                     </packing>
                 </child>
                 <style>
                     <class name="privateKey"/>
                 </style>
-            </object>
-            <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-            </packing>
-        </child>
-        <child>
-            <object class="GtkBox" id="keyFingerprintRow">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
                 <child>
-                    <object class="GtkLabel" id="fingerprintLabel">
+                    <object class="GtkLabel" id="sha1FingerprintLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Fingerprint:</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">SHA-1:</property>
                         <style>
                             <class name="fingerprintLabel"/>
                         </style>
                     </object>
                     <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">2</property>
                     </packing>
                 </child>
                 <child>
-                    <object class="GtkLabel" id="fingerprint">
+                    <object class="GtkLabel" id="sha1Fingerprint">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
@@ -145,9 +122,43 @@
                         </style>
                     </object>
                     <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">2</property>
+                    </packing>
+                </child>
+                <style>
+                    <class name="fingerprint"/>
+                </style>
+                <child>
+                    <object class="GtkLabel" id="sha256FingerprintLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">SHA2-256:</property>
+                        <style>
+                            <class name="fingerprintLabel"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">3</property>
+                    </packing>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="sha256Fingerprint">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="ellipsize">end</property>
+                        <property name="width-chars">20</property>
+                        <property name="selectable">True</property>
+                        <style>
+                            <class name="fingerprint"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">3</property>
                     </packing>
                 </child>
                 <style>
@@ -157,7 +168,6 @@
             <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">3</property>
             </packing>
         </child>
         <style>

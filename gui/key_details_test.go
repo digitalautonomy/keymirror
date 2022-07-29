@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"crypto/sha1"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/coyim/gotk3mocks/gtk"
 	"github.com/digitalautonomy/keymirror/api"
@@ -20,20 +21,24 @@ func expectClassToBeAdded(m mockable, class string) *gtk.MockStyleContext {
 
 func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThePublicKeyPath() {
 	keyDetailsBoxMock := &gtk.MockBox{}
-	builder := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
+	builderKeyDetailsBoxMock := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
 
 	keyDetailsHolder := &gtk.MockBox{}
 	keyDetailsHolder.On("Add", keyDetailsBoxMock).Return().Once()
 	keyDetailsHolder.On("GetChildren").Return(nil).Once()
 
-	publicKeyPathLabel := &gtk.MockLabel{}
-	builder.On("GetObject", "publicKeyPath").Return(publicKeyPathLabel, nil).Once()
+	pathPublicKeyPath := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "publicKeyPath").Return(pathPublicKeyPath, nil).Once()
 
-	privateKeyRow := &gtk.MockBox{}
-	builder.On("GetObject", "keyDetailsPrivateKeyRow").Return(privateKeyRow, nil).Once()
+	labelPrivateKeyPath := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPathLabel").Return(labelPrivateKeyPath, nil).Once()
+	pathPrivateKey := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPath").Return(pathPrivateKey, nil).Once()
 
-	fingerprintRowMock := &gtk.MockBox{}
-	builder.On("GetObject", "keyFingerprintRow").Return(fingerprintRowMock, nil).Once()
+	fingerprintSha1 := &gtk.MockLabel{}
+	fingerprintSha256 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha1Fingerprint").Return(fingerprintSha1, nil).Once()
+	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
 
 	keMock := &publicKeyEntryMock{}
 	keMock.On("WithDigestContent", mock.Anything).Return([]byte{0xAB, 0xCD, 0x10}).Once()
@@ -59,37 +64,52 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 
 	keyDetailsHolder.AssertExpectations(s.T())
 	keMock.AssertExpectations(s.T())
-	publicKeyPathLabel.AssertExpectations(s.T())
-	privateKeyRow.AssertExpectations(s.T())
-	fingerprintRowMock.AssertExpectations(s.T())
+	pathPublicKeyPath.AssertExpectations(s.T())
+	labelPrivateKeyPath.AssertExpectations(s.T())
+	pathPrivateKey.AssertExpectations(s.T())
+	fingerprintSha1.AssertExpectations(s.T())
+	fingerprintSha256.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
 }
 
 func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThePrivateKeyPath() {
 	keyDetailsBoxMock := &gtk.MockBox{}
-	builder := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
+	builderKeyDetailsBoxMock := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
 
 	keyDetailsHolder := &gtk.MockBox{}
 	keyDetailsHolder.On("Add", keyDetailsBoxMock).Return().Once()
 	keyDetailsHolder.On("GetChildren").Return(nil).Once()
 
-	privateKeyPathLabel := &gtk.MockLabel{}
-	builder.On("GetObject", "privateKeyPath").Return(privateKeyPathLabel, nil).Once()
+	pathPrivateKey := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPath").Return(pathPrivateKey, nil).Once()
 
-	publicKeyRow := &gtk.MockBox{}
-	builder.On("GetObject", "keyDetailsPublicKeyRow").Return(publicKeyRow, nil).Once()
+	labelPublicKeyPath := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "publicKeyPathLabel").Return(labelPublicKeyPath, nil).Once()
+	pathPublicKey := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "publicKeyPath").Return(pathPublicKey, nil).Once()
 
-	fingerprintRowMock := &gtk.MockBox{}
-	builder.On("GetObject", "keyFingerprintRow").Return(fingerprintRowMock, nil).Once()
+	labelSha1Fingerprint := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelSha1Fingerprint, nil).Once()
+	fingerprintSha1 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha1Fingerprint").Return(fingerprintSha1, nil).Once()
+
+	labelSha256Fingerprint := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha256FingerprintLabel").Return(labelSha256Fingerprint, nil).Once()
+	fingerprintSha256 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
 
 	keMock := &keyEntryMock{}
 	keMock.On("PublicKeyLocations").Return(nil).Once()
 	keMock.On("PrivateKeyLocations").Return([]string{"/a/path/to/a/private/key"}).Once()
 	keMock.On("KeyType").Return(api.PrivateKeyType).Once()
-	privateKeyPathLabel.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
-	privateKeyPathLabel.On("SetTooltipText", "/a/path/to/a/private/key").Return().Once()
-	publicKeyRow.On("Hide").Return().Once()
-	fingerprintRowMock.On("Hide").Return().Once()
+	pathPrivateKey.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
+	pathPrivateKey.On("SetTooltipText", "/a/path/to/a/private/key").Return().Once()
+	labelPublicKeyPath.On("Hide").Return().Once()
+	pathPublicKey.On("Hide").Return().Once()
+	labelSha1Fingerprint.On("Hide").Return().Once()
+	fingerprintSha1.On("Hide").Return().Once()
+	labelSha256Fingerprint.On("Hide").Return().Once()
+	fingerprintSha256.On("Hide").Return().Once()
 
 	scMock := expectClassToBeAdded(keyDetailsBoxMock, "privateKey")
 
@@ -98,38 +118,52 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 
 	keyDetailsHolder.AssertExpectations(s.T())
 	keMock.AssertExpectations(s.T())
-	privateKeyPathLabel.AssertExpectations(s.T())
-	publicKeyRow.AssertExpectations(s.T())
-	fingerprintRowMock.AssertExpectations(s.T())
+	pathPrivateKey.AssertExpectations(s.T())
+	labelPublicKeyPath.AssertExpectations(s.T())
+	pathPublicKey.AssertExpectations(s.T())
+	labelSha1Fingerprint.AssertExpectations(s.T())
+	fingerprintSha1.AssertExpectations(s.T())
+	labelSha256Fingerprint.AssertExpectations(s.T())
+	fingerprintSha256.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
 }
 
 func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBothPublicAndPrivateKeyPathIfExists() {
 	keyDetailsBoxMock := &gtk.MockBox{}
-	builder := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
+	builderKeyDetailsBoxMock := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
 
 	keyDetailsHolder := &gtk.MockBox{}
 	keyDetailsHolder.On("Add", keyDetailsBoxMock).Return().Once()
 	keyDetailsHolder.On("GetChildren").Return(nil).Once()
 
-	publicKeyPathLabel := &gtk.MockLabel{}
-	builder.On("GetObject", "publicKeyPath").Return(publicKeyPathLabel, nil).Once()
+	pathPublicKey := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "publicKeyPath").Return(pathPublicKey, nil).Once()
 
-	privateKeyPathLabel := &gtk.MockLabel{}
-	builder.On("GetObject", "privateKeyPath").Return(privateKeyPathLabel, nil).Once()
+	pathPrivateKey := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPath").Return(pathPrivateKey, nil).Once()
 
-	fingerprintRowMock := &gtk.MockBox{}
-	builder.On("GetObject", "keyFingerprintRow").Return(fingerprintRowMock, nil).Once()
+	labelFingerprintSha1 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelFingerprintSha1, nil).Once()
+	fingerprintSha1 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha1Fingerprint").Return(fingerprintSha1, nil).Once()
+
+	labelFingerprintSha256 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha256FingerprintLabel").Return(labelFingerprintSha256, nil).Once()
+	fingerprintSha256 := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
 
 	keMock := &keyEntryMock{}
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keMock.On("PrivateKeyLocations").Return([]string{"/a/path/to/a/private/key"}).Once()
 	keMock.On("KeyType").Return(api.PairKeyType).Once()
-	publicKeyPathLabel.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
-	publicKeyPathLabel.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
-	privateKeyPathLabel.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
-	privateKeyPathLabel.On("SetTooltipText", "/a/path/to/a/private/key").Return().Once()
-	fingerprintRowMock.On("Hide").Return().Once()
+	pathPublicKey.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
+	pathPublicKey.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
+	pathPrivateKey.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
+	pathPrivateKey.On("SetTooltipText", "/a/path/to/a/private/key").Return().Once()
+	labelFingerprintSha1.On("Hide").Return().Once()
+	fingerprintSha1.On("Hide").Return().Once()
+	labelFingerprintSha256.On("Hide").Return().Once()
+	fingerprintSha256.On("Hide").Return().Once()
 
 	scMock := expectClassToBeAdded(keyDetailsBoxMock, "keyPair")
 
@@ -138,9 +172,11 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 
 	keyDetailsHolder.AssertExpectations(s.T())
 	keMock.AssertExpectations(s.T())
-	publicKeyPathLabel.AssertExpectations(s.T())
-	privateKeyPathLabel.AssertExpectations(s.T())
-	fingerprintRowMock.AssertExpectations(s.T())
+	pathPublicKey.AssertExpectations(s.T())
+	pathPrivateKey.AssertExpectations(s.T())
+	labelFingerprintSha1.AssertExpectations(s.T())
+	fingerprintSha1.AssertExpectations(s.T())
+	fingerprintSha256.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
 }
 
@@ -197,11 +233,11 @@ func (s *guiSuite) Test_keyDetails_displayFingerprint_calculateTheFingerprintAnd
 	}
 
 	labelMock := &gtk.MockLabel{}
-	builderMock.On("GetObject", "fingerprint").Return(labelMock, nil).Once()
+	builderMock.On("GetObject", "sha1Fingerprint").Return(labelMock, nil).Once()
 	labelMock.On("SetLabel", "73:6F:6D:65:74:68:69:6E:67").Return().Once()
 	labelMock.On("SetTooltipText", "73:6F:6D:65:74:68:69:6E:67").Return().Once()
 
-	kd.displayFingerprint("a row")
+	kd.displayFingerprint("a row", "sha1Fingerprint", returningSlice20(sha1.Sum))
 
 	labelMock.AssertExpectations(s.T())
 	builderMock.AssertExpectations(s.T())
@@ -216,17 +252,22 @@ func (s *guiSuite) Test_keyDetails_displayFingerprint_hideTheFingerprintRow_ifDi
 	keyMock := &keyEntryMock{}
 
 	builderMock := &gtk.MockBuilder{}
-	rowMock := &gtk.MockBox{}
+	labelFingerprintSha1 := &gtk.MockLabel{}
+	fingerprintSha1 := &gtk.MockLabel{}
 
 	kd := &keyDetails{
 		builder: &builder{builderMock},
 		key:     keyMock,
 	}
 
-	rowMock.On("Hide").Return().Once()
+	labelFingerprintSha1.On("Hide").Return().Once()
+	builderMock.On("GetObject", "labelFingerprintSha1").Return(labelFingerprintSha1, nil).Maybe()
+	fingerprintSha1.On("Hide").Return().Once()
+	builderMock.On("GetObject", "fingerprintSha1").Return(fingerprintSha1, nil).Maybe()
 
-	builderMock.On("GetObject", "label").Return(rowMock, nil).Once()
-	kd.displayFingerprint("label")
+	kd.displayFingerprint("labelFingerprintSha1", "fingerprintSha1", func([]byte) []byte {
+		return []byte{}
+	})
 
-	rowMock.AssertExpectations(s.T())
+	labelFingerprintSha1.AssertExpectations(s.T())
 }
