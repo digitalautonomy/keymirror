@@ -91,6 +91,8 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPath").Return(pathPrivateKey, nil).Once()
 	labelPrivateKeyPath := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPathLabel").Return(labelPrivateKeyPath, nil).Once()
+	labelPasswordProtected := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "passwordProtectedLabel").Return(labelPasswordProtected, nil).Once()
 
 	keyEntry.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keyEntry.On("PrivateKeyLocations").Return(nil).Once()
@@ -104,6 +106,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 
 	pathPrivateKey.On("Hide").Return().Once()
 	labelPrivateKeyPath.On("Hide").Return().Once()
+	labelPasswordProtected.On("Hide").Return().Once()
 
 	labelFingerprintSha1 := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelFingerprintSha1, nil).Once()
@@ -132,6 +135,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	scMock1.AssertExpectations(s.T())
 	scMock2.AssertExpectations(s.T())
 	pathPrivateKey.AssertExpectations(s.T())
+	labelPasswordProtected.AssertExpectations(s.T())
 	labelPrivateKeyPath.AssertExpectations(s.T())
 	labelFingerprintSha1.AssertExpectations(s.T())
 	labelFingerprintSha256.AssertExpectations(s.T())

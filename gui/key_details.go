@@ -128,9 +128,25 @@ func (kd *keyDetails) displayFingerprint(fingerprintLabel, fingerprint string, f
 	}
 }
 
+const passwordProtectedLabel = "passwordProtectedLabel"
+
+func (kd *keyDetails) privateKeyIsPasswordProtected() bool {
+	pk, ok := kd.key.(api.PrivateKeyEntry)
+	return ok && pk.IsPasswordProtected()
+}
+
+func (kd *keyDetails) displayIsPasswordProtected() {
+	if kd.privateKeyIsPasswordProtected() {
+		addClass(kd.box, "passwordProtectedPrivateKey")
+	} else {
+		kd.hide(passwordProtectedLabel)
+	}
+}
+
 func (kd *keyDetails) display() {
 	kd.displayLocations(kd.key.PublicKeyLocations(), publicKeyPath, publicKeyPathLabel)
 	kd.displayLocations(kd.key.PrivateKeyLocations(), privateKeyPath, privateKeyPathLabel)
+	kd.displayIsPasswordProtected()
 	kd.displayFingerprint(sha1FingerprintLabel, sha1Fingerprint, returningSlice20(sha1.Sum))
 	kd.displayFingerprint(sha256FingerprintLabel, sha256Fingerprint, returningSlice32(sha256.Sum256))
 	kd.setClassForKeyDetails()

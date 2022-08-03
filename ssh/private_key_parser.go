@@ -7,7 +7,9 @@ import (
 )
 
 type privateKey struct {
-	algorithm string
+	path              string
+	algorithm         string
+	passwordProtected bool
 }
 
 func (k *privateKey) isAlgorithm(algo string) bool {
@@ -40,7 +42,7 @@ func readLengthBytes(input []byte) (value []byte, rest []byte, ok bool) {
 	return readBytes(rest1, int(l))
 }
 
-func extractPrivateKeyAlgorithm(input []byte) (algorithm string, ok bool) {
+func extractKeyAlgorithm(input []byte) (algorithm string, ok bool) {
 	a, _, k := readLengthBytes(input)
 	return string(a), k
 }
@@ -56,18 +58,27 @@ func allOK(vals ...bool) bool {
 	return vals[0] && allOK(vals[1:]...)
 }
 
+func hasNoAlgorithm(v []byte) bool {
+	return string(v) == "none"
+}
+
 func createPrivateKeyFrom(input []byte) (privateKey, bool) {
-	_, rest, ok1 := readLengthBytes(input)           // reads the ciphername
+	cipherName, rest, ok1 := readLengthBytes(input)  // reads the ciphername
 	_, rest, ok2 := readLengthBytes(rest)            // reads the kdfname
 	_, rest, ok3 := readLengthBytes(rest)            // reads the kdf
 	numberOfKeys, rest, ok4 := read32BitNumber(rest) // reads the number of keys
 	ok5 := numberOfKeys == 1
-	_, rest, ok6 := readLengthBytes(rest)  // reads the public key
-	value, _, ok7 := readLengthBytes(rest) // reads the private key block
-	_, rest, ok8 := extractDummyCheckSum(value)
-	algorithm, ok9 := extractPrivateKeyAlgorithm(rest)
+	pubValue, rest, ok6 := readLengthBytes(rest) // reads the public key
+	privValue, _, ok7 := readLengthBytes(rest)   // reads the private key block
 
-	return privateKey{algorithm}, allOK(ok1, ok2, ok3, ok4, ok5, ok6, ok7, ok8, ok9)
+	if hasNoAlgorithm(cipherName) {
+		_, rest, ok8 := extractDummyCheckSum(privValue)
+		algorithm, ok9 := extractKeyAlgorithm(rest)
+		return privateKey{algorithm: algorithm, passwordProtected: false}, allOK(ok1, ok2, ok3, ok4, ok5, ok6, ok7, ok8, ok9)
+	}
+
+	algorithm, ok8 := extractKeyAlgorithm(pubValue)
+	return privateKey{algorithm: algorithm, passwordProtected: true}, allOK(ok1, ok2, ok3, ok4, ok5, ok6, ok7, ok8)
 }
 
 var privateKeyAuthMagicWithTerminator = []byte("openssh-key-v1\x00")

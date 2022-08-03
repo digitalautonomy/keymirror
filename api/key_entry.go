@@ -11,3 +11,8 @@ type PublicKeyEntry interface {
 	KeyEntry
 	WithDigestContent(func([]byte) []byte) []byte
 }
+
+type PrivateKeyEntry interface {
+	KeyEntry
+	IsPasswordProtected() bool
+}

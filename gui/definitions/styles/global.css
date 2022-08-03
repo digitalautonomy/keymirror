@@ -115,3 +115,8 @@ window {
 .fingerprint .fingerprintLabel {
     padding-right: 10px;
 }
+
+.passwordProtected {
+    font-style: italic;
+    color: @theme_unfocused_fg_color;
+}

@@ -370,11 +370,11 @@ func (s *sshSuite) Test_createPrivateKeyEntriesFrom_ReturnsAListOfKeyEntriesFrom
 
 	paths = []string{"a path"}
 	l = createPrivateKeyRepresentationsFrom(paths)
-	s.Equal([]*privateKeyRepresentation{{"a path"}}, l)
+	s.Equal([]*privateKeyRepresentation{{"a path", false}}, l)
 
 	paths = []string{"a path", "another path"}
 	l = createPrivateKeyRepresentationsFrom(paths)
-	s.Equal([]*privateKeyRepresentation{{"a path"}, {"another path"}}, l)
+	s.Equal([]*privateKeyRepresentation{{"a path", false}, {"another path", false}}, l)
 }
 
 func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFromAllTheProvidedPaths() {
@@ -402,18 +402,22 @@ func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFro
 	s.createFileWithContent(s.tdir, privateRSAKeyFile1, correctRSASSHPrivateKey)
 	privateRSAKeyFile2 := "Another-file-with-another-private-RSA-key"
 	s.createFileWithContent(s.tdir, privateRSAKeyFile2, correctRSASSHPrivateKeyOther)
+	privateRSAKeyFile3Protected := "a password protected RSA key"
+	s.createFileWithContent(s.tdir, privateRSAKeyFile3Protected, correctRSAPasswordProtectedKey)
 
 	paths = []string{
 		filepath.Join(s.tdir, emptyFile),
 		filepath.Join(s.tdir, notAnRSAPrivateKeyFile),
 		filepath.Join(s.tdir, privateRSAKeyFile1),
 		filepath.Join(s.tdir, privateRSAKeyFile2),
+		filepath.Join(s.tdir, privateRSAKeyFile3Protected),
 	}
 
 	l = a.privateKeyRepresentationsFrom(paths)
 	s.Equal([]*privateKeyRepresentation{
-		createPrivateKeyRepresentation(filepath.Join(s.tdir, privateRSAKeyFile1)),
-		createPrivateKeyRepresentation(filepath.Join(s.tdir, privateRSAKeyFile2)),
+		{filepath.Join(s.tdir, privateRSAKeyFile1), false},
+		{filepath.Join(s.tdir, privateRSAKeyFile2), false},
+		{filepath.Join(s.tdir, privateRSAKeyFile3Protected), true},
 	}, l)
 }
 

@@ -14,6 +14,21 @@ func filesContainingRSAPublicKeys(fileNameList []string) []string {
 	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPublicRSAKey))
 }
 
+func (a *access) privateKeyFromFile(fileName string) *privateKey {
+	content, e := os.ReadFile(fileName)
+	if e != nil {
+		return nil
+	}
+
+	priv, ok := a.parsePrivateKey(string(content))
+	if !ok {
+		return nil
+	}
+
+	priv.path = fileName
+	return &priv
+}
+
 func publicKeyFromFile(fileName string) *publicKey {
 	content, e := os.ReadFile(fileName)
 	if e != nil {
@@ -29,12 +44,12 @@ func publicKeyFromFile(fileName string) *publicKey {
 	return &pub
 }
 
-func rsaPublicKeysFrom(fileNameList []string) []*publicKey {
-	return filter(transform(fileNameList, publicKeyFromFile), both(not(isNil[publicKey]), (*publicKey).isRSA))
+func (a *access) rsaPrivateKeyFrom(fileNameList []string) []*privateKey {
+	return filter(transform(fileNameList, a.privateKeyFromFile), both(not(isNil[privateKey]), (*privateKey).isRSA))
 }
 
-func ed25519KeyFrom(fileNameList []string) []*publicKey {
-	return filter(transform(fileNameList, publicKeyFromFile), both(not(isNil[publicKey]), (*publicKey).isEd25519))
+func rsaPublicKeysFrom(fileNameList []string) []*publicKey {
+	return filter(transform(fileNameList, publicKeyFromFile), both(not(isNil[publicKey]), (*publicKey).isRSA))
 }
 
 func (a *access) filesContainingRSAPrivateKeys(fileNameList []string) []string {

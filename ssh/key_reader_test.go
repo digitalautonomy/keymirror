@@ -1,6 +1,8 @@
 package ssh
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -465,7 +467,7 @@ func (s *sshSuite) Test_readLengthBytes_AnInputWithMoreThanEnoughRestReturnsTheV
 
 func (s *sshSuite) Test_extractPrivateKeyAlgorithm_FromAnEmptyInputItIsNotPossibleToExtractAValidPrivateKeyAlgorithm() {
 	input := []byte{}
-	_, ok := extractPrivateKeyAlgorithm(input)
+	_, ok := extractKeyAlgorithm(input)
 	s.False(ok)
 }
 
@@ -473,7 +475,7 @@ func (s *sshSuite) Test_extractPrivateKeyAlgorithm_ANotLongEnoughByteSliceShould
 	input := []byte{0, 0, 0, 7}
 	input = append(input, []byte("ssh-r")...)
 
-	_, ok := extractPrivateKeyAlgorithm(input)
+	_, ok := extractKeyAlgorithm(input)
 	s.False(ok)
 }
 
@@ -481,14 +483,14 @@ func (s *sshSuite) Test_extractPrivateKeyAlgorithm_ALongEnoughByteSliceShouldRet
 	input := []byte{0, 0, 0, 7}
 	input = append(input, []byte("ssh-rsa")...)
 	input = append(input, []byte("comment and padding")...)
-	a, ok := extractPrivateKeyAlgorithm(input)
+	a, ok := extractKeyAlgorithm(input)
 	s.True(ok)
 	s.Equal("ssh-rsa", a)
 
 	input = []byte{0, 0, 0, 9}
 	input = append(input, []byte("ssh-ecdsa")...)
 	input = append(input, []byte("comment and padding")...)
-	a, ok = extractPrivateKeyAlgorithm(input)
+	a, ok = extractKeyAlgorithm(input)
 	s.True(ok)
 	s.Equal("ssh-ecdsa", a)
 }
@@ -530,8 +532,8 @@ func (s *sshSuite) Test_extractDummyCheckSum_ALongEnoughInputReturnsAValidDummyC
 
 func (s *sshSuite) Test_createPrivateKeyFrom_getsTheAlgorithmFromABasicKeyStructure() {
 	input := []byte{
-		0, 0, 0, 0,
-		// ciphername
+		0, 0, 0, 4,
+		'n', 'o', 'n', 'e', // ciphername
 
 		0, 0, 0, 0,
 		// kdfname
@@ -568,8 +570,8 @@ func (s *sshSuite) Test_createPrivateKeyFrom_getsTheAlgorithmFromABasicKeyStruct
 
 func (s *sshSuite) Test_createPrivateKeyFrom_getsTheAlgorithmFromABasicKeyStructureWithOtherValues() {
 	input := []byte{
-		0, 0, 0, 3,
-		1, 2, 3, // ciphername
+		0, 0, 0, 4,
+		'n', 'o', 'n', 'e', // ciphername
 
 		0, 0, 0, 2,
 		52, 42, // kdfname
@@ -602,6 +604,7 @@ func (s *sshSuite) Test_createPrivateKeyFrom_getsTheAlgorithmFromABasicKeyStruct
 
 	s.True(ok)
 	s.Equal("TA", pk.algorithm)
+	s.False(pk.passwordProtected, "The key generated should not be marked as password protected")
 }
 
 func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenReadingCiphernameFails() {
@@ -748,8 +751,8 @@ func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenReadingPrivateKey
 
 func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenReadingDummyChecksumFails() {
 	input := []byte{
-		0, 0, 0, 3,
-		1, 2, 3, // ciphername
+		0, 0, 0, 4,
+		'n', 'o', 'n', 'e', // ciphername
 
 		0, 0, 0, 2,
 		52, 42, // kdfname
@@ -782,8 +785,8 @@ func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenReadingDummyCheck
 
 func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenExtractingPrivateKeyAlgorithmFails() {
 	input := []byte{
-		0, 0, 0, 3,
-		1, 2, 3, // ciphername
+		0, 0, 0, 4,
+		'n', 'o', 'n', 'e', // ciphername
 
 		0, 0, 0, 2,
 		52, 42, // kdfname
@@ -815,6 +818,68 @@ func (s *sshSuite) Test_createPrivateKeyFrom_ReturnsAnErrorWhenExtractingPrivate
 	_, ok := createPrivateKeyFrom(input)
 
 	s.False(ok, "the private key algorithm is not valid")
+}
+
+const correctRSAPasswordProtectedKey = `
+-----BEGIN OPENSSH PRIVATE KEY-----
+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
+I7kWTQ==
+-----END OPENSSH PRIVATE KEY-----`
+
+func (s *sshSuite) Test_createPrivateKeyFrom_WillReturnOKForAValidPasswordProtectedKey() {
+	// This key was taken from https://peterlyons.com/problog/2017/12/openssh-ed25519-private-key-file-format/
+	// It is encrypted using aes256-cbc with bcrypt as the KDF
+	validKey, _ := hex.DecodeString("6f70656e7373682d6b65792d7631000000000a6165733235362d63626300" +
+		"0000066263727970740000001800000010d08f6b8fd17593f246db4ac6c4" +
+		"5a11930000001000000001000000330000000b7373682d65643235353139" +
+		"0000002062837be86c63712896b8e0e7543e367c3abd0c0b5ad3e764ea0e" +
+		"4f8ddd7d00ef000000901e60c56ef30d0ff02e07b57bf14645076c32c86c" +
+		"88ecad545ca28424e4739aff5895bebd6778e70b6c54b309b9fdb0c94102" +
+		"bf8cef5b97d3d75636967e67e4b9c1ee72ae81074b0ce0f7e540e051d569" +
+		"05da263af3e383342cc75b3145242abb75257586a119c9d3673dfb7eabe4" +
+		"696350904e7c7af3cd77f28bea10374e15bc6536c2e1029438fdd3930bee" +
+		"bbc5ac30")
+	validKey = bytes.TrimPrefix(validKey, privateKeyAuthMagicWithTerminator)
+
+	pk, ok := createPrivateKeyFrom(validKey)
+	s.True(ok, "A password protected private key should be possible to parse")
+	s.True(pk.passwordProtected, "The key generated should be marked as password protected")
+	s.Equal("ssh-ed25519", pk.algorithm)
 }
 
 func (s *sshSuite) Test_isRSAPrivateKey_CheckIfAStringHasTheFormatOfAnRSAPrivateKey() {

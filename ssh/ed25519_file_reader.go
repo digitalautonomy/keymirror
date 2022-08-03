@@ -9,10 +9,10 @@ func (a *access) filesContainingEd25519PrivateKeys(fileNameList []string) []stri
 	return result
 }
 
-func checkIfFileContainsAPublicEd25519Key(fileName string) (bool, error) {
-	return fileContentMatches(fileName, isEd25519PublicKey)
+func ed25519PublicKeyFrom(fileNameList []string) []*publicKey {
+	return filter(transform(fileNameList, publicKeyFromFile), both(not(isNil[publicKey]), (*publicKey).isEd25519))
 }
 
-func filesContainingEd25519PublicKeys(fileNameList []string) []string {
-	return filter(fileNameList, ignoringErrors(checkIfFileContainsAPublicEd25519Key))
+func (a *access) ed25519PrivateKeyFrom(fileNameList []string) []*privateKey {
+	return filter(transform(fileNameList, a.privateKeyFromFile), both(not(isNil[privateKey]), (*privateKey).isEd25519))
 }
