@@ -22,7 +22,7 @@
             </packing>
         </child>
         <child>
-            <!-- n-columns=2 n-rows=5 -->
+            <!-- n-columns=2 n-rows=6 -->
             <object class="GtkGrid" id="keyDetailsGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -114,6 +114,38 @@
                     <class name="privateKey"/>
                 </style>
                 <child>
+                    <object class="GtkLabel" id="sizeLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">Size:</property>
+                        <style>
+                            <class name="sizeLabel"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">3</property>
+                    </packing>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="size">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <style>
+                            <class name="size"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">3</property>
+                    </packing>
+                </child>
+                <style>
+                    <class name="size"/>
+                </style>
+                <child>
                     <object class="GtkLabel" id="sha1FingerprintLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -125,7 +157,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">3</property>
+                        <property name="top-attach">4</property>
                     </packing>
                 </child>
                 <child>
@@ -142,7 +174,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">3</property>
+                        <property name="top-attach">4</property>
                     </packing>
                 </child>
                 <style>
@@ -160,7 +192,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">4</property>
+                        <property name="top-attach">5</property>
                     </packing>
                 </child>
                 <child>
@@ -177,7 +209,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">4</property>
+                        <property name="top-attach">5</property>
                     </packing>
                 </child>
                 <style>

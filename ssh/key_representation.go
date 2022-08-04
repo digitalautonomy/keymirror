@@ -7,11 +7,13 @@ import (
 type privateKeyRepresentation struct {
 	path              string
 	passwordProtected bool
+	size              int
 }
 
 type publicKeyRepresentation struct {
 	path string
 	key  []byte
+	size int
 }
 
 type keypairRepresentation struct {
@@ -19,22 +21,11 @@ type keypairRepresentation struct {
 	public  *publicKeyRepresentation
 }
 
-func createPublicKeyRepresentation(path string) *publicKeyRepresentation {
-	return &publicKeyRepresentation{
-		path: path,
-	}
-}
-
 func createPublicKeyRepresentationFromPublicKey(key *publicKey) *publicKeyRepresentation {
 	return &publicKeyRepresentation{
 		path: key.location,
 		key:  key.key,
-	}
-}
-
-func createPrivateKeyRepresentation(path string) *privateKeyRepresentation {
-	return &privateKeyRepresentation{
-		path: path,
+		size: key.size,
 	}
 }
 
@@ -42,6 +33,7 @@ func createPrivateKeyRepresentationFromPrivateKey(key *privateKey) *privateKeyRe
 	return &privateKeyRepresentation{
 		path:              key.path,
 		passwordProtected: key.passwordProtected,
+		size:              key.size,
 	}
 }
 
@@ -90,6 +82,10 @@ func (k *privateKeyRepresentation) IsPasswordProtected() bool {
 	return k.passwordProtected
 }
 
+func (k *privateKeyRepresentation) Size() int {
+	return k.size
+}
+
 // Locations implement the KeyEntry interface
 func (k *publicKeyRepresentation) Locations() []string {
 	return nilOrStringSlice(k.path)
@@ -110,6 +106,10 @@ func (k *publicKeyRepresentation) KeyType() api.KeyType {
 
 func (k *publicKeyRepresentation) WithDigestContent(f func([]byte) []byte) []byte {
 	return f(k.key)
+}
+
+func (k *publicKeyRepresentation) Size() int {
+	return k.size
 }
 
 // Locations implement the KeyEntry interface
@@ -136,4 +136,8 @@ func (k *keypairRepresentation) WithDigestContent(f func([]byte) []byte) []byte 
 
 func (k *keypairRepresentation) IsPasswordProtected() bool {
 	return k.private.passwordProtected
+}
+
+func (k *keypairRepresentation) Size() int {
+	return k.public.size
 }

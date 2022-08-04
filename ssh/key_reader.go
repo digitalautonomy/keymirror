@@ -16,6 +16,7 @@ type publicKey struct {
 	algorithm string
 	key       []byte
 	comment   string
+	size      int
 }
 
 func (k *publicKey) isAlgorithm(algo string) bool {

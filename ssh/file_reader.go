@@ -33,16 +33,8 @@ func (a *access) listFilesInHomeSSHDirectory() []string {
 	return result
 }
 
-func createPublicKeyRepresentationsFrom(input []string) []*publicKeyRepresentation {
-	return transform(input, createPublicKeyRepresentation)
-}
-
 func createPublicKeyRepresentationsFromPublicKeys(input []*publicKey) []*publicKeyRepresentation {
 	return transform(input, createPublicKeyRepresentationFromPublicKey)
-}
-
-func createPrivateKeyRepresentationsFrom(input []string) []*privateKeyRepresentation {
-	return transform(input, createPrivateKeyRepresentation)
 }
 
 func createPrivateKeyRepresentationFromPrivateKeys(input []*privateKey) []*privateKeyRepresentation {

@@ -5,6 +5,7 @@ type KeyEntry interface {
 	PublicKeyLocations() []string
 	PrivateKeyLocations() []string
 	KeyType() KeyType
+	Size() int
 }
 
 type PublicKeyEntry interface {

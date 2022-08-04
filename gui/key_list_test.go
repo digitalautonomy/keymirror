@@ -45,6 +45,11 @@ func (ke *keyEntryMock) KeyType() api.KeyType {
 	return ret[api.KeyType](returns, 0)
 }
 
+func (ke *keyEntryMock) Size() int {
+	returns := ke.Called()
+	return ret[int](returns, 0)
+}
+
 type publicKeyEntryMock struct {
 	keyEntryMock
 }
@@ -52,6 +57,11 @@ type publicKeyEntryMock struct {
 func (pk *publicKeyEntryMock) WithDigestContent(f func([]byte) []byte) []byte {
 	returns := pk.Called(f)
 	return ret[[]byte](returns, 0)
+}
+
+func (pk *publicKeyEntryMock) Size() int {
+	returns := pk.Called()
+	return ret[int](returns, 0)
 }
 
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
@@ -64,6 +74,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 
 	keyEntry := &keyEntryMock{}
 	keyEntry.On("Locations").Return([]string{"/home/amnesia/id_rsa.pub"}).Once()
+	keyEntry.On("Size").Return(0).Once()
 
 	var clickedHandler func() = nil
 	box.On("Connect", "clicked", mock.Anything).Return(nil).Once().Run(func(a mock.Arguments) {
@@ -76,8 +87,6 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	actualGtkBox := u.createKeyEntryBoxFrom(keyEntry, detailsBoxMock, detailsRevMock)
 
 	s.Equal(box, actualGtkBox)
-
-	keyEntry.AssertExpectations(s.T())
 
 	keyDetailsBoxMock := &gtk.MockBox{}
 	builderKeyDetailsBoxMock := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
@@ -108,6 +117,13 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	labelPrivateKeyPath.On("Hide").Return().Once()
 	labelPasswordProtected.On("Hide").Return().Once()
 
+	labelSize := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "sizeLabel").Return(labelSize, nil).Once()
+	labelSize.On("Hide").Return().Once()
+	valueSize := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "size").Return(valueSize, nil).Once()
+	valueSize.On("Hide").Return().Once()
+
 	labelFingerprintSha1 := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelFingerprintSha1, nil).Once()
 	labelFingerprintSha1.On("Hide").Return().Once()
@@ -135,6 +151,8 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	scMock1.AssertExpectations(s.T())
 	scMock2.AssertExpectations(s.T())
 	pathPrivateKey.AssertExpectations(s.T())
+	labelSize.AssertExpectations(s.T())
+	valueSize.AssertExpectations(s.T())
 	labelPasswordProtected.AssertExpectations(s.T())
 	labelPrivateKeyPath.AssertExpectations(s.T())
 	labelFingerprintSha1.AssertExpectations(s.T())

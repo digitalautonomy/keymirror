@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
+	"strconv"
 	"strings"
 )
 
@@ -143,10 +144,24 @@ func (kd *keyDetails) displayIsPasswordProtected() {
 	}
 }
 
+const sizeLabel = "sizeLabel"
+const sizeValue = "size"
+const sizeUnit = " bits"
+
+func (kd *keyDetails) displaySize() {
+	if pk, ok := kd.key.(api.KeyEntry); ok && pk.Size() > 0 {
+		label := kd.builder.get(sizeValue).(gtki.Label)
+		label.SetLabel(strconv.Itoa(pk.Size()) + sizeUnit)
+	} else {
+		kd.hideAll(sizeLabel, sizeValue)
+	}
+}
+
 func (kd *keyDetails) display() {
 	kd.displayLocations(kd.key.PublicKeyLocations(), publicKeyPath, publicKeyPathLabel)
 	kd.displayLocations(kd.key.PrivateKeyLocations(), privateKeyPath, privateKeyPathLabel)
 	kd.displayIsPasswordProtected()
+	kd.displaySize()
 	kd.displayFingerprint(sha1FingerprintLabel, sha1Fingerprint, returningSlice20(sha1.Sum))
 	kd.displayFingerprint(sha256FingerprintLabel, sha256Fingerprint, returningSlice32(sha256.Sum256))
 	kd.setClassForKeyDetails()

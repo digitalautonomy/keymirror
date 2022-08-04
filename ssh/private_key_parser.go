@@ -10,6 +10,7 @@ type privateKey struct {
 	path              string
 	algorithm         string
 	passwordProtected bool
+	size              int
 }
 
 func (k *privateKey) isAlgorithm(algo string) bool {
@@ -71,14 +72,25 @@ func createPrivateKeyFrom(input []byte) (privateKey, bool) {
 	pubValue, rest, ok6 := readLengthBytes(rest) // reads the public key
 	privValue, _, ok7 := readLengthBytes(rest)   // reads the private key block
 
+	l, _ := extractByteLengthFromRSAPublicKey(pubValue)
+	size := canonicalizeRSAKeyLength(l) * 8
+
 	if hasNoAlgorithm(cipherName) {
 		_, rest, ok8 := extractDummyCheckSum(privValue)
 		algorithm, ok9 := extractKeyAlgorithm(rest)
-		return privateKey{algorithm: algorithm, passwordProtected: false}, allOK(ok1, ok2, ok3, ok4, ok5, ok6, ok7, ok8, ok9)
+		return privateKey{
+			algorithm:         algorithm,
+			passwordProtected: false,
+			size:              size,
+		}, allOK(ok1, ok2, ok3, ok4, ok5, ok6, ok7, ok8, ok9)
 	}
 
 	algorithm, ok8 := extractKeyAlgorithm(pubValue)
-	return privateKey{algorithm: algorithm, passwordProtected: true}, allOK(ok1, ok2, ok3, ok4, ok5, ok6, ok7, ok8)
+	return privateKey{
+		algorithm:         algorithm,
+		passwordProtected: true,
+		size:              size,
+	}, allOK(ok1, ok2, ok3, ok4, ok5, ok6, ok7, ok8)
 }
 
 var privateKeyAuthMagicWithTerminator = []byte("openssh-key-v1\x00")

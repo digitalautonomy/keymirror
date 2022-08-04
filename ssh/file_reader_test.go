@@ -349,34 +349,6 @@ func (s *sshSuite) Test_listFilesInHomeSSHDirectory_ReturnsAListOfFilesIfTheDotS
 	s.Equal(expected, files)
 }
 
-func (s *sshSuite) Test_createPublicKeyEntriesFrom_ReturnsAListOfKeyEntriesFromAllTheProvidedPaths() {
-	paths := []string{}
-	l := createPublicKeyRepresentationsFrom(paths)
-	s.Empty(l)
-
-	paths = []string{"a path"}
-	l = createPublicKeyRepresentationsFrom(paths)
-	s.Equal([]*publicKeyRepresentation{{path: "a path", key: nil}}, l)
-
-	paths = []string{"a path", "another path"}
-	l = createPublicKeyRepresentationsFrom(paths)
-	s.Equal([]*publicKeyRepresentation{{path: "a path", key: nil}, {path: "another path"}}, l)
-}
-
-func (s *sshSuite) Test_createPrivateKeyEntriesFrom_ReturnsAListOfKeyEntriesFromAllTheProvidedPaths() {
-	paths := []string{}
-	l := createPrivateKeyRepresentationsFrom(paths)
-	s.Empty(l)
-
-	paths = []string{"a path"}
-	l = createPrivateKeyRepresentationsFrom(paths)
-	s.Equal([]*privateKeyRepresentation{{"a path", false}}, l)
-
-	paths = []string{"a path", "another path"}
-	l = createPrivateKeyRepresentationsFrom(paths)
-	s.Equal([]*privateKeyRepresentation{{"a path", false}, {"another path", false}}, l)
-}
-
 func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFromAllTheProvidedPaths() {
 	a, _ := accessWithTestLogging()
 	paths := []string{}
@@ -415,9 +387,9 @@ func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFro
 
 	l = a.privateKeyRepresentationsFrom(paths)
 	s.Equal([]*privateKeyRepresentation{
-		{filepath.Join(s.tdir, privateRSAKeyFile1), false},
-		{filepath.Join(s.tdir, privateRSAKeyFile2), false},
-		{filepath.Join(s.tdir, privateRSAKeyFile3Protected), true},
+		{filepath.Join(s.tdir, privateRSAKeyFile1), false, 3072},
+		{filepath.Join(s.tdir, privateRSAKeyFile2), false, 3072},
+		{filepath.Join(s.tdir, privateRSAKeyFile3Protected), true, 3072},
 	}, l)
 }
 
@@ -460,6 +432,15 @@ func (s *sshSuite) Test_publicKeyEntriesFrom_ReturnsAListOfPublicKeyEntriesFromA
 	}), l)
 }
 
+func createPrivateKeyRepresentationForTest(path string) *privateKeyRepresentation {
+	return createPrivateKeyRepresentationFromPrivateKey(&privateKey{
+		path:              path,
+		algorithm:         "",
+		passwordProtected: false,
+		size:              0,
+	})
+}
+
 func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPrivateAndKeyPairsFromPublicAndPrivateKeyRepresentations() {
 	// Both privates and publics are empty
 	privates := []*privateKeyRepresentation{}
@@ -469,41 +450,41 @@ func (s *sshSuite) Test_partitionKeyEntries_ReturnsAListOfKeyEntriesWithPublicPr
 
 	// Only privates and no publics
 	privates = []*privateKeyRepresentation{
-		createPrivateKeyRepresentation("exclusively"),
-		createPrivateKeyRepresentation("privates"),
+		createPrivateKeyRepresentationForTest("exclusively"),
+		createPrivateKeyRepresentationForTest("privates"),
 	}
 	publics = []*publicKeyRepresentation{}
 	l = partitionKeyEntries(privates, publics)
 	s.ElementsMatch([]api.KeyEntry{
-		createPrivateKeyRepresentation("exclusively"),
-		createPrivateKeyRepresentation("privates"),
+		createPrivateKeyRepresentationForTest("exclusively"),
+		createPrivateKeyRepresentationForTest("privates"),
 	}, l)
 
 	// Only publics and no privates
 	privates = []*privateKeyRepresentation{}
 	publics = []*publicKeyRepresentation{
-		createPublicKeyRepresentation("exclusively.pub"),
-		createPublicKeyRepresentation("publics.pub"),
+		createPublicKeyRepresentationForTest("exclusively.pub", ""),
+		createPublicKeyRepresentationForTest("publics.pub", ""),
 	}
 	l = partitionKeyEntries(privates, publics)
 	s.ElementsMatch([]api.KeyEntry{
-		createPublicKeyRepresentation("exclusively.pub"),
-		createPublicKeyRepresentation("publics.pub"),
+		createPublicKeyRepresentationForTest("exclusively.pub", ""),
+		createPublicKeyRepresentationForTest("publics.pub", ""),
 	}, l)
 
 	// One pair, one lonely public and one lonely private
 	privates = []*privateKeyRepresentation{
-		createPrivateKeyRepresentation("matching pair"),
-		createPrivateKeyRepresentation("lonely private"),
+		createPrivateKeyRepresentationForTest("matching pair"),
+		createPrivateKeyRepresentationForTest("lonely private"),
 	}
 	publics = []*publicKeyRepresentation{
-		createPublicKeyRepresentation("matching pair.pub"),
-		createPublicKeyRepresentation("lonely public.pub"),
+		createPublicKeyRepresentationForTest("matching pair.pub", ""),
+		createPublicKeyRepresentationForTest("lonely public.pub", ""),
 	}
 	l = partitionKeyEntries(privates, publics)
 	s.ElementsMatch([]api.KeyEntry{
-		createKeypairRepresentation(createPrivateKeyRepresentation("matching pair"), createPublicKeyRepresentation("matching pair.pub")),
-		createPrivateKeyRepresentation("lonely private"),
-		createPublicKeyRepresentation("lonely public.pub"),
+		createKeypairRepresentation(createPrivateKeyRepresentationForTest("matching pair"), createPublicKeyRepresentationForTest("matching pair.pub", "")),
+		createPrivateKeyRepresentationForTest("lonely private"),
+		createPublicKeyRepresentationForTest("lonely public.pub", ""),
 	}, l)
 }
