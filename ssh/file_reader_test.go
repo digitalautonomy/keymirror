@@ -387,9 +387,9 @@ func (s *sshSuite) Test_privateKeyEntriesFrom_ReturnsAListOfPrivateKeyEntriesFro
 
 	l = a.privateKeyRepresentationsFrom(paths)
 	s.Equal([]*privateKeyRepresentation{
-		{filepath.Join(s.tdir, privateRSAKeyFile1), false, 3072},
-		{filepath.Join(s.tdir, privateRSAKeyFile2), false, 3072},
-		{filepath.Join(s.tdir, privateRSAKeyFile3Protected), true, 3072},
+		{filepath.Join(s.tdir, privateRSAKeyFile1), false, 3072, api.RSA},
+		{filepath.Join(s.tdir, privateRSAKeyFile2), false, 3072, api.RSA},
+		{filepath.Join(s.tdir, privateRSAKeyFile3Protected), true, 3072, api.RSA},
 	}, l)
 }
 

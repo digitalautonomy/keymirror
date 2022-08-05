@@ -123,13 +123,16 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListOfKeypairsIfSSHDirect
 		path.Join(sshDirectory, matchingPrivateKeyFile2),
 		path.Join(sshDirectory, matchingPrivateKeyFile3),
 	})
+
+	publicKeys := publicKeyRepresentationsFrom([]string{
+		path.Join(sshDirectory, matchingPublicKeyFile1),
+		path.Join(sshDirectory, matchingPublicKeyFile2),
+		path.Join(sshDirectory, matchingPublicKeyFile3),
+	})
 	s.ElementsMatch([]api.KeyEntry{
-		createKeypairRepresentation(privateKeys[0],
-			createPublicKeyRepresentationForTest(path.Join(sshDirectory, matchingPublicKeyFile1), "BBBB")),
-		createKeypairRepresentation(privateKeys[1],
-			createPublicKeyRepresentationForTest(path.Join(sshDirectory, matchingPublicKeyFile2), "AAAA")),
-		createKeypairRepresentation(privateKeys[2],
-			createPublicKeyRepresentationForTest(path.Join(sshDirectory, matchingPublicKeyFile3), "CCCC")),
+		createKeypairRepresentation(privateKeys[0], publicKeys[0]),
+		createKeypairRepresentation(privateKeys[1], publicKeys[1]),
+		createKeypairRepresentation(privateKeys[2], publicKeys[2]),
 	}, a.AllKeys())
 }
 
@@ -154,19 +157,14 @@ func (s *sshSuite) Test_access_AllKeys_ReturnsAKeyEntryListIfSSHDirectoryPublicA
 		path.Join(sshDirectory, lonelyPrivateKeyFile),
 		path.Join(sshDirectory, matchingPrivateKey),
 	})
+
+	publicKeys := publicKeyRepresentationsFrom([]string{
+		path.Join(sshDirectory, lonelyPublicKeyFile),
+		path.Join(sshDirectory, matchingPublicKey),
+	})
 	s.ElementsMatch([]api.KeyEntry{
 		privateKeys[0],
-		createPublicKeyRepresentationFromPublicKey(
-			&publicKey{
-				location: path.Join(sshDirectory, lonelyPublicKeyFile),
-				key:      decode("AAAA"),
-			}),
-		createKeypairRepresentation(privateKeys[1],
-			createPublicKeyRepresentationFromPublicKey(
-				&publicKey{
-					location: path.Join(sshDirectory, matchingPublicKey),
-					key:      decode("BBBB"),
-				}),
-		),
+		publicKeys[0],
+		createKeypairRepresentation(privateKeys[1], publicKeys[1]),
 	}, a.AllKeys())
 }

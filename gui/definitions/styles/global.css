@@ -120,3 +120,7 @@ window {
     font-style: italic;
     color: @theme_unfocused_fg_color;
 }
+
+.keyDetail grid label {
+    padding-right: 10px;
+}

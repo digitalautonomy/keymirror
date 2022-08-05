@@ -8,12 +8,15 @@ type privateKeyRepresentation struct {
 	path              string
 	passwordProtected bool
 	size              int
+	algorithm         api.Algorithm
 }
 
 type publicKeyRepresentation struct {
-	path string
-	key  []byte
-	size int
+	path      string
+	key       []byte
+	size      int
+	algorithm api.Algorithm
+	userID    string
 }
 
 type keypairRepresentation struct {
@@ -23,10 +26,21 @@ type keypairRepresentation struct {
 
 func createPublicKeyRepresentationFromPublicKey(key *publicKey) *publicKeyRepresentation {
 	return &publicKeyRepresentation{
-		path: key.location,
-		key:  key.key,
-		size: key.size,
+		path:      key.location,
+		key:       key.key,
+		size:      key.size,
+		algorithm: translateSshAlgorithmToExternalAlgorithm(key.algorithm),
+		userID:    key.comment,
 	}
+}
+
+var algorithms = map[string]api.Algorithm{
+	rsaAlgorithm:     api.RSA,
+	ed25519Algorithm: api.Ed25519,
+}
+
+func translateSshAlgorithmToExternalAlgorithm(algo string) api.Algorithm {
+	return algorithms[algo]
 }
 
 func createPrivateKeyRepresentationFromPrivateKey(key *privateKey) *privateKeyRepresentation {
@@ -34,6 +48,7 @@ func createPrivateKeyRepresentationFromPrivateKey(key *privateKey) *privateKeyRe
 		path:              key.path,
 		passwordProtected: key.passwordProtected,
 		size:              key.size,
+		algorithm:         translateSshAlgorithmToExternalAlgorithm(key.algorithm),
 	}
 }
 
@@ -86,6 +101,10 @@ func (k *privateKeyRepresentation) Size() int {
 	return k.size
 }
 
+func (k *privateKeyRepresentation) Algorithm() api.Algorithm {
+	return k.algorithm
+}
+
 // Locations implement the KeyEntry interface
 func (k *publicKeyRepresentation) Locations() []string {
 	return nilOrStringSlice(k.path)
@@ -110,6 +129,14 @@ func (k *publicKeyRepresentation) WithDigestContent(f func([]byte) []byte) []byt
 
 func (k *publicKeyRepresentation) Size() int {
 	return k.size
+}
+
+func (k *publicKeyRepresentation) Algorithm() api.Algorithm {
+	return k.algorithm
+}
+
+func (k *publicKeyRepresentation) UserID() string {
+	return k.userID
 }
 
 // Locations implement the KeyEntry interface
@@ -140,4 +167,12 @@ func (k *keypairRepresentation) IsPasswordProtected() bool {
 
 func (k *keypairRepresentation) Size() int {
 	return k.public.size
+}
+
+func (k *keypairRepresentation) Algorithm() api.Algorithm {
+	return k.public.Algorithm()
+}
+
+func (k *keypairRepresentation) UserID() string {
+	return k.public.userID
 }

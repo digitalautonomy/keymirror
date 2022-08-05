@@ -37,6 +37,11 @@ var commonRSAKeySizes = map[int]int{
 	383: 384,
 	384: 384,
 	385: 384,
+
+	// 4096 bits
+	511: 512,
+	512: 512,
+	513: 512,
 }
 
 func canonicalizeRSAKeyLength(p int) int {

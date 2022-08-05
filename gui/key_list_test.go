@@ -47,7 +47,12 @@ func (ke *keyEntryMock) KeyType() api.KeyType {
 
 func (ke *keyEntryMock) Size() int {
 	returns := ke.Called()
-	return ret[int](returns, 0)
+	return returns.Int(0)
+}
+
+func (ke *keyEntryMock) Algorithm() api.Algorithm {
+	returns := ke.Called()
+	return ret[api.Algorithm](returns, 0)
 }
 
 type publicKeyEntryMock struct {
@@ -59,9 +64,9 @@ func (pk *publicKeyEntryMock) WithDigestContent(f func([]byte) []byte) []byte {
 	return ret[[]byte](returns, 0)
 }
 
-func (pk *publicKeyEntryMock) Size() int {
+func (pk *publicKeyEntryMock) UserID() string {
 	returns := pk.Called()
-	return ret[int](returns, 0)
+	return ret[string](returns, 0)
 }
 
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
@@ -74,7 +79,8 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 
 	keyEntry := &keyEntryMock{}
 	keyEntry.On("Locations").Return([]string{"/home/amnesia/id_rsa.pub"}).Once()
-	keyEntry.On("Size").Return(0).Once()
+	keyEntry.On("Size").Return(0).Maybe()
+	keyEntry.On("Algorithm").Return(api.Ed25519).Maybe()
 
 	var clickedHandler func() = nil
 	box.On("Connect", "clicked", mock.Anything).Return(nil).Once().Run(func(a mock.Arguments) {
@@ -117,12 +123,14 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	labelPrivateKeyPath.On("Hide").Return().Once()
 	labelPasswordProtected.On("Hide").Return().Once()
 
-	labelSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sizeLabel").Return(labelSize, nil).Once()
-	labelSize.On("Hide").Return().Once()
-	valueSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "size").Return(valueSize, nil).Once()
-	valueSize.On("Hide").Return().Once()
+	properties := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(properties, nil).Once()
+	properties.On("SetLabel", "Ed25519").Return().Once()
+
+	labelUserID := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "userIDLabel").Return(labelUserID, nil).Once()
+	userIDValue := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "userID").Return(userIDValue, nil).Once()
 
 	labelFingerprintSha1 := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelFingerprintSha1, nil).Once()
@@ -137,6 +145,8 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	fingerprintSha256 := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
 	fingerprintSha256.On("Hide").Return().Once()
+	labelUserID.On("Hide").Return().Once()
+	userIDValue.On("Hide").Return().Once()
 
 	scMock1 := expectClassToBeAdded(box, "current")
 	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
@@ -151,8 +161,9 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	scMock1.AssertExpectations(s.T())
 	scMock2.AssertExpectations(s.T())
 	pathPrivateKey.AssertExpectations(s.T())
-	labelSize.AssertExpectations(s.T())
-	valueSize.AssertExpectations(s.T())
+	properties.AssertExpectations(s.T())
+	labelUserID.AssertExpectations(s.T())
+	userIDValue.AssertExpectations(s.T())
 	labelPasswordProtected.AssertExpectations(s.T())
 	labelPrivateKeyPath.AssertExpectations(s.T())
 	labelFingerprintSha1.AssertExpectations(s.T())

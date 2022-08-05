@@ -37,17 +37,18 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	labelPasswordProtected := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "passwordProtectedLabel").Return(labelPasswordProtected, nil).Once()
 
-	labelSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sizeLabel").Return(labelSize, nil).Once()
-	labelSize.On("Hide").Return().Once()
-	valueSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "size").Return(valueSize, nil).Once()
-	valueSize.On("Hide").Return().Once()
+	textProperties := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(textProperties, nil).Once()
+	textProperties.On("SetLabel", "Ed25519").Return().Once()
 
 	fingerprintSha1 := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha1Fingerprint").Return(fingerprintSha1, nil).Once()
 	fingerprintSha256 := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
+
+	UserIDValue := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "userID").Return(UserIDValue, nil).Once()
+	UserIDValue.On("SetLabel", "").Return().Once()
 
 	keMock := &publicKeyEntryMock{}
 	keMock.On("WithDigestContent", mock.Anything).Return([]byte{0xAB, 0xCD, 0x10}).Once()
@@ -55,7 +56,8 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keMock.On("PrivateKeyLocations").Return(nil).Once()
 	keMock.On("KeyType").Return(api.PublicKeyType).Once()
-	keMock.On("Size").Return(0).Once()
+	keMock.On("Algorithm").Return(api.Ed25519).Once()
+	keMock.On("UserID").Return("").Once()
 	pathPublicKeyPath.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
 	pathPublicKeyPath.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
 	labelPrivateKeyPath.On("Hide").Return().Once()
@@ -78,11 +80,11 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	pathPublicKeyPath.AssertExpectations(s.T())
 	labelPrivateKeyPath.AssertExpectations(s.T())
 	pathPrivateKey.AssertExpectations(s.T())
-	labelSize.AssertExpectations(s.T())
-	valueSize.AssertExpectations(s.T())
+	textProperties.AssertExpectations(s.T())
 	labelPasswordProtected.AssertExpectations(s.T())
 	fingerprintSha1.AssertExpectations(s.T())
 	fingerprintSha256.AssertExpectations(s.T())
+	UserIDValue.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
 }
 
@@ -104,12 +106,14 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	pathPublicKey := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "publicKeyPath").Return(pathPublicKey, nil).Once()
 
-	labelSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sizeLabel").Return(labelSize, nil).Once()
-	labelSize.On("Hide").Return().Once()
-	valueSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "size").Return(valueSize, nil).Once()
-	valueSize.On("Hide").Return().Once()
+	textProperties := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(textProperties, nil).Once()
+	textProperties.On("SetLabel", "Ed25519").Return().Once()
+
+	labelUserID := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "userIDLabel").Return(labelUserID, nil).Once()
+	userIDValue := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "userID").Return(userIDValue, nil).Once()
 
 	labelSha1Fingerprint := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelSha1Fingerprint, nil).Once()
@@ -125,12 +129,14 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	keMock.On("PublicKeyLocations").Return(nil).Once()
 	keMock.On("PrivateKeyLocations").Return([]string{"/a/path/to/a/private/key"}).Once()
 	keMock.On("KeyType").Return(api.PrivateKeyType).Once()
-	keMock.On("Size").Return(0).Once()
+	keMock.On("Algorithm").Return(api.Ed25519).Once()
 	pathPrivateKey.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
 	pathPrivateKey.On("SetTooltipText", "/a/path/to/a/private/key").Return().Once()
 	labelPasswordProtected.On("Hide").Return().Once()
 	labelPublicKeyPath.On("Hide").Return().Once()
 	pathPublicKey.On("Hide").Return().Once()
+	labelUserID.On("Hide").Return().Once()
+	userIDValue.On("Hide").Return().Once()
 	labelSha1Fingerprint.On("Hide").Return().Once()
 	fingerprintSha1.On("Hide").Return().Once()
 	labelSha256Fingerprint.On("Hide").Return().Once()
@@ -144,11 +150,12 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	keyDetailsHolder.AssertExpectations(s.T())
 	keMock.AssertExpectations(s.T())
 	pathPrivateKey.AssertExpectations(s.T())
-	labelSize.AssertExpectations(s.T())
-	valueSize.AssertExpectations(s.T())
+	textProperties.AssertExpectations(s.T())
 	labelPasswordProtected.AssertExpectations(s.T())
 	labelPublicKeyPath.AssertExpectations(s.T())
 	pathPublicKey.AssertExpectations(s.T())
+	labelUserID.AssertExpectations(s.T())
+	userIDValue.AssertExpectations(s.T())
 	labelSha1Fingerprint.AssertExpectations(s.T())
 	fingerprintSha1.AssertExpectations(s.T())
 	labelSha256Fingerprint.AssertExpectations(s.T())
@@ -182,18 +189,20 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 	fingerprintSha256 := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
 
-	labelSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sizeLabel").Return(labelSize, nil).Once()
-	labelSize.On("Hide").Return().Once()
-	valueSize := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "size").Return(valueSize, nil).Once()
-	valueSize.On("Hide").Return().Once()
+	properties := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(properties, nil).Once()
+	properties.On("SetLabel", "Ed25519").Return().Once()
+
+	labelUserID := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "userIDLabel").Return(labelUserID, nil).Once()
+	userIDValue := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "userID").Return(userIDValue, nil).Once()
 
 	keMock := &keyEntryMock{}
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keMock.On("PrivateKeyLocations").Return([]string{"/a/path/to/a/private/key"}).Once()
 	keMock.On("KeyType").Return(api.PairKeyType).Once()
-	keMock.On("Size").Return(0).Once()
+	keMock.On("Algorithm").Return(api.Ed25519).Once()
 	pathPublicKey.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
 	pathPublicKey.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
 	pathPrivateKey.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
@@ -203,6 +212,8 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 	fingerprintSha1.On("Hide").Return().Once()
 	labelFingerprintSha256.On("Hide").Return().Once()
 	fingerprintSha256.On("Hide").Return().Once()
+	labelUserID.On("Hide").Return().Once()
+	userIDValue.On("Hide").Return().Once()
 
 	scMock := expectClassToBeAdded(keyDetailsBoxMock, "keyPair")
 
@@ -213,8 +224,9 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 	keMock.AssertExpectations(s.T())
 	pathPublicKey.AssertExpectations(s.T())
 	pathPrivateKey.AssertExpectations(s.T())
-	labelSize.AssertExpectations(s.T())
-	valueSize.AssertExpectations(s.T())
+	properties.AssertExpectations(s.T())
+	labelUserID.AssertExpectations(s.T())
+	userIDValue.AssertExpectations(s.T())
 	labelPasswordProtected.AssertExpectations(s.T())
 	labelFingerprintSha1.AssertExpectations(s.T())
 	fingerprintSha1.AssertExpectations(s.T())

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
-	"strconv"
 	"strings"
 )
 
@@ -144,16 +143,31 @@ func (kd *keyDetails) displayIsPasswordProtected() {
 	}
 }
 
-const sizeLabel = "sizeLabel"
-const sizeValue = "size"
-const sizeUnit = " bits"
+const securityProperties = "securityProperties"
 
-func (kd *keyDetails) displaySize() {
-	if pk, ok := kd.key.(api.KeyEntry); ok && pk.Size() > 0 {
-		label := kd.builder.get(sizeValue).(gtki.Label)
-		label.SetLabel(strconv.Itoa(pk.Size()) + sizeUnit)
+func formatKeyAlgorithm(k api.KeyEntry) string {
+	algo := k.Algorithm()
+	if algo.HasKeySize() {
+		// TODO: this formatting probably needs to be i18n in the future
+		return fmt.Sprintf("%s (%d bits)", algo.Name(), k.Size())
+	}
+	return fmt.Sprintf("%s", algo.Name())
+}
+
+func (kd *keyDetails) displayAlgorithm() {
+	label := kd.builder.get(securityProperties).(gtki.Label)
+	label.SetLabel(formatKeyAlgorithm(kd.key))
+}
+
+const userIDLabel = "userIDLabel"
+const userID = "userID"
+
+func (kd *keyDetails) displayUserID() {
+	if pk, ok := kd.key.(api.PublicKeyEntry); ok {
+		label := kd.builder.get(userID).(gtki.Label)
+		label.SetLabel(pk.UserID())
 	} else {
-		kd.hideAll(sizeLabel, sizeValue)
+		kd.hideAll(userIDLabel, userID)
 	}
 }
 
@@ -161,7 +175,8 @@ func (kd *keyDetails) display() {
 	kd.displayLocations(kd.key.PublicKeyLocations(), publicKeyPath, publicKeyPathLabel)
 	kd.displayLocations(kd.key.PrivateKeyLocations(), privateKeyPath, privateKeyPathLabel)
 	kd.displayIsPasswordProtected()
-	kd.displaySize()
+	kd.displayAlgorithm()
+	kd.displayUserID()
 	kd.displayFingerprint(sha1FingerprintLabel, sha1Fingerprint, returningSlice20(sha1.Sum))
 	kd.displayFingerprint(sha256FingerprintLabel, sha256Fingerprint, returningSlice32(sha256.Sum256))
 	kd.setClassForKeyDetails()

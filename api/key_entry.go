@@ -6,11 +6,13 @@ type KeyEntry interface {
 	PrivateKeyLocations() []string
 	KeyType() KeyType
 	Size() int
+	Algorithm() Algorithm
 }
 
 type PublicKeyEntry interface {
 	KeyEntry
 	WithDigestContent(func([]byte) []byte) []byte
+	UserID() string
 }
 
 type PrivateKeyEntry interface {

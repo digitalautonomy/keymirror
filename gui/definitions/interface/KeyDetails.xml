@@ -22,7 +22,7 @@
             </packing>
         </child>
         <child>
-            <!-- n-columns=2 n-rows=6 -->
+            <!-- n-columns=2 n-rows=7 -->
             <object class="GtkGrid" id="keyDetailsGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -48,6 +48,7 @@
                         <property name="halign">start</property>
                         <property name="ellipsize">start</property>
                         <property name="width-chars">20</property>
+                        <property name="selectable">True</property>
                         <style>
                             <class name="path"/>
                         </style>
@@ -82,6 +83,7 @@
                         <property name="halign">start</property>
                         <property name="ellipsize">start</property>
                         <property name="width-chars">20</property>
+                        <property name="selectable">True</property>
                         <style>
                             <class name="path"/>
                         </style>
@@ -101,6 +103,7 @@
                         <property name="halign">start</property>
                         <property name="ellipsize">end</property>
                         <property name="label" translatable="yes">(password protected)</property>
+                        <property name="selectable">True</property>
                         <style>
                             <class name="passwordProtected"/>
                         </style>
@@ -114,13 +117,13 @@
                     <class name="privateKey"/>
                 </style>
                 <child>
-                    <object class="GtkLabel" id="sizeLabel">
+                    <object class="GtkLabel" id="securityPropertiesLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes">Size:</property>
+                        <property name="label" translatable="yes">Key algorithm:</property>
                         <style>
-                            <class name="sizeLabel"/>
+                            <class name="propertiesLabel"/>
                         </style>
                     </object>
                     <packing>
@@ -129,12 +132,13 @@
                     </packing>
                 </child>
                 <child>
-                    <object class="GtkLabel" id="size">
+                    <object class="GtkLabel" id="securityProperties">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
+                        <property name="selectable">True</property>
                         <style>
-                            <class name="size"/>
+                            <class name="properties"/>
                         </style>
                     </object>
                     <packing>
@@ -143,7 +147,40 @@
                     </packing>
                 </child>
                 <style>
-                    <class name="size"/>
+                    <class name="properties"/>
+                </style>
+                <child>
+                    <object class="GtkLabel" id="userIDLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">User ID:</property>
+                        <style>
+                            <class name="userid"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">4</property>
+                    </packing>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="userID">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="selectable">True</property>
+                        <style>
+                            <class name="userid"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">4</property>
+                    </packing>
+                </child>
+                <style>
+                    <class name="userid"/>
                 </style>
                 <child>
                     <object class="GtkLabel" id="sha1FingerprintLabel">
@@ -157,7 +194,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">4</property>
+                        <property name="top-attach">5</property>
                     </packing>
                 </child>
                 <child>
@@ -174,7 +211,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">4</property>
+                        <property name="top-attach">5</property>
                     </packing>
                 </child>
                 <style>
@@ -192,7 +229,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">5</property>
+                        <property name="top-attach">6</property>
                     </packing>
                 </child>
                 <child>
@@ -209,7 +246,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">5</property>
+                        <property name="top-attach">6</property>
                     </packing>
                 </child>
                 <style>
