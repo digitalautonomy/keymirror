@@ -70,7 +70,7 @@ func (pk *publicKeyEntryMock) UserID() string {
 }
 
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
-	box := s.setupBuildingOfKeyEntry("/home/amnesia/id_rsa.pub")
+	box := s.setupBuildingOfKeyEntry("/home/amnesia/id_ed25519.pub", "Ed25519")
 
 	onWindowChangeCalled := 0
 	u := &ui{gtk: s.gtkMock, onWindowSizeChange: func() {
@@ -78,7 +78,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	}}
 
 	keyEntry := &keyEntryMock{}
-	keyEntry.On("Locations").Return([]string{"/home/amnesia/id_rsa.pub"}).Once()
+	keyEntry.On("Locations").Return([]string{"/home/amnesia/id_ed25519.pub"}).Once()
 	keyEntry.On("Size").Return(0).Maybe()
 	keyEntry.On("Algorithm").Return(api.Ed25519).Maybe()
 
@@ -186,16 +186,10 @@ func fixedKeyAccess(keys ...api.KeyEntry) api.KeyAccess {
 	return ka
 }
 
-func fixedKeyEntry(location string) api.KeyEntry {
+func fixedKeyEntry(location string, algo api.Algorithm) api.KeyEntry {
 	ke := &keyEntryMock{}
 	ke.On("Locations").Return([]string{location}).Maybe()
-	return ke
-}
-
-func fixedPublicKeyEntry(locations ...string) api.KeyEntry {
-	ke := &keyEntryMock{}
-	ke.On("KeyType").Return(api.PublicKeyType).Maybe()
-	ke.On("PublicKeyLocations").Return(locations).Maybe()
+	ke.On("Algorithm").Return(algo).Maybe()
 	return ke
 }
 
@@ -208,26 +202,29 @@ func (s *guiSuite) setupBuildingOfObject(val interface{}, name string) *gtk.Mock
 	return builder
 }
 
-func (s *guiSuite) setupBuildingOfKeyEntry(path string) *gtk.MockButton {
+func (s *guiSuite) setupBuildingOfKeyEntry(path, algo string) *gtk.MockButton {
 	label := &gtk.MockLabel{}
 	label.On("SetLabel", path).Return().Once()
+	algorithm := &gtk.MockLabel{}
+	algorithm.On("SetLabel", algo).Return().Once()
 	box := &gtk.MockButton{}
 	b := s.setupBuildingOfObject(box, "KeyListEntry")
 	b.On("GetObject", "keyListEntryLabel").Return(label, nil).Once()
+	b.On("GetObject", "algorithmLabel").Return(algorithm, nil).Once()
 	s.addObjectToAssert(box)
 	return box
 }
 
 func (s *guiSuite) Test_populateListWithKeyEntries_IfThereAreKeyEntriesAddsThemIntoAGTKBoxWithoutCallingOnNoKeysFunctionPassedInParameter() {
 	ka := fixedKeyAccess(
-		fixedKeyEntry("/home/amnesia/.ssh/id_rsa"),
-		fixedKeyEntry("/home/amnesia/.ssh/id_ed25519"),
-		fixedKeyEntry("/home/amnesia/.ssh/id_dsa"),
+		fixedKeyEntry("/home/amnesia/.ssh/id_rsa", api.RSA),
+		fixedKeyEntry("/home/amnesia/.ssh/id_ed25519", api.Ed25519),
+		fixedKeyEntry("/home/amnesia/.ssh/id_dsa", api.DSA),
 	)
 
-	box1 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_rsa")
-	box2 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519")
-	box3 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_dsa")
+	box1 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_rsa", "RSA")
+	box2 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519", "Ed25519")
+	box3 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_dsa", "DSA")
 
 	box1.On("Connect", "clicked", mock.Anything).Return(nil).Once()
 	box2.On("Connect", "clicked", mock.Anything).Return(nil).Once()

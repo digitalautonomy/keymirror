@@ -5,6 +5,7 @@ import (
 	"github.com/coyim/gotk3mocks/gdk"
 	"github.com/coyim/gotk3mocks/gio"
 	"github.com/coyim/gotk3mocks/gtk"
+	"github.com/digitalautonomy/keymirror/api"
 	"github.com/prashantv/gostub"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/mock"
@@ -114,8 +115,8 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 
 	gdkMock := &gdk.Mock{}
 	ka := fixedKeyAccess(
-		fixedKeyEntry("/home/amnesia/.ssh/id_ed25519"),
-		fixedKeyEntry("/home/amnesia/.ssh/id_rsa"),
+		fixedKeyEntry("/home/amnesia/.ssh/id_ed25519", api.Ed25519),
+		fixedKeyEntry("/home/amnesia/.ssh/id_rsa", api.RSA),
 	)
 
 	gioMock := &gio.Mock{}
@@ -140,9 +141,9 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 	builderMock.On("GetObject", "keyDetailsBox").Return(detailsBox, nil).Once()
 	builderMock.On("GetObject", "keyDetailsRevealer").Return(detailsRevealer, nil).Once()
 
-	box1 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519")
+	box1 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519", "Ed25519")
 	box1.On("Connect", "clicked", mock.Anything).Return(nil).Once()
-	box2 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_rsa")
+	box2 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_rsa", "RSA")
 	box2.On("Connect", "clicked", mock.Anything).Return(nil).Once()
 
 	listBox.On("Add", box1).Return().Once()

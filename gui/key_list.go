@@ -9,6 +9,7 @@ import (
 func (u *ui) createKeyEntryBoxFrom(entry api.KeyEntry, detailsBox gtki.Box, detailsRev gtki.Revealer) gtki.Widget {
 	b, builder := buildObjectFrom[gtki.Button](u, "KeyListEntry")
 	builder.get("keyListEntryLabel").(gtki.Label).SetLabel(entry.Locations()[0])
+	builder.get("algorithmLabel").(gtki.Label).SetLabel(entry.Algorithm().Name())
 	b.Connect("clicked", func() {
 		u.populateKeyDetails(entry, detailsBox)
 

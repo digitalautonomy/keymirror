@@ -124,3 +124,8 @@ window {
 .keyDetail grid label {
     padding-right: 10px;
 }
+
+.keyEntry .algorithm {
+    font-style: italic;
+    color: @theme_unfocused_fg_color;
+}
