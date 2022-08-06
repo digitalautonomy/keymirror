@@ -25,6 +25,26 @@ type guiSuite struct {
 	objectsToAssert []expectationsAsserter
 }
 
+func (s *guiSuite) addLabelsThatShouldHide(b *gtk.MockBuilder, names ...string) {
+	for _, name := range names {
+		l := s.addLabelToGet(b, name)
+		l.On("Hide").Return().Once()
+	}
+}
+
+func (s *guiSuite) addLabelsToGet(b *gtk.MockBuilder, names ...string) {
+	for _, name := range names {
+		s.addLabelToGet(b, name)
+	}
+}
+
+func (s *guiSuite) addLabelToGet(b *gtk.MockBuilder, name string) *gtk.MockLabel {
+	l := &gtk.MockLabel{}
+	b.On("GetObject", name).Return(l, nil).Once()
+	s.addObjectToAssert(l)
+	return l
+}
+
 func (s *guiSuite) addObjectToAssert(o expectationsAsserter) {
 	s.objectsToAssert = append(s.objectsToAssert, o)
 }

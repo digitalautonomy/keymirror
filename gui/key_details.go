@@ -159,15 +159,15 @@ func (kd *keyDetails) displayAlgorithm() {
 	label.SetLabel(formatKeyAlgorithm(kd.key))
 }
 
-const userIDLabel = "userIDLabel"
-const userID = "userID"
+const userIDLabelIdentifier = "userIDLabel"
+const userIDIdentifier = "userID"
 
 func (kd *keyDetails) displayUserID() {
 	if pk, ok := kd.key.(api.PublicKeyEntry); ok {
-		label := kd.builder.get(userID).(gtki.Label)
+		label := kd.builder.get(userIDIdentifier).(gtki.Label)
 		label.SetLabel(pk.UserID())
 	} else {
-		kd.hideAll(userIDLabel, userID)
+		kd.hideAll(userIDLabelIdentifier, userIDIdentifier)
 	}
 }
 

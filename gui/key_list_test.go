@@ -92,8 +92,6 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	detailsRevMock := &gtk.MockRevealer{}
 	actualGtkBox := u.createKeyEntryBoxFrom(keyEntry, detailsBoxMock, detailsRevMock)
 
-	s.Equal(box, actualGtkBox)
-
 	keyDetailsBoxMock := &gtk.MockBox{}
 	builderKeyDetailsBoxMock := s.setupBuildingOfObject(keyDetailsBoxMock, "KeyDetails")
 
@@ -102,12 +100,17 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	pathPublicKey := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "publicKeyPath").Return(pathPublicKey, nil).Once()
 
-	pathPrivateKey := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPath").Return(pathPrivateKey, nil).Once()
-	labelPrivateKeyPath := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "privateKeyPathLabel").Return(labelPrivateKeyPath, nil).Once()
-	labelPasswordProtected := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "passwordProtectedLabel").Return(labelPasswordProtected, nil).Once()
+	s.addLabelsThatShouldHide(builderKeyDetailsBoxMock,
+		"privateKeyPath",
+		"privateKeyPathLabel",
+		"passwordProtectedLabel",
+		"sha1FingerprintLabel",
+		"sha1Fingerprint",
+		"sha256FingerprintLabel",
+		"sha256Fingerprint",
+		"userIDLabelIdentifier",
+		"userIDIdentifier",
+	)
 
 	keyEntry.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keyEntry.On("PrivateKeyLocations").Return(nil).Once()
@@ -119,34 +122,9 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	detailsRevMock.On("Show").Return().Once()
 	detailsRevMock.On("SetRevealChild", true).Return().Once()
 
-	pathPrivateKey.On("Hide").Return().Once()
-	labelPrivateKeyPath.On("Hide").Return().Once()
-	labelPasswordProtected.On("Hide").Return().Once()
-
 	properties := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(properties, nil).Once()
 	properties.On("SetLabel", "Ed25519").Return().Once()
-
-	labelUserID := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "userIDLabel").Return(labelUserID, nil).Once()
-	userIDValue := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "userID").Return(userIDValue, nil).Once()
-
-	labelFingerprintSha1 := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sha1FingerprintLabel").Return(labelFingerprintSha1, nil).Once()
-	labelFingerprintSha1.On("Hide").Return().Once()
-	fingerprintSha1 := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sha1Fingerprint").Return(fingerprintSha1, nil).Once()
-	fingerprintSha1.On("Hide").Return().Once()
-
-	labelFingerprintSha256 := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sha256FingerprintLabel").Return(labelFingerprintSha256, nil).Once()
-	labelFingerprintSha256.On("Hide").Return().Once()
-	fingerprintSha256 := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "sha256Fingerprint").Return(fingerprintSha256, nil).Once()
-	fingerprintSha256.On("Hide").Return().Once()
-	labelUserID.On("Hide").Return().Once()
-	userIDValue.On("Hide").Return().Once()
 
 	scMock1 := expectClassToBeAdded(box, "current")
 	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
@@ -154,22 +132,13 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	clickedHandler()
 
 	s.Equal(1, onWindowChangeCalled)
-
+	s.Equal(box, actualGtkBox)
 	keyEntry.AssertExpectations(s.T())
 	detailsBoxMock.AssertExpectations(s.T())
 	detailsRevMock.AssertExpectations(s.T())
 	scMock1.AssertExpectations(s.T())
 	scMock2.AssertExpectations(s.T())
-	pathPrivateKey.AssertExpectations(s.T())
 	properties.AssertExpectations(s.T())
-	labelUserID.AssertExpectations(s.T())
-	userIDValue.AssertExpectations(s.T())
-	labelPasswordProtected.AssertExpectations(s.T())
-	labelPrivateKeyPath.AssertExpectations(s.T())
-	labelFingerprintSha1.AssertExpectations(s.T())
-	labelFingerprintSha256.AssertExpectations(s.T())
-	fingerprintSha1.AssertExpectations(s.T())
-	fingerprintSha256.AssertExpectations(s.T())
 }
 
 type keyAccessMock struct {
