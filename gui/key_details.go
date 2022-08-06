@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/coyim/gotk3adapter/gtki"
 	"github.com/digitalautonomy/keymirror/api"
+	"github.com/digitalautonomy/keymirror/i18n"
 	"strings"
 )
 
@@ -171,7 +172,32 @@ func (kd *keyDetails) displayUserID() {
 	}
 }
 
+const notificationIdentifier = "notification"
+
+func (kd *keyDetails) displayNotification(message string) {
+	label := kd.builder.get(notificationIdentifier).(gtki.Label)
+	label.SetLabel(message)
+}
+
+func (kd *keyDetails) hideNotificationRow() {
+	kd.hide(notificationIdentifier)
+}
+
+func (kd *keyDetails) displayPotentialNotification() {
+	switch kd.key.KeyType() {
+	case api.PublicKeyType:
+		kd.displayNotification(i18n.Local("(no private key available)"))
+	case api.PrivateKeyType:
+		kd.displayNotification(i18n.Local("(no public key available)"))
+	case api.PairKeyType:
+		fallthrough
+	default:
+		kd.hideNotificationRow()
+	}
+}
+
 func (kd *keyDetails) display() {
+	kd.displayPotentialNotification()
 	kd.displayLocations(kd.key.PublicKeyLocations(), publicKeyPath, publicKeyPathLabel)
 	kd.displayLocations(kd.key.PrivateKeyLocations(), privateKeyPath, privateKeyPathLabel)
 	kd.displayIsPasswordProtected()

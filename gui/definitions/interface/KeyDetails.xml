@@ -22,10 +22,29 @@
             </packing>
         </child>
         <child>
-            <!-- n-columns=2 n-rows=7 -->
+            <!-- n-columns=2 n-rows=8 -->
             <object class="GtkGrid" id="keyDetailsGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <child>
+                    <object class="GtkLabel" id="notification">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="width-chars">20</property>
+                        <property name="selectable">True</property>
+                        <style>
+                            <class name="notification"/>
+                        </style>
+                    </object>
+                    <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
+                    </packing>
+                </child>
+                <style>
+                    <class name="publicKey"/>
+                </style>
                 <child>
                     <object class="GtkLabel" id="publicKeyPathLabel">
                         <property name="visible">True</property>
@@ -38,7 +57,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
+                        <property name="top-attach">1</property>
                     </packing>
                 </child>
                 <child>
@@ -55,7 +74,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
+                        <property name="top-attach">1</property>
                     </packing>
                 </child>
                 <style>
@@ -73,7 +92,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">1</property>
+                        <property name="top-attach">2</property>
                     </packing>
                 </child>
                 <child>
@@ -90,7 +109,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">1</property>
+                        <property name="top-attach">2</property>
                     </packing>
                 </child>
                 <style>
@@ -110,7 +129,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">2</property>
+                        <property name="top-attach">3</property>
                     </packing>
                 </child>
                 <style>
@@ -128,7 +147,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">3</property>
+                        <property name="top-attach">4</property>
                     </packing>
                 </child>
                 <child>
@@ -143,7 +162,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">3</property>
+                        <property name="top-attach">4</property>
                     </packing>
                 </child>
                 <style>
@@ -161,7 +180,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">4</property>
+                        <property name="top-attach">5</property>
                     </packing>
                 </child>
                 <child>
@@ -176,7 +195,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">4</property>
+                        <property name="top-attach">5</property>
                     </packing>
                 </child>
                 <style>
@@ -194,7 +213,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">5</property>
+                        <property name="top-attach">6</property>
                     </packing>
                 </child>
                 <child>
@@ -211,7 +230,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">5</property>
+                        <property name="top-attach">6</property>
                     </packing>
                 </child>
                 <style>
@@ -229,7 +248,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">6</property>
+                        <property name="top-attach">7</property>
                     </packing>
                 </child>
                 <child>
@@ -246,7 +265,7 @@
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
-                        <property name="top-attach">6</property>
+                        <property name="top-attach">7</property>
                     </packing>
                 </child>
                 <style>

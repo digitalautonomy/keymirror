@@ -66,7 +66,7 @@ func (pk *publicKeyEntryMock) WithDigestContent(f func([]byte) []byte) []byte {
 
 func (pk *publicKeyEntryMock) UserID() string {
 	returns := pk.Called()
-	return ret[string](returns, 0)
+	return returns.String(0)
 }
 
 func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKeyEntry() {
@@ -108,19 +108,23 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 		"sha1Fingerprint",
 		"sha256FingerprintLabel",
 		"sha256Fingerprint",
-		"userIDLabelIdentifier",
-		"userIDIdentifier",
+		"userIDLabel",
+		"userID",
 	)
 
 	keyEntry.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keyEntry.On("PrivateKeyLocations").Return(nil).Once()
-	keyEntry.On("KeyType").Return(api.PublicKeyType).Once()
+	keyEntry.On("KeyType").Return(api.PublicKeyType).Maybe()
 
 	pathPublicKey.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
 	pathPublicKey.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
 
 	detailsRevMock.On("Show").Return().Once()
 	detailsRevMock.On("SetRevealChild", true).Return().Once()
+
+	notificationMessage := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "notification").Return(notificationMessage, nil).Once()
+	notificationMessage.On("SetLabel", "(no private key available)").Return().Once()
 
 	properties := &gtk.MockLabel{}
 	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(properties, nil).Once()
@@ -134,6 +138,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	s.Equal(1, onWindowChangeCalled)
 	s.Equal(box, actualGtkBox)
 	keyEntry.AssertExpectations(s.T())
+	notificationMessage.AssertExpectations(s.T())
 	detailsBoxMock.AssertExpectations(s.T())
 	detailsRevMock.AssertExpectations(s.T())
 	scMock1.AssertExpectations(s.T())
