@@ -160,6 +160,7 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 	builderMock.On("GetObject", "keyListBox").Return(listBox, nil).Once()
 	builderMock.On("GetObject", "keyDetailsBox").Return(detailsBox, nil).Once()
 	builderMock.On("GetObject", "keyDetailsRevealer").Return(detailsRevealer, nil).Once()
+	builderMock.On("ConnectSignals", mock.Anything).Return().Once()
 
 	box1 := s.setupBuildingOfKeyEntry("/home/amnesia/.ssh/id_ed25519", "Ed25519")
 	box1.On("Connect", "clicked", mock.Anything).Return(nil).Once()
@@ -185,4 +186,30 @@ func (s *guiSuite) Test_Start_ConnectsAnEventHandlerForActivateSignalThatShowsTh
 	builderMock.AssertExpectations(s.T())
 	listBox.AssertExpectations(s.T())
 	gioMock.AssertExpectations(s.T())
+}
+
+func (s *guiSuite) Test_addMenuHandlers_ConnectAnEvenHandlerForActivateSignalThatCloseTheMainApplicationWindow() {
+	builderMock := &gtk.MockBuilder{}
+	applicationMock := &gtk.MockApplication{}
+
+	var connectedArgument *map[string]interface{}
+	builderMock.On("ConnectSignals", mock.Anything).Return().Once().Run(func(args mock.Arguments) {
+		a1 := args.Get(0).(map[string]interface{})
+		connectedArgument = &a1
+	})
+
+	a := application{}
+	a.addMenuHandlers(builderMock, applicationMock)
+
+	builderMock.AssertExpectations(s.T())
+
+	s.NotNil(connectedArgument, "connect signals should be called with an argument")
+	s.Len(*connectedArgument, 1)
+	fcalled := (*connectedArgument)["on_quit_window"].(func())
+
+	applicationMock.On("Quit").Return().Once()
+
+	fcalled()
+
+	applicationMock.AssertExpectations(s.T())
 }

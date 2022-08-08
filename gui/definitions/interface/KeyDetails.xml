@@ -38,13 +38,11 @@
                         </style>
                     </object>
                     <packing>
-                        <property name="left-attach">1</property>
+                        <property name="width">2</property>
+                        <property name="left-attach">0</property>
                         <property name="top-attach">0</property>
                     </packing>
                 </child>
-                <style>
-                    <class name="publicKey"/>
-                </style>
                 <child>
                     <object class="GtkLabel" id="publicKeyPathLabel">
                         <property name="visible">True</property>
@@ -132,11 +130,8 @@
                         <property name="top-attach">3</property>
                     </packing>
                 </child>
-                <style>
-                    <class name="privateKey"/>
-                </style>
                 <child>
-                    <object class="GtkLabel" id="securityPropertiesLabel">
+                    <object class="GtkLabel" id="algorithmLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
@@ -151,14 +146,11 @@
                     </packing>
                 </child>
                 <child>
-                    <object class="GtkLabel" id="securityProperties">
+                    <object class="GtkLabel" id="algorithm">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
                         <property name="selectable">True</property>
-                        <style>
-                            <class name="properties"/>
-                        </style>
                     </object>
                     <packing>
                         <property name="left-attach">1</property>
@@ -189,9 +181,6 @@
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
                         <property name="selectable">True</property>
-                        <style>
-                            <class name="userid"/>
-                        </style>
                     </object>
                     <packing>
                         <property name="left-attach">1</property>

@@ -17,9 +17,16 @@ func (a *application) createMainWindow(app gtki.Application) gtki.Window {
 	box := b.get("keyListBox").(gtki.Box)
 	box2 := b.get("keyDetailsBox").(gtki.Box)
 	keyDetailsRevealer := b.get("keyDetailsRevealer").(gtki.Revealer)
+	a.addMenuHandlers(b, app)
 	a.populateMainWindow(box, box2, keyDetailsRevealer)
 	w.SetApplication(app)
 	return w
+}
+
+func (a *application) addMenuHandlers(b gtki.Builder, app gtki.Application) {
+	b.ConnectSignals(map[string]interface{}{
+		"on_quit_window": app.Quit,
+	})
 }
 
 func (a *application) populateMainWindow(listBox, detailsBox gtki.Box, detailsRev gtki.Revealer) {

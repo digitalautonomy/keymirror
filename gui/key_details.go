@@ -144,7 +144,7 @@ func (kd *keyDetails) displayIsPasswordProtected() {
 	}
 }
 
-const securityProperties = "securityProperties"
+const algorithmIdentifier = "algorithm"
 
 func formatKeyAlgorithm(k api.KeyEntry) string {
 	algo := k.Algorithm()
@@ -156,7 +156,7 @@ func formatKeyAlgorithm(k api.KeyEntry) string {
 }
 
 func (kd *keyDetails) displayAlgorithm() {
-	label := kd.builder.get(securityProperties).(gtki.Label)
+	label := kd.builder.get(algorithmIdentifier).(gtki.Label)
 	label.SetLabel(formatKeyAlgorithm(kd.key))
 }
 

@@ -41,7 +41,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	notificationMessage.On("SetLabel", "(no private key available)").Return().Once()
 
 	textProperties := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(textProperties, nil).Once()
+	builderKeyDetailsBoxMock.On("GetObject", "algorithm").Return(textProperties, nil).Once()
 	textProperties.On("SetLabel", "Ed25519").Return().Once()
 
 	fingerprintSha1 := &gtk.MockLabel{}
@@ -112,7 +112,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	notificationMessage.On("SetLabel", "(no public key available)").Return().Once()
 
 	textProperties := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(textProperties, nil).Once()
+	builderKeyDetailsBoxMock.On("GetObject", "algorithm").Return(textProperties, nil).Once()
 	textProperties.On("SetLabel", "Ed25519").Return().Once()
 
 	keMock := &keyEntryMock{}
@@ -161,9 +161,9 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 		"notification",
 	)
 
-	properties := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(properties, nil).Once()
-	properties.On("SetLabel", "Ed25519").Return().Once()
+	identifierAlgorithm := &gtk.MockLabel{}
+	builderKeyDetailsBoxMock.On("GetObject", "algorithm").Return(identifierAlgorithm, nil).Once()
+	identifierAlgorithm.On("SetLabel", "Ed25519").Return().Once()
 
 	keMock := &keyEntryMock{}
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
@@ -184,7 +184,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 	keMock.AssertExpectations(s.T())
 	pathPublicKey.AssertExpectations(s.T())
 	pathPrivateKey.AssertExpectations(s.T())
-	properties.AssertExpectations(s.T())
+	identifierAlgorithm.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
 }
 

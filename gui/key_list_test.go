@@ -127,7 +127,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	notificationMessage.On("SetLabel", "(no private key available)").Return().Once()
 
 	properties := &gtk.MockLabel{}
-	builderKeyDetailsBoxMock.On("GetObject", "securityProperties").Return(properties, nil).Once()
+	builderKeyDetailsBoxMock.On("GetObject", "algorithm").Return(properties, nil).Once()
 	properties.On("SetLabel", "Ed25519").Return().Once()
 
 	scMock1 := expectClassToBeAdded(box, "current")
