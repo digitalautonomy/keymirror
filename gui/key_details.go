@@ -59,6 +59,10 @@ var keyTypeClassNames = map[api.KeyType]string{
 func (kd *keyDetails) setClassForKeyDetails() {
 	className := keyTypeClassNames[kd.key.KeyType()]
 	addClass(kd.box, className)
+	addClass(kd.box, fmt.Sprintf("algorithm-%s", strings.ToLower(kd.key.Algorithm().Name())))
+	if kd.key.Algorithm().HasKeySize() {
+		addClass(kd.box, fmt.Sprintf("key-size-%d", kd.key.Size()))
+	}
 }
 
 type hideable interface {

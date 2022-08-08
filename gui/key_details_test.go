@@ -59,7 +59,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keMock.On("PrivateKeyLocations").Return(nil).Once()
 	keMock.On("KeyType").Return(api.PublicKeyType).Maybe()
-	keMock.On("Algorithm").Return(api.Ed25519).Once()
+	keMock.On("Algorithm").Return(api.Ed25519).Times(3)
 	keMock.On("UserID").Return("").Once()
 	pathPublicKeyPath.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
 	pathPublicKeyPath.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
@@ -71,6 +71,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	fingerprintSha256.On("SetTooltipText", "CC:07:00:FF").Return().Once()
 
 	scMock := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
+	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "algorithm-ed25519")
 
 	u := &ui{gtk: s.gtkMock}
 	u.populateKeyDetails(keMock, keyDetailsHolder)
@@ -82,6 +83,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	fingerprintSha256.AssertExpectations(s.T())
 	UserIDValue.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
+	scMock2.AssertExpectations(s.T())
 }
 
 func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThePrivateKeyPath() {
@@ -119,11 +121,12 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	keMock.On("PublicKeyLocations").Return(nil).Once()
 	keMock.On("PrivateKeyLocations").Return([]string{"/a/path/to/a/private/key"}).Once()
 	keMock.On("KeyType").Return(api.PrivateKeyType).Maybe()
-	keMock.On("Algorithm").Return(api.Ed25519).Once()
+	keMock.On("Algorithm").Return(api.Ed25519).Times(3)
 	pathPrivateKey.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
 	pathPrivateKey.On("SetTooltipText", "/a/path/to/a/private/key").Return().Once()
 
 	scMock := expectClassToBeAdded(keyDetailsBoxMock, "privateKey")
+	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "algorithm-ed25519")
 
 	u := &ui{gtk: s.gtkMock}
 	u.populateKeyDetails(keMock, keyDetailsHolder)
@@ -134,6 +137,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysThe
 	pathPrivateKey.AssertExpectations(s.T())
 	textProperties.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
+	scMock2.AssertExpectations(s.T())
 }
 
 func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBothPublicAndPrivateKeyPathIfExists() {
@@ -169,13 +173,14 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 	keMock.On("PublicKeyLocations").Return([]string{"/a/path/to/a/public/key"}).Once()
 	keMock.On("PrivateKeyLocations").Return([]string{"/a/path/to/a/private/key"}).Once()
 	keMock.On("KeyType").Return(api.PairKeyType).Maybe()
-	keMock.On("Algorithm").Return(api.Ed25519).Once()
+	keMock.On("Algorithm").Return(api.Ed25519).Times(3)
 	pathPublicKey.On("SetLabel", "/a/path/to/a/public/key").Return().Once()
 	pathPublicKey.On("SetTooltipText", "/a/path/to/a/public/key").Return().Once()
 	pathPrivateKey.On("SetLabel", "/a/path/to/a/private/key").Return().Once()
 	pathPrivateKey.On("SetTooltipText", "/a/path/to/a/private/key").Return().Once()
 
 	scMock := expectClassToBeAdded(keyDetailsBoxMock, "keyPair")
+	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "algorithm-ed25519")
 
 	u := &ui{gtk: s.gtkMock}
 	u.populateKeyDetails(keMock, keyDetailsHolder)
@@ -186,6 +191,7 @@ func (s *guiSuite) Test_populateKeyDetails_createsTheKeyDetailsBoxAndDisplaysBot
 	pathPrivateKey.AssertExpectations(s.T())
 	identifierAlgorithm.AssertExpectations(s.T())
 	scMock.AssertExpectations(s.T())
+	scMock2.AssertExpectations(s.T())
 }
 
 func (s *guiSuite) Test_clearAllChildrenOf_removeEachOneOfTheChildrenOfTheBox() {

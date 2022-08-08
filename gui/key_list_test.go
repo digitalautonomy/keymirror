@@ -80,7 +80,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	keyEntry := &keyEntryMock{}
 	keyEntry.On("Locations").Return([]string{"/home/amnesia/id_ed25519.pub"}).Once()
 	keyEntry.On("Size").Return(0).Maybe()
-	keyEntry.On("Algorithm").Return(api.Ed25519).Maybe()
+	keyEntry.On("Algorithm").Return(api.Ed25519).Times(4)
 
 	var clickedHandler func() = nil
 	box.On("Connect", "clicked", mock.Anything).Return(nil).Once().Run(func(a mock.Arguments) {
@@ -132,6 +132,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 
 	scMock1 := expectClassToBeAdded(box, "current")
 	scMock2 := expectClassToBeAdded(keyDetailsBoxMock, "publicKey")
+	scMock3 := expectClassToBeAdded(keyDetailsBoxMock, "algorithm-ed25519")
 
 	clickedHandler()
 
@@ -143,6 +144,7 @@ func (s *guiSuite) Test_createKeyEntryBoxFrom_CreatesAGTKIBoxWithTheGivenASSHKey
 	detailsRevMock.AssertExpectations(s.T())
 	scMock1.AssertExpectations(s.T())
 	scMock2.AssertExpectations(s.T())
+	scMock3.AssertExpectations(s.T())
 	properties.AssertExpectations(s.T())
 }
 

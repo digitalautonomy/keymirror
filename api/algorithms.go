@@ -20,4 +20,4 @@ func (a *algorithm) Name() string {
 
 var RSA Algorithm = &algorithm{hasKeySize: true, name: "RSA"}
 var Ed25519 Algorithm = &algorithm{hasKeySize: false, name: "Ed25519"}
-var DSA Algorithm = &algorithm{hasKeySize: false, name: "DSA"}
+var DSA Algorithm = &algorithm{hasKeySize: true, name: "DSA"}
